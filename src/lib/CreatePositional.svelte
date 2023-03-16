@@ -1,12 +1,14 @@
 <script lang="ts">
-    import { CreateCollection } from "$lib/scripts/db";
+    import { CreatePositional } from "$lib/scripts/db";
     import { ClickOutside } from "$lib/scripts/utils";
-    import { goto } from '$app/navigation';
 
-    export let showCreateCollection: boolean;
+    export let showCreatePositional: boolean;
+    export let collection: Collection;
+    export let changeViewMode: (categoryId: number, optionId: number) => void;
+    export let loadPositionals: () => void;
 
     let input: HTMLElement;
-    let collectionName: string = "";
+    let positionalName: string = "";
     let errorString: string = "";
 
     $: if (input) input.focus();
@@ -15,51 +17,49 @@
         switch (event.key) {
             case "Enter":
                 event.preventDefault();
-                createCollection();
+                createPositional();
                 return;
             case "Escape":
-                showCreateCollection = !showCreateCollection;
+                showCreatePositional = !showCreatePositional;
                 return;
         }
-        if (errorString.length > 0) errorString = "";
     }
 
-    function createCollection() {
-        if (collectionName.length > 0) {
-            if (collectionName.length > 36) {
-                errorString = "Collection name cannot exceed 36 characters."
-            } else {
-                CreateCollection(collectionName)
-                    .catch((reason) => {
-                        errorString = "Collection name already exists.";
-                    })
-                    .then((onfulfilled) => {
-                        if (onfulfilled) {
-                            showCreateCollection = !showCreateCollection;
-                            goto("/" + onfulfilled.lastInsertId + "/" + collectionName + "/0/0");
-                        }
-                    });
-            }
-        } else {
-            errorString = "Collection cannot be created without a name."
+    function createPositional() {
+        if (!(positionalName.length > 0)) {
+            errorString = "Positional name cannot be blank."
+            return;
+        } else if (positionalName.length > 36) {
+            errorString = "Positional name cannot exceed 36 characters."
+            return;
         }
+        CreatePositional(positionalName, collection.id)
+            .then((value) => {
+                loadPositionals();
+                changeViewMode(3, value.lastInsertId);
+            });
+        showCreatePositional = !showCreatePositional;
     }
 </script>
 
 <div class="promptBox" 
         use:ClickOutside 
-        on:outclick={() => showCreateCollection = !showCreateCollection}>
+        on:outclick={() => showCreatePositional = !showCreatePositional}>
     <div class="closeBtn"
-            on:click={() => showCreateCollection = !showCreateCollection}
-            on:keypress={() => showCreateCollection = !showCreateCollection}>
+            on:click={() => showCreatePositional = !showCreatePositional}
+            on:keypress={() => showCreatePositional = !showCreatePositional}>
         <i class="bi bi-x"></i></div>
-    <div class="title">Create New Collection</div>
-    <div class="noteInput"
+    <div class="title">Create Positional</div>
+    <div class="collection">
+        <i class="bi bi-arrow-return-right icoRestraint"></i>
+        <div class="collectionName">{collection.name}</div>
+    </div>
+    <div class="nameInput"
         contenteditable="true"
         on:keydown={keyHandler}
         bind:this={input}
-        bind:innerHTML={collectionName}
-        placeholder="Enter collection name">
+        bind:innerHTML={positionalName}
+        placeholder="Enter positional name">
     </div>
     <div class="footer">
         <div class="messages">
@@ -68,8 +68,8 @@
             {/if}
         </div>
         <div class="createBtn"
-                on:click={() => createCollection()}
-                on:keypress={() => createCollection()}>
+                on:click={() => createPositional()}
+                on:keypress={() => createPositional()}>
             <i class="bi bi-plus"></i> Create
         </div>
     </div>
@@ -88,12 +88,6 @@
         width: 340px;
     }
 
-    .title {
-        color: var(--fontColor);
-        font-weight: 600;
-        margin: 0.75rem 0 0 1.0rem;
-    }
-
     .closeBtn {
         position: fixed;
         top: 0.5rem;
@@ -107,12 +101,29 @@
         color: red;
     }
 
-    .noteInput {
+    .title {
+        color: var(--fontColor);
+        font-weight: 600;
+        margin: 0.75rem 0 0 1.0rem;
+    }
+
+    .collection {
+        color: var(--fontColor);
+        display: flex;
+        align-items: center;
+        padding: 0.3rem 0 0.5rem 1.0rem;
+    }
+
+    .collectionName {
+        margin-left: 0.5rem;
+    }
+
+    .nameInput {
         border-radius: 4px;
         background-color: var(--textfieldColor);
         padding: 0.5rem;
         color: var(--fontColor);
-        margin: 1.0rem 0.75rem 1.0rem 0.75rem;
+        margin: 0.5rem 1.0rem 1.0rem 1.0rem;
     }
 
     [contenteditable=true]:empty:before {
@@ -137,18 +148,18 @@
     }
 
     .createBtn {
-        color: white;
-        background-color: #238636;
         width: fit-content;
         text-align: center;
         padding: 0.25rem 1.0rem;
-        border: 2px solid rgba(255, 255, 255, 0.2);
+        color: #34be7b;
+        border: 1px solid;
         border-radius: 4px;
         cursor: pointer;
         margin-left: 0.25rem;
     }
 
     .createBtn:hover {
-        background-color: #196127;
+        background-color: #34be7b;
+        color: var(--backgroundColor);
     }
 </style>

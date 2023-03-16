@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { CreateNote, GetCollection, DeleteNote, UpdateCollectionLastOpen } from "$lib/scripts/db";
+    import { CreateNote, GetCollection, GetCollectionsPositionals, GetPositional, DeleteNote, UpdateCollectionLastOpen } from "$lib/scripts/db";
     import { DefaultViewModes, EditModes, SetCollectionView, GetCollectionView } from "$lib/scripts/settings";
     import { WindowTitle } from "$lib/scripts/stores";
     import NoteView from "$lib/NoteView.svelte";
@@ -7,7 +7,7 @@
 
     export let data: Collection;
 
-    let notes: Note[];
+    let notes: Note[] | PositionedNote[];
     let collectionView: CollectionView;
     let collectionElement: HTMLElement;
     let noteInput: HTMLElement;
@@ -35,15 +35,29 @@
                     viewModeId: 1
                 }
             }
+            loadPositionals();
             editMode = getEditModeFromId(collectionView.editModeId);
             viewMode = getViewModeFromId(collectionView.viewCategoryId, collectionView.viewModeId);
 
             if (viewMode.isSortable) {
-                return GetCollection(data.id, viewMode.sort)
-                    .then((value) => {notes = value })
-                    .finally(() => UpdateCollectionLastOpen(data.id));
+                GetCollection(data.id, viewMode.sort)
+                    .then((value) => notes = value)
+            } else {
+                GetPositional(viewMode.id)
+                    .then((value) => notes = value)
             }
-        });
+        }).finally(() => UpdateCollectionLastOpen(data.id));
+    }
+
+    async function loadPositionals() {
+        return await GetCollectionsPositionals(data.id)
+            .then((value) => {
+                viewModes[2].options = [];
+                for (let positional of value) {
+                    positional.isSortable = false;
+                    viewModes[2].options.push(positional);
+                }
+            });
     }
 
     function getEditModeFromId(id: number): EditMode {
@@ -86,26 +100,36 @@
     }
 
     function changeViewMode(categoryId: number, optionId: number) {
-        if (categoryId < 3) {
-            switch (optionId) {
-                case 1: notes.sort((a, b) => {
-                    return +new Date(a.created_at) - +new Date(b.created_at);
-                }); break;
-                case 2: notes.sort((a, b) => {
-                    return +new Date(b.created_at) - +new Date(a.created_at);
-                }); break;
-                case 3: notes.sort((a, b) => {
-                    return +new Date(a.updated_at) - +new Date(b.updated_at);
-                }); break;
-                case 4: notes.sort((a, b) => {
-                    return +new Date(b.updated_at) - +new Date(a.updated_at);
-                }); break;
-            }
-        } // else positional
-        notes = notes;
+        let oldViewMode = viewMode;
         viewMode = getViewModeFromId(categoryId, optionId);
         collectionView.viewCategoryId = categoryId;
         collectionView.viewModeId = optionId;
+
+        if (viewMode.isSortable) {
+            if (oldViewMode.isSortable) {
+                switch (optionId) {
+                    case 1: notes.sort((a, b) => {
+                        return +new Date(a.created_at) - +new Date(b.created_at);
+                    }); break;
+                    case 2: notes.sort((a, b) => {
+                        return +new Date(b.created_at) - +new Date(a.created_at);
+                    }); break;
+                    case 3: notes.sort((a, b) => {
+                        return +new Date(a.updated_at) - +new Date(b.updated_at);
+                    }); break;
+                    case 4: notes.sort((a, b) => {
+                        return +new Date(b.updated_at) - +new Date(a.updated_at);
+                    }); break;
+                }
+                notes = notes;
+            } else {
+                GetCollection(data.id, viewMode.sort)
+                    .then((value) => notes = value);
+            }
+        } else {
+            GetPositional(viewMode.id)
+                .then((value) => notes = value);
+        }
     }
 
     async function updateCollection() {
@@ -178,8 +202,10 @@
             editMode={editMode}
             viewMode={viewMode}
             viewModes={viewModes}
+            collection={data}
             changeEditMode={changeEditMode}
             changeViewMode={changeViewMode}
+            loadPositionals={loadPositionals}
         />
         <div class="outerCollection" bind:this={collectionElement}>
             <div class="noteCollection">
@@ -238,22 +264,21 @@
     .noteEntry {
         margin: 0 auto;
         max-width: var(--usableWidth);
-        min-height: 8.0rem;
         padding: 0.5rem;
     }
 
     .inputArea {
-        padding: 0.5rem;
+        padding: 0.25rem;
     }
 
     .noteInput {
-        border-radius: 8px;
+        border-radius: 4px;
         background-color: var(--textfieldColor);
         padding: 0.5rem;
         color: var(--fontColor);
         line-height: 1.84rem;
-        min-height: 5.52rem;
-        font-size: 1.15rem;
+        min-height: 2.84rem;
+        font-size: 1.10rem;
     }
 
     [contenteditable=true]:empty:before {

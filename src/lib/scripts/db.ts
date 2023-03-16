@@ -86,14 +86,14 @@ export async function CreatePositional(name: string, collection_id: number): Pro
 
 export async function GetCollectionsPositionals(collection_id: number): Promise<Positional[]> {
     return await db.select(
-        "SELECT (id, name, created_at, last_open) FROM positionals WHERE collection_id = $1",
+        "SELECT id, name, created_at, last_open FROM positionals WHERE collection_id = $1",
         [collection_id]
     );
 }
 
 export async function GetPositional(positional_id: number): Promise<PositionedNote[]> {
     return await db.select(
-        "SELECT * FROM notes INNER JOIN positioned_notes ON notes.id = positioned_notes.note_id WHERE positioned_notes.positional_id = 1",
+        "SELECT * FROM notes INNER JOIN positioned_notes ON notes.id = positioned_notes.note_id WHERE positioned_notes.positional_id = $1",
         [positional_id]
     );
 }

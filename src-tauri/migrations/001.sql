@@ -29,6 +29,7 @@ CREATE TABLE "positionals" (
     "created_at" DATETIME NOT NULL DEFAULT (datetime(CURRENT_TIMESTAMP, 'localtime')),
     "last_open" DATETIME NOT NULL DEFAULT (datetime(CURRENT_TIMESTAMP, 'localtime')),
     "collection_id" INTEGER NOT NULL,
+    "is_subset" BOOLEAN NOT NULL DEFAULT 0,
     CONSTRAINT "positionals_collections_fkey"
         FOREIGN KEY ("collection_id")
         REFERENCES "collections" ("id") 
@@ -40,6 +41,7 @@ CREATE TABLE "positioned_notes" (
     "positional_id" INTEGER NOT NULL,
     "note_id" INTEGER NOT NULL,
     "position" INTEGER NOT NULL,
+    "indents" INTEGER NOT NULL,
     PRIMARY KEY ("positional_id", "note_id"),
     CONSTRAINT "positionednotes_positionals_fkey"
         FOREIGN KEY ("positional_id")
@@ -50,3 +52,5 @@ CREATE TABLE "positioned_notes" (
         REFERENCES "notes" ("id") 
         ON DELETE CASCADE
 ); -- Making position part of PK adds excessive complexity :(
+
+INSERT INTO collections (name) VALUES ("Jottlr");

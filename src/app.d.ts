@@ -66,3 +66,9 @@ interface ViewModeCategory {
     ico: string;
     options: ViewMode[];
 }
+
+declare namespace svelteHTML {
+    interface HTMLAttributes<T> {
+        'on:outclick'?: (event: any) => any;
+    }
+}

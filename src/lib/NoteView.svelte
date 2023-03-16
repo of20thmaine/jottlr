@@ -2,7 +2,7 @@
     import { onMount } from "svelte";
     import { UpdateNote } from "$lib/scripts/db";
 
-    export let note: Note;
+    export let note: Note | PositionedNote;
     export let idx: number;
     export let editMode: number;
     export let forceFocusId: number | null;
@@ -101,13 +101,13 @@
 
 <style>
     .noteContent {
-        border-radius: 8px;
+        border-radius: 4px;
         background-color: var(--textfieldColor);
         padding: 0.5rem 0.75rem;
         margin: 1.0rem 0;
         color: var(--fontColor);
         line-height: 1.84rem;
-        font-size: 1.15rem;
+        font-size: 1.10rem;
     }
 
     [contenteditable=true]:empty:before {

@@ -1,14 +1,18 @@
 <script lang="ts">
     import { EditModes } from "$lib/scripts/settings";
+    import CreatePositional from "$lib/CreatePositional.svelte";
 
     export let editMode: EditMode;
     export let viewMode: ViewMode;
     export let viewModes: ViewModeCategory[];
+    export let collection: Collection;
     export let changeEditMode: (modeSelection: number) => void;
     export let changeViewMode: (categoryId: number, optionId: number) => void;
+    export let loadPositionals: () => void;
 
-    let showEditModeSelect = false;
-    let showViewModeSelect = false;
+    let showEditModeSelect: boolean = false;
+    let showViewModeSelect: boolean = false;
+    let showCreatePositional: boolean = false;
 
     function toggleShowEditMode() {
         showEditModeSelect = !showEditModeSelect;
@@ -23,16 +27,16 @@
     <div class="toolBar">
         <div class="selectHolder">
             <div class="selector selTB {editMode.class}" class:selectorSelected={showEditModeSelect}
-                    on:click={() => {toggleShowEditMode()}}
-                    on:keypress={() => {toggleShowEditMode()}}>
+                    on:click={() => toggleShowEditMode()}
+                    on:keypress={() => toggleShowEditMode()}>
                 <div class="ico {editMode.class}"><i class="{editMode.ico}"></i></div>
                 <div class="name {editMode.class}">{editMode.name}</div>
                 <div class="tIco"><i class="bi bi-chevron-down"></i></div>
             </div>
             {#if showEditModeSelect}
                 <div class="blinder"
-                        on:click={() => {toggleShowEditMode()}}
-                        on:keypress={() => {toggleShowEditMode()}}></div>
+                        on:click={() => toggleShowEditMode()}
+                        on:keypress={() => toggleShowEditMode()}></div>
                 <div class="selectorMenu smTB">
                     {#each EditModes as mode}
                         <div class="opt"
@@ -51,21 +55,22 @@
                 </div>
             {/if}
         </div>
-
         <div class="selectHolder mL">
             <div class="selector selTBVM" class:selectorSelected={showViewModeSelect}
-                    on:click={() => {toggleShowViewMode()}}
-                    on:keypress={() => {toggleShowViewMode()}}>
+                    on:click={() => toggleShowViewMode()}
+                    on:keypress={() => toggleShowViewMode()}>
                 {#if viewMode.isSortable}
                     <div class="ico"><i class="{viewMode.ico}"></i></div>
+                {:else}
+                    <div class="ico"><i class="bi bi-list-ol"></i></div>
                 {/if}
                 <div class="name">{viewMode.name}</div>
                 <div class="tIco"><i class="bi bi-chevron-down"></i></div>
             </div>
             {#if showViewModeSelect}
                 <div class="blinder"
-                    on:click={() => {toggleShowViewMode()}}
-                    on:keypress={() => {toggleShowViewMode()}}></div>
+                    on:click={() => toggleShowViewMode()}
+                    on:keypress={() => toggleShowViewMode()}></div>
                 <div class="selectorMenu selTBVMsm">
                     {#each viewModes as viewModeCat}
                         <div class="cat">
@@ -85,11 +90,21 @@
                                 <div class="name">{option.name}</div>
                                 {#if option.isSortable}
                                     <i class="{option.ico}"></i>
+                                {:else}
+                                    <i class="bi bi-list-nested"></i>
                                 {/if}
                             </div>
                         {/each}
                     {/each}
-                    <div class="opt">
+                    <div class="opt"
+                            on:click={() => {
+                                showViewModeSelect = false;
+                                showCreatePositional = !showCreatePositional;
+                            }}
+                            on:keypress={() => {
+                                showViewModeSelect = false;
+                                showCreatePositional = !showCreatePositional;
+                            }}>
                         <div class="name">Create New</div>
                         <div class="ico"><i class="bi bi-plus-lg"></i></div>
                     </div>
@@ -98,6 +113,14 @@
         </div>
     </div>
 </div>
+
+{#if showCreatePositional}
+    <CreatePositional 
+        bind:showCreatePositional={showCreatePositional} 
+        collection={collection}
+        changeViewMode={changeViewMode}
+        loadPositionals={loadPositionals} />
+{/if}
 
 <style>
     .outer {
@@ -154,6 +177,11 @@
     .selTBVM {
         padding: 0.25rem 0.4rem;
         width: 160px;
+        color: #B19CD8;
+    }
+
+    .selTBVM:hover {
+        border: 1px solid
     }
 
     .selTBVMsm {
