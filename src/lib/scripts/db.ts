@@ -33,7 +33,7 @@ export async function DeleteNote(id: number): Promise<QueryResult> {
 
 export async function GetCollection(collection_id: number, sort: SortType): Promise<Note[]> {
     return await db.select(
-        "SELECT * FROM notes WHERE collection_id = $1 ORDER BY $2",
+        "SELECT *, 0 as isPositioned FROM notes WHERE collection_id = $1 ORDER BY $2",
         [collection_id, getOrderByStr(sort)]
     );
 }
@@ -93,7 +93,8 @@ export async function GetCollectionsPositionals(collection_id: number): Promise<
 
 export async function GetPositional(positional_id: number): Promise<PositionedNote[]> {
     return await db.select(
-        "SELECT * FROM notes INNER JOIN positioned_notes ON notes.id = positioned_notes.note_id WHERE positioned_notes.positional_id = $1",
+        "SELECT *, 1 as isPositioned FROM notes INNER JOIN positioned_notes ON notes.id = " +
+        "positioned_notes.note_id WHERE positioned_notes.positional_id = $1",
         [positional_id]
     );
 }

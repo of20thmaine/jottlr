@@ -2,7 +2,7 @@
     import { onMount } from "svelte";
     import { UpdateNote } from "$lib/scripts/db";
 
-    export let note: Note | PositionedNote;
+    export let note: Note;
     export let idx: number;
     export let editMode: number;
     export let forceFocusId: number | null;

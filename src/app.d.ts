@@ -1,10 +1,22 @@
-
-interface Note {
+interface StandardNote {
     id: number;
     content: string;
     created_at: string;
     updated_at: string;
+    isPositioned: false;
 }
+
+interface PositionedNote {
+    id: number;
+    content: string;
+    created_at: string;
+    updated_at: string;
+    isPositioned: true;
+    position: number;
+    indents: number;
+}
+
+type Note = StandardNote | PositionedNote;
 
 interface Collection {
     id: number;
@@ -32,14 +44,6 @@ interface EditMode {
     name: string;
     class: string;
     ico: string;
-}
-
-interface PositionedNote {
-    id: number;
-    content: string;
-    created_at: string;
-    updated_at: string;
-    position: number;
 }
 
 interface Positional {

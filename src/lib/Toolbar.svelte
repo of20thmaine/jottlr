@@ -1,5 +1,6 @@
 <script lang="ts">
     import { EditModes } from "$lib/scripts/settings";
+    import { ClickOutside } from "$lib/scripts/utils";
     import CreatePositional from "$lib/CreatePositional.svelte";
 
     export let editMode: EditMode;
@@ -34,10 +35,9 @@
                 <div class="tIco"><i class="bi bi-chevron-down"></i></div>
             </div>
             {#if showEditModeSelect}
-                <div class="blinder"
-                        on:click={() => toggleShowEditMode()}
-                        on:keypress={() => toggleShowEditMode()}></div>
-                <div class="selectorMenu smTB">
+                <div class="selectorMenu smTB"
+                        use:ClickOutside 
+                        on:outclick={() => toggleShowEditMode()}>
                     {#each EditModes as mode}
                         <div class="opt"
                                 on:click={() => {
@@ -68,12 +68,11 @@
                 <div class="tIco"><i class="bi bi-chevron-down"></i></div>
             </div>
             {#if showViewModeSelect}
-                <div class="blinder"
-                    on:click={() => toggleShowViewMode()}
-                    on:keypress={() => toggleShowViewMode()}></div>
-                <div class="selectorMenu selTBVMsm">
+                <div class="selectorMenu selTBVMsm"
+                        use:ClickOutside 
+                        on:outclick={() => toggleShowViewMode()}>
                     {#each viewModes as viewModeCat}
-                        <div class="cat">
+                        <div class="cat catCo">
                             <i class="{viewModeCat.ico}"></i>
                             <div class="catName">{viewModeCat.name}</div>
                         </div>
@@ -91,12 +90,12 @@
                                 {#if option.isSortable}
                                     <i class="{option.ico}"></i>
                                 {:else}
-                                    <i class="bi bi-list-nested"></i>
+                                    <i class="bi bi-list"></i>
                                 {/if}
                             </div>
                         {/each}
                     {/each}
-                    <div class="opt"
+                    <div class="opt append"
                             on:click={() => {
                                 showViewModeSelect = false;
                                 showCreatePositional = !showCreatePositional;
@@ -213,6 +212,10 @@
 
     .rightIco {
         font-size: 1.0rem;
+    }
+
+    .catCo {
+        color: #B19CD8;
     }
 
     .append {

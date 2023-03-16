@@ -7,7 +7,7 @@
 
     export let data: Collection;
 
-    let notes: Note[] | PositionedNote[];
+    let notes: Note[];
     let collectionView: CollectionView;
     let collectionElement: HTMLElement;
     let noteInput: HTMLElement;
@@ -21,6 +21,15 @@
     $: if (noteInput) noteInput.focus();
     $: if (collectionView) SetCollectionView(collectionView);
     $: if (collectionElement) collectionElement.scrollTop = collectionElement.scrollHeight;
+
+    // $: if (editMode.id === 2 && notes.length === 0) {
+    //     if (viewMode.isSortable) {
+           
+    //     } else {
+
+    //     }
+    // }
+
 
     async function initialDataLoad() {
         return await GetCollectionView(data.id).then((value) => {
@@ -95,8 +104,8 @@
 
     function freeEditAppend(idx: number) {
         //freeEditAppendOpen = true;
-        notes.splice(idx, 0, {id: -1, content: "", created_at: "", updated_at: ""});
-        notes = notes;
+        //notes.splice(idx, 0, {id: -1, content: "", created_at: "", updated_at: ""});
+        //notes = notes;
     }
 
     function changeViewMode(categoryId: number, optionId: number) {
