@@ -1,36 +1,50 @@
 <script lang="ts">
-    import { onMount } from "svelte";
-    import { UpdateNote } from "$lib/scripts/db";
+    import { CreateNote, CreatePositionedNote, UpdateNote, UpdateNotePosition } from "$lib/scripts/db";
 
     export let note: Note;
     export let idx: number;
-    export let editMode: number;
+    export let collectionView: CollectionView;
     export let forceFocusId: number | null;
     export let forceFocusChange: (x: number, y: number) => void;
     export let deleteNoteHandler: (x: number, y: number) => void;
+    export let deleteUnsavedNote: (idx: number) => void;
 
     let node: HTMLElement;
     let hasFocus: boolean = false;
-    let noteBeingSaved: boolean = false;
-
-    onMount(() => {
-        // Eventually for free edit appending.
-        if (note.id === -1) {
-            node.focus();
-        }
-    });
+    let noteSaved: boolean = true;
 
     $: if (forceFocusId === note.id) {
         forceFocus();
     }
 
-    $: {
-        if (note.content.length > 0) {
-            noteBeingSaved = true;
-            UpdateNote(note.id, note.content).then(() => {
-                setTimeout(() => {noteBeingSaved = false}, 500);
-            });
+
+    $: if (note.id === -1) noteSaved = false;
+
+    $: if (note.id === -1 && collectionView.editModeId !== 2 && !noteCanBeSaved()) {
+        deleteUnsavedNote(idx);
+    }
+
+    function saveNote() {
+        if (noteCanBeSaved()) {
+            if (note.id === -1) {
+                CreateNote(note.content, collectionView.id)
+                    .then((value) => {
+                        note.id = value.lastInsertId;
+                        if (note.isPositioned) {
+                            CreatePositionedNote(collectionView.viewModeId, note.id, note.position, note.indents);
+                        }
+                    });
+            } else {
+                UpdateNote(note.id, note.content);
+            }
         }
+    }
+
+    function noteCanBeSaved(): boolean {
+        if (note.content.length === 0) {
+            return false;
+        }
+        return true;
     }
 
     function forceFocus() {
@@ -49,6 +63,14 @@
         if (note.content.length === 0) {
             deleteNoteHandler(note.id, idx);
         }
+    }
+
+    function debounce(callback: () => void, wait: number) {
+        let timeout: number | undefined;
+        return (...args: any) => {
+            clearTimeout(timeout);
+            timeout = setTimeout(function (this: any) { callback.apply(this, args); }, wait);
+        };
     }
 
     function freeEditKeyHandler(event: KeyboardEvent): void {
@@ -73,7 +95,7 @@
     }
 </script>
 
-{#if editMode === 2}
+{#if collectionView.editModeId === 2}
     <div class="noteContent"
         contenteditable="true"
         bind:this={node}
@@ -81,14 +103,13 @@
         on:keydown={freeEditKeyHandler}
         on:focus={() => {hasFocus = true; forceFocusId = null;}}
         on:blur={() => {onBlurHandler()}}
-        placeholder="Empty notes are not saved">
+        placeholder="Empty notes are not saved"
+        on:keyup={debounce(() => {
+                saveNote();
+            }, 1000)}>
     </div>
     {#if hasFocus}
-        {#if noteBeingSaved}
-            <div class="noteIdc loader"></div>
-        {:else if note.content.length === 0}
-            <div class="noteIdc toBeDeleted"><i class="bi bi-x"></i></div>
-        {:else}
+        {#if noteSaved}
             <div class="noteIdc saved"><i class="bi bi-check-lg"></i></div>
         {/if}
     {/if}

@@ -22,14 +22,13 @@
     $: if (collectionView) SetCollectionView(collectionView);
     $: if (collectionElement) collectionElement.scrollTop = collectionElement.scrollHeight;
 
-    // $: if (editMode.id === 2 && notes.length === 0) {
-    //     if (viewMode.isSortable) {
-           
-    //     } else {
-
-    //     }
-    // }
-
+    $: if (editMode && viewMode && notes) {
+        if (editMode.id === 2 && notes.length === 0) {
+            if (!viewMode.isSortable) {
+                freeEditAppend(0, 0);
+            }
+        }
+    }
 
     async function initialDataLoad() {
         return await GetCollectionView(data.id).then((value) => {
@@ -97,15 +96,28 @@
 
     function changeEditMode(id: number) {
         editMode = getEditModeFromId(id);
+        collectionView.editModeId = id;
         if (editMode.id === 1) {
             setTimeout(() => {noteInput.focus()}, 0);
         }
     }
 
-    function freeEditAppend(idx: number) {
-        //freeEditAppendOpen = true;
-        //notes.splice(idx, 0, {id: -1, content: "", created_at: "", updated_at: ""});
-        //notes = notes;
+    function freeEditAppend(idx: number, indents: number) {
+        notes.splice(idx, 0, {
+            id: -1,
+            content: "",
+            created_at: "",
+            updated_at: "",
+            isPositioned: true,
+            position: idx,
+            indents: indents
+        });
+        notes = notes;
+    }
+    
+    function deleteUnsavedNote(idx: number) {
+        notes.splice(idx, 1);
+        notes = notes;
     }
 
     function changeViewMode(categoryId: number, optionId: number) {
@@ -220,12 +232,13 @@
             <div class="noteCollection">
                 {#each notes as note, i}
                     <NoteView 
-                        bind:note={note} 
-                        idx={i} 
-                        editMode={editMode.id} 
-                        bind:forceFocusId={forceFocusId} 
+                        idx={i}
+                        bind:note={note}
+                        bind:collectionView={collectionView}
+                        bind:forceFocusId={forceFocusId}
                         forceFocusChange={forceFocusChange}
-                        deleteNoteHandler={deleteNoteHandler} />
+                        deleteNoteHandler={deleteNoteHandler}
+                        deleteUnsavedNote={deleteUnsavedNote} />
                 {/each}
             </div>
         </div>

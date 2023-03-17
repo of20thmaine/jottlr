@@ -110,6 +110,9 @@
                 </div>
             {/if}
         </div>
+
+        <div class="filterBtn"><i class="bi bi-filter-circle"></i></div>
+
     </div>
 </div>
 
@@ -216,6 +219,12 @@
 
     .catCo {
         color: #B19CD8;
+    }
+
+    .filterBtn {
+        color: var(--fontColor);
+        font-size: 1.0rem;
+        margin: 0 1.0rem;
     }
 
     .append {

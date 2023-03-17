@@ -99,6 +99,20 @@ export async function GetPositional(positional_id: number): Promise<PositionedNo
     );
 }
 
+export async function CreatePositionedNote(positionId: number, noteId: number, position: number, indents: number) {
+    return await db.execute(
+        "INSERT INTO positioned_notes (positional_id, note_id, position, indents) VALUES ($1, $2, $3, $4)",
+        [positionId, noteId, position, indents]
+    );
+}
+
+export async function UpdateNotePosition(positionId: number, noteId: number, position: number, indents: number) {
+    return await db.execute(
+        "UPDATE positioned_notes SET position = $1, indents = $2 WHERE positional_id = $3 AND note_id = $4",
+        [position, indents, positionId, noteId]
+    );
+}
+
 /**
  * Returns query substring for note sorting.
  * @param sortType 
