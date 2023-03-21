@@ -52,7 +52,9 @@ export async function GetCollections(): Promise<CollectionSelection[]> {
 }
 
 export async function GetLastOpenCollection(): Promise<Collection[]> {
-    return await db.select("SELECT id, name, MAX(last_open) FROM collections");
+    return await db.select(
+        "SELECT id, name, MAX(last_open) FROM collections"
+    );
 }
 
 export async function GetFavorites(): Promise<CollectionSelection[]> {
@@ -94,7 +96,7 @@ export async function GetCollectionsPositionals(collection_id: number): Promise<
 export async function GetPositional(positional_id: number): Promise<PositionedNote[]> {
     return await db.select(
         "SELECT *, 1 as isPositioned FROM notes INNER JOIN positioned_notes ON notes.id = " +
-        "positioned_notes.note_id WHERE positioned_notes.positional_id = $1",
+        "positioned_notes.note_id WHERE positioned_notes.positional_id = $1 ORDER BY position",
         [positional_id]
     );
 }
@@ -110,6 +112,13 @@ export async function UpdateNotePosition(positionId: number, noteId: number, pos
     return await db.execute(
         "UPDATE positioned_notes SET position = $1, indents = $2 WHERE positional_id = $3 AND note_id = $4",
         [position, indents, positionId, noteId]
+    );
+}
+
+export async function DeleteFromPositionedNotes(positionId: number, noteId: number) {
+    return await db.execute(
+        "DELETE FROM positioned_notes WHERE positional_id = $1 AND note_id = $2",
+        [positionId, noteId]
     );
 }
 

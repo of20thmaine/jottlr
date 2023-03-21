@@ -1,6 +1,7 @@
 <script lang="ts">
-    import { CreateNote, GetCollection, GetCollectionsPositionals, GetPositional, DeleteNote, UpdateCollectionLastOpen } from "$lib/scripts/db";
-    import { DefaultViewModes, EditModes, SetCollectionView, GetCollectionView } from "$lib/scripts/settings";
+    import { flip } from 'svelte/animate';
+    import { CreateNote, GetCollection, GetCollectionsPositionals, GetPositional, DeleteNote, DeleteFromPositionedNotes, UpdateCollectionLastOpen } from "$lib/scripts/db";
+    import { DefaultViewModes, EditModes, ChangeType, LabelType, SortType, SetCollectionView, GetCollectionView } from "$lib/scripts/settings";
     import { WindowTitle } from "$lib/scripts/stores";
     import NoteView from "$lib/NoteView.svelte";
     import Toolbar from "$lib/Toolbar.svelte";
@@ -11,9 +12,9 @@
     let collectionView: CollectionView;
     let collectionElement: HTMLElement;
     let noteInput: HTMLElement;
-    let forceFocusId: number | null = null;
+    let focusNoteId: number | null = null;
     let editMode: EditMode;
-    let viewModes: ViewModeCategory[] = DefaultViewModes; // Append positionals later
+    let viewModes: ViewModeCategory[] = DefaultViewModes;
     let viewMode: ViewMode;
 
     WindowTitle.set(data.name);
@@ -29,6 +30,40 @@
             }
         }
     }
+
+    $: if (viewMode && notes && !viewMode.isSortable) {
+        let map = new Map();
+        let depth = 0;
+        for (let note of notes) {
+            if (note.isPositioned) {
+                if (note.indents < depth) {
+                    for (let i = note.indents+1; i<= depth; ++i) {
+                        map.delete(i);
+                    }
+                }
+                depth = note.indents;
+                if (map.has(note.indents)) {
+                    map.set(note.indents, map.get(note.indents)+1);
+                } else {
+                    map.set(note.indents, 1)
+                }
+                note.label = map.get(note.indents);
+            }
+        }
+        notes = notes;
+    }
+
+    let theme: Theme = {
+        name: "Default",
+        maxIndents: 4,
+        noteThemes: [
+            {marginLeft: 1.0, isLabeled: true, label: LabelType.RomanCaps},
+            {marginLeft: 2.0, isLabeled: true, label: LabelType.Numerals},
+            {marginLeft: 3.0, isLabeled: true, label: LabelType.AlphabetCaps},
+            {marginLeft: 4.0, isLabeled: true, label: LabelType.RomanLowers},
+            {marginLeft: 5.0, isLabeled: true, label: LabelType.AlphabetLowers}
+        ]
+    };
 
     async function initialDataLoad() {
         return await GetCollectionView(data.id).then((value) => {
@@ -87,7 +122,7 @@
                 }
             }
         }
-        return viewModes[0].options[0]; // Consider better error handling next.
+        return viewModes[0].options[0];
     }
 
     function jumpToPageEnd() {
@@ -114,6 +149,14 @@
         });
         notes = notes;
     }
+
+    async function deleteSavedNote(noteId: number) {
+        if (viewMode.isSortable) {
+            await DeleteNote(noteId).then(() => updateCollection());
+        } else {
+            await DeleteFromPositionedNotes(viewMode.id, noteId).then(() => updateCollection());
+        }
+    }
     
     function deleteUnsavedNote(idx: number) {
         notes.splice(idx, 1);
@@ -128,17 +171,17 @@
 
         if (viewMode.isSortable) {
             if (oldViewMode.isSortable) {
-                switch (optionId) {
-                    case 1: notes.sort((a, b) => {
+                switch (viewMode.sort) {
+                    case SortType.Date_Added_Asc: notes.sort((a, b) => {
                         return +new Date(a.created_at) - +new Date(b.created_at);
                     }); break;
-                    case 2: notes.sort((a, b) => {
+                    case SortType.Date_Added_Dsc: notes.sort((a, b) => {
                         return +new Date(b.created_at) - +new Date(a.created_at);
                     }); break;
-                    case 3: notes.sort((a, b) => {
+                    case SortType.Date_Modified_Asc: notes.sort((a, b) => {
                         return +new Date(a.updated_at) - +new Date(b.updated_at);
                     }); break;
-                    case 4: notes.sort((a, b) => {
+                    case SortType.Date_Modified_Dsc: notes.sort((a, b) => {
                         return +new Date(b.updated_at) - +new Date(a.updated_at);
                     }); break;
                 }
@@ -155,55 +198,57 @@
 
     async function updateCollection() {
         if (viewMode.isSortable) {
-            notes = await GetCollection(data.id, viewMode.sort);
+            GetCollection(data.id, viewMode.sort)
+                .then((value) => notes = value)
+        } else {
+            GetPositional(viewMode.id)
+                .then((value) => notes = value)
         }
     }
 
-    /**
-     * changeType:
-     * 0: Enter key
-     * 1: Arrow-Up
-     * 2: Arrow-Down
-     * 3: After Delete (neutral)
-    */
-    function forceFocusChange(currentFocusIdx: number, changeType: number) {
-        if (changeType === 0) {
-            if (viewMode.id <= 3) {
-                if (notes[currentFocusIdx+1]) {
-                    forceFocusId = notes[currentFocusIdx+1].id;
+    function moveNote(oldIdx: number, newIdx: number) {
+        if (newIdx < 0 || newIdx > notes.length-1) return;
+        notes.splice(newIdx, 0, notes.splice(oldIdx, 1)[0]);
+        notes = notes;
+        focusNoteId = notes[newIdx].id;
+    }
+
+    function forceFocusChange(currentFocusIdx: number, changeType: ChangeType, toBeDeleted: boolean) {
+        switch (changeType) {
+            case ChangeType.Enter:
+                if (viewMode.isSortable) {
+                    if (notes[currentFocusIdx+1]) {
+                        focusNoteId = notes[currentFocusIdx+1].id;
+                    } else {
+                        changeEditMode(1);
+                    }
                 } else {
-                    changeEditMode(0);
+                    if (toBeDeleted) {
+                        if (notes[currentFocusIdx+1]) {
+                            focusNoteId = notes[currentFocusIdx+1].id;
+                        }
+                    } else {
+                        // @ts-ignore   // isSortable=false means note always positional
+                        freeEditAppend(currentFocusIdx+1, notes[currentFocusIdx].indents);
+                        focusNoteId = -1;
+                    }
                 }
-            } else {
-                // Positional
-            }
-        } else if (changeType === 1) {
-            if (notes[currentFocusIdx-1]) {
-                forceFocusId = notes[currentFocusIdx-1].id;
-            }
-        } else if (changeType === 2) {
-            if (notes[currentFocusIdx+1]) {
-                forceFocusId = notes[currentFocusIdx+1].id;
-            } 
-        } else if (changeType === 3) {
-            if (notes[currentFocusIdx+1]) {
-                forceFocusId = notes[currentFocusIdx+1].id;
-            } else if (notes[currentFocusIdx-1]) {
-                forceFocusId = notes[currentFocusIdx-1].id;
-            }
+                break;
+            case ChangeType.ArrowUp:
+                if (notes[currentFocusIdx-1]) {
+                    focusNoteId = notes[currentFocusIdx-1].id;
+                }
+                break;
+            case ChangeType.ArrowDown:
+                if (notes[currentFocusIdx+1]) {
+                    focusNoteId = notes[currentFocusIdx+1].id;
+                }
+                break;
         }
     }
 
-    async function deleteNoteHandler(noteId: number, noteIdx: number) {
-        DeleteNote(noteId)
-            .then(() => {updateCollection()
-            .then(() => {forceFocusChange(noteIdx-1, 3)})});
-    }
-
-    // Ensure these key handlers are only accesible in editing mode
     function editingKeyHandler(event: KeyboardEvent): void {
         const target = event.target as HTMLElement;
-
         switch (event.key) {
             case "Enter":
                 event.preventDefault();
@@ -213,6 +258,56 @@
                     target.innerHTML = "";
                 }
                 break;
+        }
+    }
+
+    function romanizeLabel(number: number): any {
+        let numerals: Array<[number, string]> = [
+            [1000, 'M'],
+            [900, 'CM'],
+            [500, 'D'],
+            [400, 'CD'],
+            [100, 'C'],
+            [90, 'XC'],
+            [50, 'L'],
+            [40, 'XL'],
+            [10, 'X'],
+            [9, 'IX'],
+            [5, 'V'],
+            [4, 'IV'],
+            [1, 'I']
+        ];
+        if (number === 0) {
+            return "";
+        }
+        for (let i = 0; i < numerals.length; ++i) {
+            if (number >= numerals[i][0]) {
+                return numerals[i][1] + romanizeLabel(number - numerals[i][0]);
+            }
+        }
+    }
+
+    function alphabetizeLabel(number: number): any {
+        if (number === 0) {
+            return "";
+        }
+        return String.fromCharCode(64 + (number % 26)) + alphabetizeLabel(Math.floor(number / 26));
+    }
+
+    function getLabelText(indents: number, label: number): string {
+        let labelType = theme.noteThemes[indents].label;
+
+        switch (labelType) {
+            case LabelType.RomanCaps:
+                return romanizeLabel(label);
+            case LabelType.RomanLowers:
+                return romanizeLabel(label).toLowerCase();
+            case LabelType.AlphabetCaps:
+                return alphabetizeLabel(label);
+            case LabelType.AlphabetLowers:
+                return alphabetizeLabel(label).toLowerCase();
+            default:
+                return label.toString();
         }
     }
 </script>
@@ -230,15 +325,31 @@
         />
         <div class="outerCollection" bind:this={collectionElement}>
             <div class="noteCollection">
-                {#each notes as note, i}
-                    <NoteView 
-                        idx={i}
-                        bind:note={note}
-                        bind:collectionView={collectionView}
-                        bind:forceFocusId={forceFocusId}
-                        forceFocusChange={forceFocusChange}
-                        deleteNoteHandler={deleteNoteHandler}
-                        deleteUnsavedNote={deleteUnsavedNote} />
+                {#each notes as note, i (note)}
+                    <div class="noteHolder" animate:flip="{{duration: 100}}"
+                            style="margin-left: {note.isPositioned && theme.noteThemes[note.indents] 
+                                ? theme.noteThemes[note.indents].marginLeft : 0}rem;">
+                        {#if !viewMode.isSortable && note.isPositioned && note.label}
+                            {#if theme.noteThemes[note.indents] && theme.noteThemes[note.indents].isLabeled}
+                                <div class="label">
+                                    {getLabelText(note.indents, note.label)}.
+                                </div>
+                            {/if}
+                        {/if}
+                        <div class="note">
+                            <NoteView 
+                                idx={i}
+                                bind:note={note}
+                                bind:collectionView={collectionView}
+                                bind:focusNoteId={focusNoteId}
+                                maxIndents={theme.maxIndents}
+                                forceFocusChange={forceFocusChange}
+                                moveNote={moveNote}
+                                deleteSavedNote={deleteSavedNote}
+                                deleteUnsavedNote={deleteUnsavedNote}
+                                />
+                        </div>
+                    </div>
                 {/each}
             </div>
         </div>
@@ -276,6 +387,22 @@
         margin: 0 auto;
         max-width: var(--usableWidth);
         padding: 0.5rem 1.0rem;
+    }
+
+    .noteHolder {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: baseline;
+    }
+
+    .label {
+        width: min-content;
+        color: var(--fontColor);
+        padding: 0.5rem 1.0rem 0.5rem 0.5rem;
+    }
+
+    .note {
+        flex: 1;
     }
 
     .outerEntry {

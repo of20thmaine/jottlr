@@ -26,11 +26,25 @@ export async function GetCollectionView(collectionId: number): Promise<Collectio
     return await store.get("collection-views-" + collectionId) as CollectionView | null;
 }
 
+export const enum LabelType {
+    RomanCaps,
+    AlphabetCaps,
+    Numerals,
+    AlphabetLowers,
+    RomanLowers
+}
+
 export const enum SortType {
     Date_Added_Asc,
     Date_Added_Dsc,
     Date_Modified_Asc,
     Date_Modified_Dsc,
+}
+
+export const enum ChangeType {
+    Enter,
+    ArrowDown,
+    ArrowUp
 }
 
 export const EditModes: EditMode[] = [

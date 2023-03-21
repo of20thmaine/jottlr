@@ -11,9 +11,10 @@ interface PositionedNote {
     content: string;
     created_at: string;
     updated_at: string;
-    isPositioned: true;
     position: number;
     indents: number;
+    isPositioned: true;
+    label?: number;
 }
 
 type Note = StandardNote | PositionedNote;
@@ -75,4 +76,16 @@ declare namespace svelteHTML {
     interface HTMLAttributes<T> {
         'on:outclick'?: (event: any) => any;
     }
+}
+
+interface Theme {
+    name: string;
+    maxIndents: number;
+    noteThemes: NoteTheme[];
+}
+
+interface NoteTheme {
+    marginLeft: number;
+    isLabeled: boolean;
+    label: LabelType;
 }

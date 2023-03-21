@@ -1,30 +1,31 @@
 <script lang="ts">
     import { CreateNote, CreatePositionedNote, UpdateNote, UpdateNotePosition } from "$lib/scripts/db";
+    import { ChangeType } from "$lib/scripts/settings";
 
     export let note: Note;
     export let idx: number;
     export let collectionView: CollectionView;
-    export let forceFocusId: number | null;
-    export let forceFocusChange: (x: number, y: number) => void;
-    export let deleteNoteHandler: (x: number, y: number) => void;
+    export let focusNoteId: number | null;
+    export let maxIndents: number;
+    export let forceFocusChange: (currentFocusIdx: number, changeType: ChangeType, toBeDeleted: boolean) => void;
+    export let moveNote: (oldIdx: number, newIdx: number) => void;
+    export let deleteSavedNote: (noteId: number) => void;
     export let deleteUnsavedNote: (idx: number) => void;
 
     let node: HTMLElement;
-    let hasFocus: boolean = false;
-    let noteSaved: boolean = true;
 
-    $: if (forceFocusId === note.id) {
+    $: if (node && focusNoteId === note.id) {
         forceFocus();
     }
 
-
-    $: if (note.id === -1) noteSaved = false;
-
-    $: if (note.id === -1 && collectionView.editModeId !== 2 && !noteCanBeSaved()) {
-        deleteUnsavedNote(idx);
+    $: if (note.isPositioned) {
+        if (note.position !== idx) {
+            UpdateNotePosition(collectionView.viewModeId, note.id, idx, note.indents);
+            note.position = idx;
+        }
     }
 
-    function saveNote() {
+    async function saveNote() {
         if (noteCanBeSaved()) {
             if (note.id === -1) {
                 CreateNote(note.content, collectionView.id)
@@ -58,10 +59,11 @@
         range.detach();
     }
 
-    function onBlurHandler() {
-        hasFocus = false;
-        if (note.content.length === 0) {
-            deleteNoteHandler(note.id, idx);
+    function onFocusLostHandler() {
+        if (!noteCanBeSaved() && note.id === -1) {
+            deleteUnsavedNote(idx);
+        } else if (!noteCanBeSaved()) {
+            deleteSavedNote(note.id);
         }
     }
 
@@ -73,23 +75,64 @@
         };
     }
 
+    function changeIndents(delta: number) {
+        if (note.isPositioned) {
+            if (note.indents + delta >= 0 && note.indents + delta <= maxIndents) {
+                note.indents += delta;
+                UpdateNotePosition(collectionView.viewModeId, note.id, idx, note.indents);
+            }
+        }
+    }
+
     function freeEditKeyHandler(event: KeyboardEvent): void {
         switch (event.key) {
             case "Enter":
                 event.preventDefault();
-                forceFocusChange(idx, 0);
-                return;
-            case "Delete":
-                event.preventDefault();
-                deleteNoteHandler(note.id, idx);
+                forceFocusChange(idx, ChangeType.Enter, !noteCanBeSaved());
                 return;
             case "ArrowDown":
                 event.preventDefault();
-                forceFocusChange(idx, 2);
+                if (event.ctrlKey) {
+                    moveNote(idx, idx+1)
+                } else {
+                    forceFocusChange(idx, ChangeType.ArrowDown, !noteCanBeSaved());
+                }
                 return;
             case "ArrowUp":
                 event.preventDefault();
-                forceFocusChange(idx, 1);
+                if (event.ctrlKey) {
+                    moveNote(idx, idx-1)
+                } else {
+                    forceFocusChange(idx, ChangeType.ArrowUp, !noteCanBeSaved());
+                }
+                return;
+            case "Delete":
+                event.preventDefault();
+                if (note.id === -1) {
+                    deleteUnsavedNote(idx);
+                } else {
+                    deleteSavedNote(note.id);
+                }
+                return;
+            case "Tab":
+                event.preventDefault();
+                if (event.shiftKey) {
+                    changeIndents(-1);
+                } else {
+                    changeIndents(1);
+                }
+                return;
+            case "ArrowLeft":
+                event.preventDefault();
+                if (event.ctrlKey) {
+                    changeIndents(-1);
+                }
+                return;
+            case "ArrowRight":
+                event.preventDefault();
+                if (event.ctrlKey) {
+                    changeIndents(1);
+                }
                 return;
         }
     }
@@ -98,24 +141,20 @@
 {#if collectionView.editModeId === 2}
     <div class="noteContent"
         contenteditable="true"
+        placeholder="Empty notes are not saved"
         bind:this={node}
         bind:innerHTML={note.content}
         on:keydown={freeEditKeyHandler}
-        on:focus={() => {hasFocus = true; forceFocusId = null;}}
-        on:blur={() => {onBlurHandler()}}
-        placeholder="Empty notes are not saved"
-        on:keyup={debounce(() => {
-                saveNote();
+        on:focusout={() => onFocusLostHandler()}
+        on:focus={() => focusNoteId = null}
+        on:keyup={debounce(async () => {
+                await saveNote();
             }, 1000)}>
     </div>
-    {#if hasFocus}
-        {#if noteSaved}
-            <div class="noteIdc saved"><i class="bi bi-check-lg"></i></div>
-        {/if}
-    {/if}
 {:else}
     <div class="noteContent"
         contenteditable="false"
+        bind:this={node}
         bind:innerHTML={note.content}>
     </div>
 {/if}
@@ -134,36 +173,7 @@
     [contenteditable=true]:empty:before {
         content:attr(placeholder);
         color: grey;
-    }
-
-    .noteIdc {
-        position: relative;
-        float: right;
-        z-index: 2;
-        margin-top: -1.0rem;
-        margin-right: -0.5rem;
-    }
-
-    .saved {
-        color: #3cb452;
-    }
-
-    .toBeDeleted {
-        color: #BE3455;
-    }
-
-    .loader {
-        border: 3px solid var(--hoverBtnColor);
-        border-top: 3px solid #F5DF4D;
-        border-radius: 50%;
-        width: 13px;
-        height: 13px;
-        animation: spin 0.75s linear infinite;
-        margin-left: auto;
-    }
-
-    @keyframes spin {
-        0% { transform: rotate(0deg); }
-        100% { transform: rotate(360deg);}
+        user-select: none;
+        cursor: text;
     }
 </style>
