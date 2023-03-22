@@ -1,6 +1,7 @@
 <script lang="ts">
     import { CreateNote, CreatePositionedNote, UpdateNote, UpdateNotePosition } from "$lib/scripts/db";
     import { ChangeType } from "$lib/scripts/settings";
+    import { tick } from "svelte";
 
     export let note: Note;
     export let idx: number;
@@ -16,6 +17,7 @@
 
     $: if (node && focusNoteId === note.id) {
         forceFocus();
+        node.scrollIntoView({block: "center"});
     }
 
     $: if (note.isPositioned) {
@@ -123,13 +125,13 @@
                 }
                 return;
             case "ArrowLeft":
-                event.preventDefault();
+                //event.preventDefault();
                 if (event.ctrlKey) {
                     changeIndents(-1);
                 }
                 return;
             case "ArrowRight":
-                event.preventDefault();
+                //event.preventDefault();
                 if (event.ctrlKey) {
                     changeIndents(1);
                 }
@@ -164,7 +166,7 @@
         border-radius: 4px;
         background-color: var(--textfieldColor);
         padding: 0.5rem 0.75rem;
-        margin: 1.0rem 0;
+        margin: 0.5rem 0;
         color: var(--fontColor);
         line-height: 1.84rem;
         font-size: 1.10rem;

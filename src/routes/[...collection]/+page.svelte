@@ -57,11 +57,11 @@
         name: "Default",
         maxIndents: 4,
         noteThemes: [
-            {marginLeft: 1.0, isLabeled: true, label: LabelType.RomanCaps},
-            {marginLeft: 2.0, isLabeled: true, label: LabelType.Numerals},
-            {marginLeft: 3.0, isLabeled: true, label: LabelType.AlphabetCaps},
-            {marginLeft: 4.0, isLabeled: true, label: LabelType.RomanLowers},
-            {marginLeft: 5.0, isLabeled: true, label: LabelType.AlphabetLowers}
+            {marginLeft: 0, isLabeled: true, label: LabelType.RomanCaps},
+            {marginLeft: 1.0, isLabeled: true, label: LabelType.Numerals},
+            {marginLeft: 2.0, isLabeled: true, label: LabelType.AlphabetCaps},
+            {marginLeft: 3.0, isLabeled: true, label: LabelType.RomanLowers},
+            {marginLeft: 4.0, isLabeled: true, label: LabelType.AlphabetLowers}
         ]
     };
 
@@ -346,8 +346,7 @@
                                 forceFocusChange={forceFocusChange}
                                 moveNote={moveNote}
                                 deleteSavedNote={deleteSavedNote}
-                                deleteUnsavedNote={deleteUnsavedNote}
-                                />
+                                deleteUnsavedNote={deleteUnsavedNote} />
                         </div>
                     </div>
                 {/each}
@@ -396,9 +395,9 @@
     }
 
     .label {
-        width: min-content;
+        width: 60px;
         color: var(--fontColor);
-        padding: 0.5rem 1.0rem 0.5rem 0.5rem;
+        text-align: center;
     }
 
     .note {
