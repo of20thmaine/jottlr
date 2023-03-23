@@ -1,7 +1,6 @@
 <script lang="ts">
     import { CreateNote, CreatePositionedNote, UpdateNote, UpdateNotePosition } from "$lib/scripts/db";
     import { ChangeType } from "$lib/scripts/settings";
-    import { tick } from "svelte";
 
     export let note: Note;
     export let idx: number;
@@ -10,10 +9,11 @@
     export let maxIndents: number;
     export let forceFocusChange: (currentFocusIdx: number, changeType: ChangeType, toBeDeleted: boolean) => void;
     export let moveNote: (oldIdx: number, newIdx: number) => void;
-    export let deleteSavedNote: (noteId: number) => void;
+    export let deleteSavedNote: (noteId: number, idx: number) => void;
     export let deleteUnsavedNote: (idx: number) => void;
 
     let node: HTMLElement;
+    let timeout: number | undefined;
 
     $: if (node && focusNoteId === note.id) {
         forceFocus();
@@ -61,16 +61,21 @@
         range.detach();
     }
 
-    function onFocusLostHandler() {
-        if (!noteCanBeSaved() && note.id === -1) {
+    async function onFocusLostHandler() {
+        if (timeout) {
+            clearTimeout(timeout);
+        }
+
+        if (noteCanBeSaved()) {
+            await saveNote();
+        } else if (!noteCanBeSaved() && note.id === -1) {
             deleteUnsavedNote(idx);
-        } else if (!noteCanBeSaved()) {
-            deleteSavedNote(note.id);
+        } else {
+            deleteSavedNote(note.id, idx);
         }
     }
 
     function debounce(callback: () => void, wait: number) {
-        let timeout: number | undefined;
         return (...args: any) => {
             clearTimeout(timeout);
             timeout = setTimeout(function (this: any) { callback.apply(this, args); }, wait);
@@ -113,7 +118,7 @@
                 if (note.id === -1) {
                     deleteUnsavedNote(idx);
                 } else {
-                    deleteSavedNote(note.id);
+                    deleteSavedNote(note.id, idx);
                 }
                 return;
             case "Tab":
@@ -125,14 +130,14 @@
                 }
                 return;
             case "ArrowLeft":
-                //event.preventDefault();
                 if (event.ctrlKey) {
+                    event.preventDefault();
                     changeIndents(-1);
                 }
                 return;
             case "ArrowRight":
-                //event.preventDefault();
                 if (event.ctrlKey) {
+                    event.preventDefault();
                     changeIndents(1);
                 }
                 return;
@@ -149,9 +154,10 @@
         on:keydown={freeEditKeyHandler}
         on:focusout={() => onFocusLostHandler()}
         on:focus={() => focusNoteId = null}
-        on:keyup={debounce(async () => {
-                await saveNote();
-            }, 1000)}>
+        on:keyup={() => {
+                debounce(async () => await saveNote(), 4000);
+                node.scrollIntoView({block: "nearest", behavior: "auto"});
+            }}>
     </div>
 {:else}
     <div class="noteContent"
@@ -170,6 +176,7 @@
         color: var(--fontColor);
         line-height: 1.84rem;
         font-size: 1.10rem;
+        scroll-margin: 1.0rem;
     }
 
     [contenteditable=true]:empty:before {

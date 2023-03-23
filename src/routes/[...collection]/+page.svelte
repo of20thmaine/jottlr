@@ -150,11 +150,11 @@
         notes = notes;
     }
 
-    async function deleteSavedNote(noteId: number) {
+    async function deleteSavedNote(noteId: number, idx: number) {
         if (viewMode.isSortable) {
-            await DeleteNote(noteId).then(() => updateCollection());
+            await DeleteNote(noteId).then(() => deleteUnsavedNote(idx));
         } else {
-            await DeleteFromPositionedNotes(viewMode.id, noteId).then(() => updateCollection());
+            await DeleteFromPositionedNotes(viewMode.id, noteId).then(() => deleteUnsavedNote(idx));
         }
     }
     
