@@ -13,11 +13,13 @@
   },
   "dependencies": {
     "@tauri-apps/api": "^1.2.0",
-    "tauri-plugin-sql-api": "github:tauri-apps/tauri-plugin-sql"
+    "bootstrap-icons": "^1.10.3",
+    "tauri-plugin-sql-api": "github:tauri-apps/tauri-plugin-sql",
+    "tauri-plugin-store-api": "github:tauri-apps/tauri-plugin-store"
   },
   "devDependencies": {
     "@sveltejs/adapter-static": "next",
-    "@sveltejs/kit": "next",
+    "@sveltejs/kit": "^1.8.5",
     "@tauri-apps/cli": "^1.2.2",
     "svelte": "^3.54.0",
     "svelte-check": "^3.0.0",
