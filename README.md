@@ -1,6 +1,6 @@
-# Svelte-Kit + Vite
+# Jottlr
 
-This template should help get you started developing with Tauri and Svelte-Kit in Vite.
+Take notes, log ideas, and organize them into useful ordered collections in Jottlr- the app designed to make organizing your thoughts easy.
 
 ## Recommended IDE Setup
 
