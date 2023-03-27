@@ -13,7 +13,7 @@
     let showCreateCollection = false;
     let windowTitle: string = "";
     
-    WindowTitle.subscribe(value => {windowTitle = value});
+    WindowTitle.subscribe(value => windowTitle = value);
     ColorModeIsDark.subscribe(value => isDarkMode = value);
 
     $: isDarkMode ? currentPath = darkPath : currentPath = lightPath;

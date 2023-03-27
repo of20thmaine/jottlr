@@ -26,6 +26,14 @@ export async function GetCollectionView(collectionId: number): Promise<Collectio
     return await store.get("collection-views-" + collectionId) as CollectionView | null;
 }
 
+export async function SetPageWidth(pageWidth: number) {
+    return store.set("page-width", pageWidth);
+}
+
+export async function GetPageWidth(): Promise<number | null> {
+    return await store.get("page-width") as number | null;
+}
+
 export const enum LabelType {
     RomanCaps,
     AlphabetCaps,

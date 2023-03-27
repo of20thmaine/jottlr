@@ -1,11 +1,17 @@
 <script lang="ts">
-    import { SetColorModeIsDark } from "$lib/scripts/settings";
+    import { SetColorModeIsDark, GetPageWidth, SetPageWidth } from "$lib/scripts/settings";
+    import { ClickOutside } from "$lib/scripts/utils";
     import { ColorModeIsDark, WindowTitle } from "$lib/scripts/stores";
 
     WindowTitle.set("Settings");
 
     let showColorThemeSelect: boolean = false;
     let colorThemePrompt: string = "";
+    let pageWidth: number = 800;
+
+    $: SetPageWidth(pageWidth);
+
+    GetPageWidth().then((value) => {if (value) pageWidth = value});
 
     function setColorTheme(makeDarkMode: boolean) {
         SetColorModeIsDark(makeDarkMode);
@@ -32,10 +38,9 @@
             <i class="bi bi-chevron-down rI"></i>
         </div>
         {#if showColorThemeSelect}
-            <div class="blinder"
-                on:click={() => {showColorThemeSelect = !showColorThemeSelect}}
-                on:keypress={() => {showColorThemeSelect = !showColorThemeSelect}}></div>
-            <div class="selectorMenu">
+            <div class="selectorMenu"
+                    use:ClickOutside
+                    on:outclick={() => showColorThemeSelect = !showColorThemeSelect}>
                 <div class="opt"
                         on:click={() => {
                             setColorTheme(true);
@@ -58,6 +63,11 @@
                     Light Mode</div>
             </div>
         {/if}
+        <h3 class="bigMT">Page Width:</h3>
+        <div class="sliderHolder">
+            <input type="range" min="400" max="1600" class="slider" id="pageWidth" bind:value={pageWidth}>
+        </div>
+        <div class="pageWidth">{pageWidth}px {pageWidth === 800 ? "(default)" : ""}</div>
     </div>
 </div>
 
@@ -86,6 +96,10 @@
     h3 {
         font-size: 1.15rem;
         margin-bottom: 0.5rem;
+    }
+    
+    .bigMT {
+        margin-top: 3.0rem;
     }
 
     .selector {
@@ -132,5 +146,14 @@
 
     .rI {
         margin-left: auto;
+    }
+
+    .sliderHolder {
+        max-width: 400px;
+        margin: 1.0rem 0;
+    }
+
+    .slider {
+        width: 100%;
     }
 </style>
