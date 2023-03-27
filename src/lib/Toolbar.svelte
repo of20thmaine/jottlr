@@ -110,9 +110,9 @@
                 </div>
             {/if}
         </div>
-
-        <div class="filterBtn"><i class="bi bi-filter-circle"></i></div>
-
+<!-- 
+        <div class="filterBtn"><i class="bi bi-filter-circle"></i></div> 
+-->
     </div>
 </div>
 

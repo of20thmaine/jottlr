@@ -1,7 +1,7 @@
 <script lang="ts">
     import { flip } from 'svelte/animate';
     import { CreateNote, GetCollection, GetCollectionsPositionals, GetPositional, DeleteNote, DeleteFromPositionedNotes, UpdateCollectionLastOpen } from "$lib/scripts/db";
-    import { DefaultViewModes, EditModes, ChangeType, LabelType, SortType, SetCollectionView, GetCollectionView } from "$lib/scripts/settings";
+    import { DefaultViewModes, EditModes, GetPageWidth, ChangeType, LabelType, SortType, SetCollectionView, GetCollectionView } from "$lib/scripts/settings";
     import { WindowTitle } from "$lib/scripts/stores";
     import NoteView from "$lib/NoteView.svelte";
     import Toolbar from "$lib/Toolbar.svelte";
@@ -16,8 +16,11 @@
     let editMode: EditMode;
     let viewModes: ViewModeCategory[] = DefaultViewModes;
     let viewMode: ViewMode;
+    let pageWidth: number = 800;
 
     WindowTitle.set(data.name);
+
+    GetPageWidth().then((value) => {if (value) pageWidth = value});
 
     $: if (noteInput) noteInput.focus();
     $: if (collectionView) SetCollectionView(collectionView);
@@ -324,7 +327,7 @@
             loadPositionals={loadPositionals}
         />
         <div class="outerCollection" bind:this={collectionElement}>
-            <div class="noteCollection">
+            <div class="noteCollection" style="max-width:{pageWidth}px;">
                 {#each notes as note, i (note)}
                     <div class="noteHolder" animate:flip="{{duration: 100}}"
                             style="margin-left: {note.isPositioned && theme.noteThemes[note.indents] 
@@ -384,7 +387,7 @@
 
     .noteCollection {
         margin: 0 auto;
-        max-width: var(--usableWidth);
+        max-width: 800px;
         padding: 0.5rem 1.0rem;
     }
 
