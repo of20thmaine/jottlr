@@ -87,7 +87,7 @@
                     toggleCollectionFavorite(collection.id, collection.favorite)}}></i></div>
             <div class="co">{collection.name}</div>
             <div class="co">{collection.note_count}</div>
-            {#if +new Date() - +new Date(collection.last_open) > (24*60*60*1000)}
+            {#if +new Date() - +new Date(collection.last_open) > (12*60*60*1000)}
                 <div class="co">{new Date(collection.last_open).toLocaleDateString([], {year: "numeric", month: "short", day: "numeric"})}</div>
             {:else}
                 <div class="co">{new Date(collection.last_open).toLocaleTimeString([], {hour: "numeric", minute: "numeric", hour12: true})}</div>

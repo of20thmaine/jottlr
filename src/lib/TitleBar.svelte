@@ -1,8 +1,9 @@
 <script lang="ts">
     import { appWindow } from '@tauri-apps/api/window';
     import { exit } from '@tauri-apps/api/process';
-    import { ColorModeIsDark, WindowTitle } from '$lib/scripts/stores';
     import { goto } from '$app/navigation';
+    import { ColorModeIsDark, WindowTitle } from '$lib/scripts/stores';
+    import { ClickOutside } from "$lib/scripts/utils";
     import CreateCollection from '$lib/CreateCollection.svelte';
 
     let isDarkMode: boolean;
@@ -32,10 +33,9 @@
             on:click={() => showFileMenu = !showFileMenu}
             on:keypress={() => showFileMenu = !showFileMenu}>File</div>
         {#if showFileMenu}
-            <div class="blinder"
-                    on:click={() => showFileMenu = !showFileMenu}
-                    on:keypress={() => showFileMenu = !showFileMenu}></div>
-            <div class="dropdown">
+            <div class="dropdown"
+                    use:ClickOutside 
+                    on:outclick={() => showFileMenu = !showFileMenu}>
                 <div class="dropdownItm"
                         on:click={() => {
                                 showFileMenu = !showFileMenu;

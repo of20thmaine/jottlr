@@ -52,23 +52,10 @@ body {
 	overflow: hidden;
 }
 
-.blinder {
-	position: fixed;
-	z-index: 2;
-	top: 0;
-	right: 0;
-	bottom: 0;
-	left: 0;
-}
-
-.modal {
-	position: absolute;
-	z-index: 2;
-	top: var(--titlebarHeight);
-	right: 0;
-	bottom: 0;
-	left: 0;
-	background-color: rgba(0, 0, 0, 0.5);
+.scroller {
+	margin-top: var(--titlebarHeight);
+	height: calc(100vh - var(--titlebarHeight));
+	overflow-y: auto;
 }
 
 .selector {

@@ -31,7 +31,16 @@ export async function SetPageWidth(pageWidth: number) {
 }
 
 export async function GetPageWidth(): Promise<number | null> {
-    return await store.get("page-width") as number | null;
+    return await store.get("page-width");
+}
+
+export async function GetThemeList(): Promise<Theme[] | null> {
+    return await store.get("theme-list");
+
+}
+
+export async function SetThemeList(themeList: Theme[]) {
+    store.set("theme-list", themeList);
 }
 
 export const enum LabelType {
@@ -39,7 +48,11 @@ export const enum LabelType {
     AlphabetCaps,
     Numerals,
     AlphabetLowers,
-    RomanLowers
+    RomanLowers,
+    Disc,
+    Circle,
+    Square,
+    Check
 }
 
 export const enum SortType {
@@ -59,6 +72,44 @@ export const EditModes: EditMode[] = [
     {id: 1, name: 'Append', class: 'append', ico: 'bi bi-plus'},
     {id: 2, name: 'Free-Edit', class: 'editing', ico: 'bi bi-pen sIco'},
     {id: 3, name: 'Read-Only', class: 'readOnly', ico: 'bi bi-lock sIco'}
+];
+
+export const DefaultThemeList: Theme[] = [
+    {
+        name: "Bulleted List",
+        maxIndents: 6,
+        default: {
+            marginLeft: 16,
+            label: LabelType.Disc
+        }
+    },
+    {
+        name: "Ordered List",
+        maxIndents: 6,
+        default: {
+            marginLeft: 32
+        },
+        noteThemes: [
+            {
+                label: LabelType.RomanCaps
+            },
+            {
+                label: LabelType.RomanCaps
+            },
+            {
+                label: LabelType.RomanCaps
+            },
+            {
+                label: LabelType.RomanCaps
+            },
+            {
+                label: LabelType.RomanCaps
+            },
+            {
+                label: LabelType.RomanCaps
+            },
+        ]
+    }
 ];
 
 export const DefaultViewModes: ViewModeCategory[] = [

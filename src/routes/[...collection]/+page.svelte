@@ -58,13 +58,14 @@
 
     let theme: Theme = {
         name: "Default",
+        default: {marginLeft:32},
         maxIndents: 4,
         noteThemes: [
-            {marginLeft: 0, isLabeled: true, label: LabelType.RomanCaps},
-            {marginLeft: 1.0, isLabeled: true, label: LabelType.Numerals},
-            {marginLeft: 2.0, isLabeled: true, label: LabelType.AlphabetCaps},
-            {marginLeft: 3.0, isLabeled: true, label: LabelType.RomanLowers},
-            {marginLeft: 4.0, isLabeled: true, label: LabelType.AlphabetLowers}
+            {label: LabelType.RomanCaps},
+            {label: LabelType.Numerals},
+            {label: LabelType.AlphabetCaps},
+            {label: LabelType.RomanLowers},
+            {label: LabelType.AlphabetLowers}
         ]
     };
 
@@ -264,60 +265,22 @@
         }
     }
 
-    function romanizeLabel(number: number): any {
-        let numerals: Array<[number, string]> = [
-            [1000, 'M'],
-            [900, 'CM'],
-            [500, 'D'],
-            [400, 'CD'],
-            [100, 'C'],
-            [90, 'XC'],
-            [50, 'L'],
-            [40, 'XL'],
-            [10, 'X'],
-            [9, 'IX'],
-            [5, 'V'],
-            [4, 'IV'],
-            [1, 'I']
-        ];
-        if (number === 0) {
-            return "";
-        }
-        for (let i = 0; i < numerals.length; ++i) {
-            if (number >= numerals[i][0]) {
-                return numerals[i][1] + romanizeLabel(number - numerals[i][0]);
-            }
-        }
-    }
+    function getNoteHolderStyle(note: Note): string {
+        if (!note.isPositioned) return "";
+        let marginLeft = 0;
 
-    function alphabetizeLabel(number: number): any {
-        if (number === 0) {
-            return "";
+        if (typeof theme.noteThemes?.[note.indents]?.marginLeft === 'number') {
+            marginLeft = theme.noteThemes[note.indents].marginLeft!;
+        } else if (typeof theme.default?.marginLeft === 'number') {
+            marginLeft = theme.default.marginLeft * note.indents;
         }
-        return String.fromCharCode(64 + (number % 26)) + alphabetizeLabel(Math.floor(number / 26));
-    }
-
-    function getLabelText(indents: number, label: number): string {
-        let labelType = theme.noteThemes[indents].label;
-
-        switch (labelType) {
-            case LabelType.RomanCaps:
-                return romanizeLabel(label);
-            case LabelType.RomanLowers:
-                return romanizeLabel(label).toLowerCase();
-            case LabelType.AlphabetCaps:
-                return alphabetizeLabel(label);
-            case LabelType.AlphabetLowers:
-                return alphabetizeLabel(label).toLowerCase();
-            default:
-                return label.toString();
-        }
+        return "margin-left:" + marginLeft + "px;";
     }
 </script>
 
 {#await initialDataLoad() then x}
     <div class="page">
-        <Toolbar
+        <Toolbar 
             editMode={editMode}
             viewMode={viewMode}
             viewModes={viewModes}
@@ -329,28 +292,19 @@
         <div class="outerCollection" bind:this={collectionElement}>
             <div class="noteCollection" style="max-width:{pageWidth}px;">
                 {#each notes as note, i (note)}
-                    <div class="noteHolder" animate:flip="{{duration: 100}}"
-                            style="margin-left: {note.isPositioned && theme.noteThemes[note.indents] 
-                                ? theme.noteThemes[note.indents].marginLeft : 0}rem;">
-                        {#if !viewMode.isSortable && note.isPositioned && note.label}
-                            {#if theme.noteThemes[note.indents] && theme.noteThemes[note.indents].isLabeled}
-                                <div class="label">
-                                    {getLabelText(note.indents, note.label)}.
-                                </div>
-                            {/if}
-                        {/if}
-                        <div class="note">
-                            <NoteView 
-                                idx={i}
-                                bind:note={note}
-                                bind:collectionView={collectionView}
-                                bind:focusNoteId={focusNoteId}
-                                maxIndents={theme.maxIndents}
-                                forceFocusChange={forceFocusChange}
-                                moveNote={moveNote}
-                                deleteSavedNote={deleteSavedNote}
-                                deleteUnsavedNote={deleteUnsavedNote} />
-                        </div>
+                    <div class="noteHolder" animate:flip="{{duration: 100}}" style="{getNoteHolderStyle(note)}">
+                        <NoteView 
+                            idx={i}
+                            bind:note={note}
+                            bind:collectionView={collectionView}
+                            bind:focusNoteId={focusNoteId}
+                            maxIndents={theme.maxIndents}
+                            viewMode={viewMode}
+                            theme={theme}
+                            forceFocusChange={forceFocusChange}
+                            moveNote={moveNote}
+                            deleteSavedNote={deleteSavedNote}
+                            deleteUnsavedNote={deleteUnsavedNote} />
                     </div>
                 {/each}
             </div>
@@ -395,16 +349,6 @@
         display: flex;
         flex-wrap: wrap;
         align-items: baseline;
-    }
-
-    .label {
-        width: 60px;
-        color: var(--fontColor);
-        text-align: center;
-    }
-
-    .note {
-        flex: 1;
     }
 
     .outerEntry {

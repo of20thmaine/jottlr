@@ -13,6 +13,7 @@
 
     let showEditModeSelect: boolean = false;
     let showViewModeSelect: boolean = false;
+    let showThemeSelect: boolean = false;
     let showCreatePositional: boolean = false;
 
     function toggleShowEditMode() {

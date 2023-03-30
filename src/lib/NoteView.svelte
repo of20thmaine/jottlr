@@ -1,12 +1,14 @@
 <script lang="ts">
     import { CreateNote, CreatePositionedNote, UpdateNote, UpdateNotePosition } from "$lib/scripts/db";
-    import { ChangeType } from "$lib/scripts/settings";
+    import { ChangeType, LabelType } from "$lib/scripts/settings";
 
     export let note: Note;
     export let idx: number;
     export let collectionView: CollectionView;
     export let focusNoteId: number | null;
     export let maxIndents: number;
+    export let viewMode: ViewMode;
+    export let theme: Theme;
     export let forceFocusChange: (currentFocusIdx: number, changeType: ChangeType, toBeDeleted: boolean) => void;
     export let moveNote: (oldIdx: number, newIdx: number) => void;
     export let deleteSavedNote: (noteId: number, idx: number) => void;
@@ -91,6 +93,54 @@
         }
     }
 
+    function getLabelText(label: number, labelType: LabelType): string {
+        switch (labelType) {
+            case LabelType.RomanCaps:
+                return romanizeLabel(label);
+            case LabelType.RomanLowers:
+                return romanizeLabel(label).toLowerCase();
+            case LabelType.AlphabetCaps:
+                return alphabetizeLabel(label);
+            case LabelType.AlphabetLowers:
+                return alphabetizeLabel(label).toLowerCase();
+            default:
+                return label.toString();
+        }
+    }
+
+    function romanizeLabel(number: number): any {
+        let numerals: Array<[number, string]> = [
+            [1000, 'M'],
+            [900, 'CM'],
+            [500, 'D'],
+            [400, 'CD'],
+            [100, 'C'],
+            [90, 'XC'],
+            [50, 'L'],
+            [40, 'XL'],
+            [10, 'X'],
+            [9, 'IX'],
+            [5, 'V'],
+            [4, 'IV'],
+            [1, 'I']
+        ];
+        if (number === 0) {
+            return "";
+        }
+        for (let i = 0; i < numerals.length; ++i) {
+            if (number >= numerals[i][0]) {
+                return numerals[i][1] + romanizeLabel(number - numerals[i][0]);
+            }
+        }
+    }
+
+    function alphabetizeLabel(number: number): any {
+        if (number === 0) {
+            return "";
+        }
+        return String.fromCharCode(64 + (number % 26)) + alphabetizeLabel(Math.floor(number / 26));
+    }
+
     function freeEditKeyHandler(event: KeyboardEvent): void {
         switch (event.key) {
             case "Enter":
@@ -145,6 +195,12 @@
     }
 </script>
 
+{#if !viewMode.isSortable && note.isPositioned && note.label && 
+        theme.noteThemes?.[note.indents]?.label !== undefined}
+    <div class="label">
+        {getLabelText(note.label, theme.noteThemes[note.indents].label)}.
+    </div>
+{/if}
 {#if collectionView.editModeId === 2}
     <div class="noteContent"
         contenteditable="true"
@@ -169,6 +225,7 @@
 
 <style>
     .noteContent {
+        flex: 1;
         border-radius: 4px;
         background-color: var(--textfieldColor);
         padding: 0.5rem 0.75rem;
@@ -184,5 +241,11 @@
         color: grey;
         user-select: none;
         cursor: text;
+    }
+
+    .label {
+        width: 60px;
+        color: var(--fontColor);
+        text-align: center;
     }
 </style>

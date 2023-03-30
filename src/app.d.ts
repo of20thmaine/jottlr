@@ -81,11 +81,26 @@ declare namespace svelteHTML {
 interface Theme {
     name: string;
     maxIndents: number;
-    noteThemes: NoteTheme[];
+    default?: NoteTheme;
+    noteThemes?: NoteTheme[];
+    showGuides?: boolean;
+    guideColor?: string;
 }
 
 interface NoteTheme {
-    marginLeft: number;
-    isLabeled: boolean;
-    label: LabelType;
+    marginLeft?: number;
+    font?: string;
+    fontSize?: number;
+    fontWeight?: string;
+    fontColor?: string;
+    bubbleColor?: string;
+    label?: LabelType;
+    labelTheme?: LabelTheme;
+}
+
+interface LabelTheme {
+    font?: string;
+    fontSize?: number;
+    fontWeight?: string;
+    fontColor?: string;
 }
