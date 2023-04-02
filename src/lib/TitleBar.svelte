@@ -129,7 +129,8 @@
 
     .title {
         margin: 0 auto;
-        color: #d7b474;
+        color: var(--fontColor);
+        font-style: italic;
         font-size: 0.9rem;
     }
 

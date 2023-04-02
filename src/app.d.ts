@@ -89,7 +89,6 @@ interface Theme {
 
 interface NoteTheme {
     marginLeft?: number;
-    font?: string;
     fontSize?: number;
     fontWeight?: string;
     fontColor?: string;
@@ -99,7 +98,6 @@ interface NoteTheme {
 }
 
 interface LabelTheme {
-    font?: string;
     fontSize?: number;
     fontWeight?: string;
     fontColor?: string;

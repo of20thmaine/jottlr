@@ -1,6 +1,7 @@
 <script lang="ts">
     import { CreateNote, CreatePositionedNote, UpdateNote, UpdateNotePosition } from "$lib/scripts/db";
     import { ChangeType, LabelType } from "$lib/scripts/settings";
+    import { ApplyLabelStyle, ApplyNoteStyle } from "$lib/scripts/utils";
 
     export let note: Note;
     export let idx: number;
@@ -14,12 +15,13 @@
     export let deleteSavedNote: (noteId: number, idx: number) => void;
     export let deleteUnsavedNote: (idx: number) => void;
 
-    let node: HTMLElement;
+    let noteNode: HTMLElement;
+    let labelNode: HTMLElement;
     let timeout: number | undefined;
 
-    $: if (node && focusNoteId === note.id) {
+    $: if (noteNode && focusNoteId === note.id) {
         forceFocus();
-        node.scrollIntoView({block: "center"});
+        noteNode.scrollIntoView({block: "center"});
     }
 
     $: if (note.isPositioned) {
@@ -27,6 +29,14 @@
             UpdateNotePosition(collectionView.viewModeId, note.id, idx, note.indents);
             note.position = idx;
         }
+    }
+
+    $: if (noteNode && theme) {
+        ApplyNoteStyle(noteNode, note, theme);
+    }
+
+    $: if (labelNode && theme) {
+        ApplyLabelStyle(labelNode, note, theme);
     }
 
     async function saveNote() {
@@ -54,12 +64,12 @@
 
     function forceFocus() {
         let range = document.createRange();
-        range.selectNodeContents(node);
+        range.selectNodeContents(noteNode);
         range.collapse(false);
         let sel = window.getSelection();
         sel?.removeAllRanges();
         sel?.addRange(range);
-        node.focus();
+        noteNode.focus();
         range.detach();
     }
 
@@ -197,7 +207,7 @@
 
 {#if !viewMode.isSortable && note.isPositioned && note.label && 
         theme.noteThemes?.[note.indents]?.label !== undefined}
-    <div class="label">
+    <div class="label" bind:this={labelNode}>
         {getLabelText(note.label, theme.noteThemes[note.indents].label)}.
     </div>
 {/if}
@@ -205,20 +215,20 @@
     <div class="noteContent"
         contenteditable="true"
         placeholder="Empty notes are not saved"
-        bind:this={node}
+        bind:this={noteNode}
         bind:innerHTML={note.content}
         on:keydown={freeEditKeyHandler}
         on:focusout={() => onFocusLostHandler()}
         on:focus={() => focusNoteId = null}
         on:keyup={() => {
                 debounce(async () => await saveNote(), 4000);
-                node.scrollIntoView({block: "nearest", behavior: "auto"});
+                noteNode.scrollIntoView({block: "nearest", behavior: "auto"});
             }}>
     </div>
 {:else}
     <div class="noteContent"
         contenteditable="false"
-        bind:this={node}
+        bind:this={noteNode}
         bind:innerHTML={note.content}>
     </div>
 {/if}
@@ -244,7 +254,7 @@
     }
 
     .label {
-        width: 60px;
+        min-width: 42px;
         color: var(--fontColor);
         text-align: center;
     }

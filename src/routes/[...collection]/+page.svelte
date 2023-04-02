@@ -22,6 +22,8 @@
 
     GetPageWidth().then((value) => {if (value) pageWidth = value});
 
+    // APPEND MODE NOT WORKING WITH POSITIONALS AT ALL
+
     $: if (noteInput) noteInput.focus();
     $: if (collectionView) SetCollectionView(collectionView);
     $: if (collectionElement) collectionElement.scrollTop = collectionElement.scrollHeight;
@@ -58,13 +60,13 @@
 
     let theme: Theme = {
         name: "Default",
-        default: {marginLeft:32},
+        default: {marginLeft: 32, bubbleColor: "transparent"},
         maxIndents: 4,
         noteThemes: [
-            {label: LabelType.RomanCaps},
+            {label: LabelType.RomanCaps, fontColor: "#3410B2", bubbleColor: "yellow"},
             {label: LabelType.Numerals},
-            {label: LabelType.AlphabetCaps},
-            {label: LabelType.RomanLowers},
+            {label: LabelType.AlphabetCaps, bubbleColor: "Black"},
+            {label: LabelType.RomanLowers, fontColor: "gold", fontSize: 24},
             {label: LabelType.AlphabetLowers}
         ]
     };
@@ -285,6 +287,7 @@
             viewMode={viewMode}
             viewModes={viewModes}
             collection={data}
+            pageWidth={pageWidth}
             changeEditMode={changeEditMode}
             changeViewMode={changeViewMode}
             loadPositionals={loadPositionals}
@@ -312,13 +315,13 @@
         {#if editMode.id === 1}
             <div class="outerEntry">
                 <div class="noteEntry">
-                    <div class="inputArea">
-                        <div class="noteInput"
-                            contenteditable="true"
-                            on:keydown={editingKeyHandler}
-                            bind:this={noteInput}
-                            placeholder="Append new note">
-                        </div>
+                    <div class="appendIco"><i class="bi bi-plus-lg"></i></div>
+                    <div class="noteInput"
+                        contenteditable="true"
+                        on:keydown={editingKeyHandler}
+                        bind:this={noteInput}
+                        placeholder="Append new note"
+                        style="max-width:{pageWidth}px;">
                     </div>
                 </div>
             </div>
@@ -358,12 +361,15 @@
 
     .noteEntry {
         margin: 0 auto;
-        max-width: var(--usableWidth);
-        padding: 0.5rem;
+        max-width: 800px;
+        display: flex;
+        align-items: baseline;
     }
 
-    .inputArea {
-        padding: 0.25rem;
+    .appendIco {
+        color: #34be7b;
+        font-size: 1.5rem;
+        margin: 0 0.75rem;
     }
 
     .noteInput {
@@ -374,6 +380,8 @@
         line-height: 1.84rem;
         min-height: 2.84rem;
         font-size: 1.10rem;
+        flex: 1;
+        margin: 0.75rem 0.75rem 0.75rem 0;
     }
 
     [contenteditable=true]:empty:before {

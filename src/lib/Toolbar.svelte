@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { EditModes } from "$lib/scripts/settings";
+    import { EditModes, GetThemeList, DefaultThemeList } from "$lib/scripts/settings";
     import { ClickOutside } from "$lib/scripts/utils";
     import CreatePositional from "$lib/CreatePositional.svelte";
 
@@ -7,6 +7,7 @@
     export let viewMode: ViewMode;
     export let viewModes: ViewModeCategory[];
     export let collection: Collection;
+    export let pageWidth: Number;
     export let changeEditMode: (modeSelection: number) => void;
     export let changeViewMode: (categoryId: number, optionId: number) => void;
     export let loadPositionals: () => void;
@@ -15,22 +16,14 @@
     let showViewModeSelect: boolean = false;
     let showThemeSelect: boolean = false;
     let showCreatePositional: boolean = false;
-
-    function toggleShowEditMode() {
-        showEditModeSelect = !showEditModeSelect;
-    }
-
-    function toggleShowViewMode() {
-        showViewModeSelect = !showViewModeSelect;
-    }
 </script>
 
 <div class="outer">
-    <div class="toolBar">
+    <div class="toolBar" style="max-width:{pageWidth}px;">
         <div class="selectHolder">
             <div class="selector selTB {editMode.class}" class:selectorSelected={showEditModeSelect}
-                    on:click={() => toggleShowEditMode()}
-                    on:keypress={() => toggleShowEditMode()}>
+                    on:click={() => showEditModeSelect = !showEditModeSelect}
+                    on:keypress={() => showEditModeSelect = !showEditModeSelect}>
                 <div class="ico {editMode.class}"><i class="{editMode.ico}"></i></div>
                 <div class="name {editMode.class}">{editMode.name}</div>
                 <div class="tIco"><i class="bi bi-chevron-down"></i></div>
@@ -38,7 +31,7 @@
             {#if showEditModeSelect}
                 <div class="selectorMenu smTB"
                         use:ClickOutside 
-                        on:outclick={() => toggleShowEditMode()}>
+                        on:outclick={() => showEditModeSelect = !showEditModeSelect}>
                     {#each EditModes as mode}
                         <div class="opt"
                                 on:click={() => {
@@ -58,8 +51,8 @@
         </div>
         <div class="selectHolder mL">
             <div class="selector selTBVM" class:selectorSelected={showViewModeSelect}
-                    on:click={() => toggleShowViewMode()}
-                    on:keypress={() => toggleShowViewMode()}>
+                    on:click={() => showViewModeSelect = !showViewModeSelect}
+                    on:keypress={() => showViewModeSelect = !showViewModeSelect}>
                 {#if viewMode.isSortable}
                     <div class="ico"><i class="{viewMode.ico}"></i></div>
                 {:else}
@@ -71,7 +64,7 @@
             {#if showViewModeSelect}
                 <div class="selectorMenu selTBVMsm"
                         use:ClickOutside 
-                        on:outclick={() => toggleShowViewMode()}>
+                        on:outclick={() => showViewModeSelect = !showViewModeSelect}>
                     {#each viewModes as viewModeCat}
                         <div class="cat catCo">
                             <i class="{viewModeCat.ico}"></i>
@@ -111,9 +104,19 @@
                 </div>
             {/if}
         </div>
-<!-- 
-        <div class="filterBtn"><i class="bi bi-filter-circle"></i></div> 
--->
+
+        <div class="selectHolder mL">
+            <div class="selector selTheme" class:selectorSelected={showThemeSelect}
+                    on:click={() => showThemeSelect = !showThemeSelect}
+                    on:keypress={() => showThemeSelect = !showThemeSelect}>
+                <div class="ico"><i class="bi bi-easel"></i></div>
+                <div class="name">Theme</div>
+                <div class="tIco"><i class="bi bi-chevron-down"></i></div>
+            </div>
+        </div>
+
+        <div class="otherOpts"><i class="bi bi-three-dots-vertical"></i></div>
+
     </div>
 </div>
 
@@ -134,7 +137,7 @@
     .toolBar {
         margin: 0 auto;
         max-width: var(--usableWidth);
-        padding: 0.3rem;
+        padding: 0.35rem 1.0rem;
         display: flex;
         align-items: center;
     }
@@ -145,7 +148,7 @@
 
     .selTB {
         padding: 0.25rem 0.4rem;
-        width: 130px;
+        width: 160px;
     }
 
     .selTB:hover {
@@ -153,7 +156,7 @@
     }
 
     .smTB {
-        width: 130px;
+        width: 160px;
     }
 
     .name {
@@ -184,7 +187,7 @@
     }
 
     .selTBVM:hover {
-        border: 1px solid
+        border: 1px solid;
     }
 
     .selTBVMsm {
@@ -218,28 +221,38 @@
         font-size: 1.0rem;
     }
 
+
+
+    .selTheme {
+        padding: 0.25rem 0.4rem;
+        width: 160px;
+        color: #d7b474;
+        /* color: #d8c59c; */
+    }
+
+    .selTheme:hover {
+        border: 1px solid;
+    }
+
+    .otherOpts {
+        margin-left: auto;
+        color: var(--fontColor);
+    }
+
+
     .catCo {
         color: #B19CD8;
     }
 
-    .filterBtn {
-        color: var(--fontColor);
-        font-size: 1.0rem;
-        margin: 0 1.0rem;
-    }
-
     .append {
-        /* color: #3cb452; */
         color: #34be7b;
     }
 
     .editing {
-        /* color: #F5DF4D; */
         color: #f5e28e;
     }
 
     .readOnly {
-        /* color: #BE3455; */
         color: #df7e79;
     }
 </style>
