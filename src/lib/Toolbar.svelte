@@ -221,13 +221,10 @@
         font-size: 1.0rem;
     }
 
-
-
     .selTheme {
         padding: 0.25rem 0.4rem;
         width: 160px;
         color: #d7b474;
-        /* color: #d8c59c; */
     }
 
     .selTheme:hover {
@@ -238,7 +235,6 @@
         margin-left: auto;
         color: var(--fontColor);
     }
-
 
     .catCo {
         color: #B19CD8;

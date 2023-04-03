@@ -79,6 +79,8 @@ declare namespace svelteHTML {
 }
 
 interface Theme {
+    id: number;
+    system: boolean;
     name: string;
     maxIndents: number;
     default?: NoteTheme;

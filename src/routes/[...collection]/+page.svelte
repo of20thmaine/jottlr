@@ -59,6 +59,8 @@
     }
 
     let theme: Theme = {
+        id: 1,
+        system: true,
         name: "Default",
         default: {marginLeft: 32, bubbleColor: "transparent"},
         maxIndents: 4,

@@ -75,6 +75,8 @@ export const EditModes: EditMode[] = [
 
 export const DefaultThemeList: Theme[] = [
     {
+        id: 0,
+        system: true,
         name: "Bulleted List",
         maxIndents: 6,
         default: {
@@ -83,6 +85,8 @@ export const DefaultThemeList: Theme[] = [
         }
     },
     {
+        id: 1,
+        system: true,
         name: "Ordered List",
         maxIndents: 6,
         default: {
