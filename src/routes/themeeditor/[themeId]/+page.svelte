@@ -6,16 +6,19 @@
 
     export let data;
 
-    let showThemeSelect: boolean = false;
     let showCreateArea: boolean = false;
     let createCopy: boolean = false;
+
+    let showThemeSelect: boolean = false;
     let showMaxIndentSelect: boolean = false;
 
     let themeNameInput: HTMLElement;
-    let newThemeName: string = "";
+    
+    let createNameStr: string = "";
+    let changeNameStr: string = "";
 
-    let newThemeErrorStr: string = "";
-    let nameChangeErrorStr: string = "";
+    let createNameErrorStr: string = "";
+    let changeNameErrorStr: string = "";
 
     let currentlyEditing: Theme;
     let themes: Theme[];
@@ -32,42 +35,12 @@
 
     async function loadData() {
         themes = await GetThemeList();
-        currentlyEditing = getThemeIdxFromId(data.id);
+        currentlyEditing = getThemeFromId(data.id);
+        changeNameStr = currentlyEditing.name;
     }
 
-    function getThemeIdxFromId(themeId: number): Theme {
-        for (let theme of themes) {
-            if (theme.id === themeId) {
-                return theme;
-            }
-        }
-        return themes[0];
-    }
-
-    function createNewTheme() {
-        newThemeErrorStr = checkThemeName(newThemeName);
-        if (newThemeErrorStr.length !== 0) return;
-
-        let newTheme: Theme;
-        
-        if (createCopy) {
-            newTheme = JSON.parse(JSON.stringify(currentlyEditing));
-            newTheme.id = getNextValidUserThemeId();
-            newTheme.name = newThemeName;
-            newTheme.system = false;
-        } else {
-            newTheme = {
-                id: getNextValidUserThemeId(),
-                name: newThemeName,
-                system: false,
-                maxIndents: DefaultMaxIndents
-            };
-        }
-        themes.push(newTheme);
+    function save() {
         SetThemeList(themes);
-        currentlyEditing = newTheme;
-        newThemeName = "";
-        showCreateArea = createCopy = false;
     }
 
     function getNextValidUserThemeId() {
@@ -93,14 +66,58 @@
         if (!currentlyEditing.system) return;
         for (let theme of DefaultThemeList) {
             if (theme.id === currentlyEditing.id) {
-                currentlyEditing = theme;
                 let idx = getThemeIdx(theme.id, themes);
-                if (!idx) return;
-                themes[idx] = theme;
-                SetThemeList(themes);
+                if (idx === undefined) return;
+                themes[idx] = JSON.parse(JSON.stringify(theme));
+                save();
+                currentlyEditing = themes[idx];
+                changeNameStr = currentlyEditing.name;
                 return;
             }
         }
+    }
+
+    function getThemeFromId(themeId: number): Theme {
+        for (let theme of themes) {
+            if (theme.id === themeId) {
+                return theme;
+            }
+        }
+        return themes[0];
+    }
+
+    function createNewTheme() {
+        createNameErrorStr = checkThemeName(createNameStr);
+        if (createNameErrorStr.length !== 0) return;
+
+        let newTheme: Theme;
+        
+        if (createCopy) {
+            newTheme = JSON.parse(JSON.stringify(currentlyEditing));
+            newTheme.id = getNextValidUserThemeId();
+            newTheme.name = createNameStr;
+            newTheme.system = false;
+        } else {
+            newTheme = {
+                id: getNextValidUserThemeId(),
+                name: createNameStr,
+                system: false,
+                maxIndents: DefaultMaxIndents
+            };
+        }
+        themes.push(newTheme);
+        save();
+        currentlyEditing = newTheme;
+        createNameStr = "";
+        showCreateArea = createCopy = false;
+    }
+
+    function changeThemeName() {
+        changeNameErrorStr = checkThemeName(changeNameStr);
+        if (changeNameErrorStr.length !== 0) return;
+
+        currentlyEditing.name = changeNameStr;
+        save();
     }
 
     function checkThemeName(name: string) {
@@ -112,16 +129,7 @@
         return "";
     }
 
-    function changeThemeName(event: KeyboardEvent): void {
-        nameChangeErrorStr = checkThemeName(currentlyEditing.name);
-        switch (event.key) {
-            case "Enter":
-                event.preventDefault();
-                return;
-        }
-    }
-
-    function createThemeName(event: KeyboardEvent): void {
+    function createNameKeyHandler(event: KeyboardEvent): void {
         switch (event.key) {
             case "Enter":
                 event.preventDefault();
@@ -134,9 +142,14 @@
         }
     }
 
-    function save() {
-        console.log(themes)
-        SetThemeList(themes);
+    function changeNameKeyHandler(event: KeyboardEvent): void {
+        changeNameErrorStr = checkThemeName(changeNameStr);
+        switch (event.key) {
+            case "Enter":
+                event.preventDefault();
+                changeThemeName();
+                return;
+        }
     }
 </script>
 
@@ -193,9 +206,9 @@
                 </div>
                 <div class="row">
                     <textarea class="txtInput"
-                        on:keydown={createThemeName}
+                        on:keydown={createNameKeyHandler}
                         bind:this={themeNameInput}
-                        bind:value={newThemeName}
+                        bind:value={createNameStr}
                         placeholder="New theme name"
                     />
                     <div class="submitBtn {createCopy ? "copyCo" : "createCo"}"
@@ -208,7 +221,7 @@
                         {/if}
                     </div>
                 </div>
-                <div class="errorMsg">{newThemeErrorStr}</div>
+                <div class="errorMsg">{createNameErrorStr}</div>
             </div>
         {/if}
 
@@ -231,10 +244,12 @@
                             <div class="opt themeOpt"
                                     on:click={() => {
                                         currentlyEditing = theme;
+                                        changeNameStr = currentlyEditing.name
                                         showThemeSelect = !showThemeSelect;
                                     }}
                                     on:keypress={() => {
                                         currentlyEditing = theme;
+                                        changeNameStr = currentlyEditing.name
                                         showThemeSelect = !showThemeSelect;
                                     }}>
                                 {theme.name}
@@ -259,9 +274,11 @@
 
         <h3>Change Name:</h3>
         <textarea class="txtInput"
-            bind:value={currentlyEditing.name}
+            on:keydown={changeNameKeyHandler}
+            on:focusout={changeThemeName}
+            bind:value={changeNameStr}
         />
-        <div class="errorMsg">{nameChangeErrorStr}</div>
+        <div class="errorMsg">{changeNameErrorStr}</div>
 
         <h3>Max Indents:</h3>
         <div class="selectHolder">
@@ -316,7 +333,7 @@
 
 <style>
     .page {
-        margin-top: var(--titlebarHeight);
+        /* margin-top: var(--titlebarHeight); */
         margin: 0 auto;
         max-width: 600px;
         padding: 1.0rem;

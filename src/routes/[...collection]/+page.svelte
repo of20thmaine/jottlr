@@ -341,7 +341,7 @@
 
 <style>
     .page {
-        margin-top: var(--titlebarHeight);
+        /* margin-top: var(--titlebarHeight); */
         height: calc(100vh - var(--titlebarHeight));
         display: grid;
         grid-template-rows: min-content 1fr min-content;

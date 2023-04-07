@@ -105,7 +105,7 @@
 
 <style>
     .titlebar {
-        position: fixed;
+        position: relative;
         top: 0;
         left: 0;
         right: 0;
@@ -120,7 +120,7 @@
     .menuSelection {
         font-size: 0.9rem;
         color: var(--fontColor);
-        padding: 0.4rem;
+        padding: 0.25rem 0.5rem;
     }
 
     .menuSelection:hover {
