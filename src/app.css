@@ -58,6 +58,10 @@ body {
 	overflow-y: auto;
 }
 
+.selectHolder {
+	position: relative;
+}
+
 .selector {
 	display: flex;
 	align-items: center;
@@ -78,7 +82,7 @@ body {
 }
 
 .selectorMenu {
-	position: fixed;
+	position: absolute;
 	z-index: 3;
 	color: var(--fontColor);
 	border-right: 1px solid;

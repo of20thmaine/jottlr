@@ -30,6 +30,7 @@ interface CollectionView {
     editModeId: number;
     viewCategoryId: number;
     viewModeId: number;
+    themeId: number;
 }
 
 interface CollectionSelection {
@@ -85,8 +86,6 @@ interface Theme {
     maxIndents: number;
     default?: NoteTheme;
     noteThemes?: NoteTheme[];
-    showGuides?: boolean;
-    guideColor?: string;
 }
 
 interface NoteTheme {

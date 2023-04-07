@@ -1,11 +1,14 @@
 <script lang="ts">
-    import { EditModes, GetThemeList, DefaultThemeList } from "$lib/scripts/settings";
+    import { goto } from '$app/navigation';
+    import { EditModes, GetThemeList } from "$lib/scripts/settings";
     import { ClickOutside } from "$lib/scripts/utils";
     import CreatePositional from "$lib/CreatePositional.svelte";
 
     export let editMode: EditMode;
     export let viewMode: ViewMode;
     export let viewModes: ViewModeCategory[];
+    export let theme: Theme;
+    export let themes: Theme[];
     export let collection: Collection;
     export let pageWidth: Number;
     export let changeEditMode: (modeSelection: number) => void;
@@ -110,9 +113,41 @@
                     on:click={() => showThemeSelect = !showThemeSelect}
                     on:keypress={() => showThemeSelect = !showThemeSelect}>
                 <div class="ico"><i class="bi bi-easel"></i></div>
-                <div class="name">Theme</div>
+                <div class="name">{theme.name}</div>
                 <div class="tIco"><i class="bi bi-chevron-down"></i></div>
             </div>
+            {#if showThemeSelect}
+                <div class="selectorMenu themeMenu"
+                        use:ClickOutside 
+                        on:outclick={() => {
+                                showThemeSelect = false;
+                            }}>
+                    {#each themes as themeOpt}
+                        <div class="opt themeOpt"
+                                on:click={() => {
+                                    theme = themeOpt;
+                                    showThemeSelect = !showThemeSelect;
+                                }}
+                                on:keypress={() => {
+                                    theme = themeOpt;
+                                    showThemeSelect = !showThemeSelect;
+                                }}>
+                            {themeOpt.name}
+                            {#if themeOpt.system}
+                                <i class="bi bi-gear mLA"></i>
+                            {:else}
+                                <i class="bi bi-person mLA"></i>
+                            {/if}
+                        </div>
+                    {/each}
+                    <div class="opt themeOpt themeCo"
+                            on:click={() => goto("/themeeditor/" + theme.id)}
+                            on:keypress={() => goto("/themeeditor/" + theme.id)}>
+                        Create New
+                        <i class="bi bi-plus-lg mLA"></i>
+                    </div>
+                </div>
+            {/if}
         </div>
 
         <div class="otherOpts"><i class="bi bi-three-dots-vertical"></i></div>
@@ -180,6 +215,10 @@
         margin-left: 0.5rem;
     }
 
+    .mLA {
+        margin-left: auto;
+    }
+
     .selTBVM {
         padding: 0.25rem 0.4rem;
         width: 160px;
@@ -227,6 +266,14 @@
         color: #d7b474;
     }
 
+    .themeMenu {
+        width: 160px;
+    }
+
+    .themeOpt {
+        font-size: 0.8rem;
+    }
+
     .selTheme:hover {
         border: 1px solid;
     }
@@ -250,5 +297,9 @@
 
     .readOnly {
         color: #df7e79;
+    }
+
+    .themeCo {
+        color: #d7b474;
     }
 </style>

@@ -1,7 +1,7 @@
 <script lang="ts">
     import { flip } from 'svelte/animate';
     import { CreateNote, GetCollection, GetCollectionsPositionals, GetPositional, DeleteNote, DeleteFromPositionedNotes, UpdateCollectionLastOpen } from "$lib/scripts/db";
-    import { DefaultViewModes, EditModes, GetPageWidth, ChangeType, LabelType, SortType, SetCollectionView, GetCollectionView } from "$lib/scripts/settings";
+    import { DefaultViewModes, EditModes, GetPageWidth, ChangeType, LabelType, SortType, SetCollectionView, GetCollectionView, GetThemeList } from "$lib/scripts/settings";
     import { WindowTitle } from "$lib/scripts/stores";
     import NoteView from "$lib/NoteView.svelte";
     import Toolbar from "$lib/Toolbar.svelte";
@@ -15,6 +15,8 @@
     let focusNoteId: number | null = null;
     let editMode: EditMode;
     let viewModes: ViewModeCategory[] = DefaultViewModes;
+    let themes: Theme[];
+    let theme: Theme;
     let viewMode: ViewMode;
     let pageWidth: number = 800;
 
@@ -27,6 +29,11 @@
     $: if (noteInput) noteInput.focus();
     $: if (collectionView) SetCollectionView(collectionView);
     $: if (collectionElement) collectionElement.scrollTop = collectionElement.scrollHeight;
+
+    $: if (theme) {
+        collectionView.themeId = theme.id;
+        notes = notes;
+    }
 
     $: if (editMode && viewMode && notes) {
         if (editMode.id === 2 && notes.length === 0) {
@@ -58,21 +65,6 @@
         notes = notes;
     }
 
-    let theme: Theme = {
-        id: 1,
-        system: true,
-        name: "Default",
-        default: {marginLeft: 32, bubbleColor: "transparent"},
-        maxIndents: 4,
-        noteThemes: [
-            {label: LabelType.RomanCaps, fontColor: "#3410B2", bubbleColor: "yellow"},
-            {label: LabelType.Numerals},
-            {label: LabelType.AlphabetCaps, bubbleColor: "Black"},
-            {label: LabelType.RomanLowers, fontColor: "gold", fontSize: 24},
-            {label: LabelType.AlphabetLowers}
-        ]
-    };
-
     async function initialDataLoad() {
         return await GetCollectionView(data.id).then((value) => {
             if (value) {
@@ -83,12 +75,17 @@
                     name: data.name,
                     editModeId: 1,
                     viewCategoryId: 1,
-                    viewModeId: 1
+                    viewModeId: 1,
+                    themeId: 1
                 }
             }
             loadPositionals();
             editMode = getEditModeFromId(collectionView.editModeId);
             viewMode = getViewModeFromId(collectionView.viewCategoryId, collectionView.viewModeId);
+            GetThemeList().then((value) => {
+                themes = value;
+                theme = getThemeFromId(collectionView.themeId);
+            })
 
             if (viewMode.isSortable) {
                 GetCollection(data.id, viewMode.sort)
@@ -131,6 +128,15 @@
             }
         }
         return viewModes[0].options[0];
+    }
+
+    function getThemeFromId(id: number): Theme {
+        for (let theme of themes) {
+            if (theme.id === id) {
+                return theme;
+            }
+        }
+        return themes[0];
     }
 
     function jumpToPageEnd() {
@@ -288,6 +294,8 @@
             editMode={editMode}
             viewMode={viewMode}
             viewModes={viewModes}
+            bind:theme={theme}
+            themes={themes}
             collection={data}
             pageWidth={pageWidth}
             changeEditMode={changeEditMode}

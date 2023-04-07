@@ -34,8 +34,13 @@ export async function GetPageWidth(): Promise<number | null> {
     return await store.get("page-width");
 }
 
-export async function GetThemeList(): Promise<Theme[] | null> {
-    return await store.get("theme-list");
+export async function GetThemeList(): Promise<Theme[]> {
+    let themes: Theme[] | null = await store.get("theme-list");
+    if (!themes) {
+        return SetThemeList(DefaultThemeList)
+            .then(() => {return store.get("theme-list") as Promise<Theme[]>} );
+    }
+    return themes;
 }
 
 export async function SetThemeList(themeList: Theme[]) {
@@ -75,7 +80,7 @@ export const EditModes: EditMode[] = [
 
 export const DefaultThemeList: Theme[] = [
     {
-        id: 0,
+        id: 1,
         system: true,
         name: "Bulleted List",
         maxIndents: 6,
@@ -85,7 +90,7 @@ export const DefaultThemeList: Theme[] = [
         }
     },
     {
-        id: 1,
+        id: 2,
         system: true,
         name: "Ordered List",
         maxIndents: 6,
