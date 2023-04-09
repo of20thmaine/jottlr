@@ -24,9 +24,9 @@ export function ApplyNoteStyle(node: HTMLElement, note: Note, theme: Theme) {
     }
 
     if (theme.noteThemes?.[note.indents]?.fontWeight) {
-        node.style.fontWeight = theme.noteThemes[note.indents].fontWeight!;
+        node.style.fontWeight = theme.noteThemes[note.indents].fontWeight!.value;
     } else if (theme.default?.fontWeight) {
-        node.style.fontWeight = theme.default.fontWeight;
+        node.style.fontWeight = theme.default.fontWeight.value;
     }
 
     if (theme.noteThemes?.[note.indents]?.fontColor) {
@@ -52,9 +52,9 @@ export function ApplyLabelStyle(node: HTMLElement, note: Note, theme: Theme) {
     }
 
     if (theme.noteThemes?.[note.indents]?.labelTheme?.fontWeight) {
-        node.style.fontWeight = theme.noteThemes[note.indents].labelTheme!.fontWeight!;
+        node.style.fontWeight = theme.noteThemes[note.indents].labelTheme!.fontWeight!.value;
     } else if (theme.default?.labelTheme?.fontWeight) {
-        node.style.fontWeight = theme.default.labelTheme.fontWeight;
+        node.style.fontWeight = theme.default.labelTheme.fontWeight.value;
     }
 
     if (theme.noteThemes?.[note.indents]?.labelTheme?.fontColor) {

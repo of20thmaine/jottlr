@@ -64,6 +64,16 @@ interface Sortable {
     isSortable: true;
 }
 
+interface FontWeight {
+    name: string;
+    value: string;
+}
+
+interface Label {
+    name: string;
+    value: LabelType;
+}
+
 type ViewMode = Sortable | Positional;
 
 interface ViewModeCategory {
@@ -91,15 +101,15 @@ interface Theme {
 interface NoteTheme {
     marginLeft?: number;
     fontSize?: number;
-    fontWeight?: string;
+    fontWeight?: FontWeight;
     fontColor?: string;
     bubbleColor?: string;
-    label?: LabelType;
+    label?: Label;
     labelTheme?: LabelTheme;
 }
 
 interface LabelTheme {
     fontSize?: number;
-    fontWeight?: string;
+    fontWeight?: FontWeight;
     fontColor?: string;
 }

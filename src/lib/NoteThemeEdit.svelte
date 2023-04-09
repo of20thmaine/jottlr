@@ -1,4 +1,5 @@
 <script lang="ts">
+    import { Labels } from "$lib/scripts/settings";
     import { ClickOutside } from "$lib/scripts/utils";
     import ColorSelector from "$lib/ColorSelector.svelte";
 
@@ -9,13 +10,18 @@
     let theme: NoteTheme;
     let showIndentSelect: boolean = false;
     let showFontSizeSelect: boolean = false;
+    let showFontWeightSelect: boolean = false;
+    let showLabelSelect: boolean = false;
 
     const MaxMargin: number = 72;
     const MaxFontSize: number = 72;
-    let marginOpts: number[] = [4, 8, 16, 32, 64, 72];
-    let fontOpts: number[] = [8,9,10,11,12,14,16,18,24,30,36,48,60,72]
+    const marginOpts: number[] = [4, 8, 16, 32, 64, 72];
+    const fontOpts: number[] = [8,9,10,11,12,14,16,18,24,30,36,48,60,72];
+    const fontWeightOpts: FontWeight[] = [{name:"Light",value:"300"},{name:"Normal",value:"400"},
+        {name:"Semi-Bold",value:"600"},{name:"Bold",value:"700"}];
 
     $: if (themePapa) load();
+    $: theme.marginLeft, theme.fontSize, theme.fontWeight, theme.fontColor, theme.bubbleColor, theme.label, save();
 
     function load() {
         if (indentLevel === -1) {
@@ -42,7 +48,7 @@
         <h2>{indentLevel}-Indents Theme Settings</h2>
     {/if}
 
-    <h3>Indent-Level</h3>
+    <h3>Indent-Level:</h3>
     <div class="row">
         <div class="lilBtn"
             on:click={() => {
@@ -53,7 +59,6 @@
                         theme.marginLeft = undefined;
                     }
                 }
-                save();
             }}
             on:keypress={() => {
                 if (theme.marginLeft) {
@@ -63,7 +68,6 @@
                         theme.marginLeft = undefined;
                     }
                 }
-                save();
             }}><i class="bi bi-dash"></i></div>
         <div class="selectHolder">
             <div class="selector selIndents" class:selectorSelected={showIndentSelect}
@@ -80,12 +84,10 @@
                     <div class="opt indentOpt"
                             on:click={() => {
                                 theme.marginLeft = undefined;
-                                save();
                                 showIndentSelect = !showIndentSelect;
                             }}
                             on:keypress={() => {
                                 theme.marginLeft = undefined;
-                                save();
                                 showIndentSelect = !showIndentSelect;
                             }}>
                         -
@@ -94,12 +96,10 @@
                         <div class="opt indentOpt"
                                 on:click={() => {
                                     theme.marginLeft = opt;
-                                    save();
                                     showIndentSelect = !showIndentSelect;
                                 }}
                                 on:keypress={() => {
                                     theme.marginLeft = opt;
-                                    save();
                                     showIndentSelect = !showIndentSelect;
                                 }}>
                             {opt}
@@ -119,11 +119,17 @@
                 }
             }}
             on:keypress={() => {
-
+                if (theme.marginLeft) {
+                    if (theme.marginLeft < MaxMargin) {
+                        theme.marginLeft++;
+                    }
+                } else {
+                    theme.marginLeft = 1;
+                }
             }}><i class="bi bi-plus"></i></div>
     </div>
 
-    <h3>Font Size</h3>
+    <h3>Font Size:</h3>
     <div class="row">
         <div class="lilBtn"
             on:click={() => {
@@ -134,7 +140,6 @@
                         theme.fontSize = undefined;
                     }
                 }
-                save();
             }}
             on:keypress={() => {
                 if (theme.fontSize) {
@@ -144,7 +149,6 @@
                         theme.fontSize = undefined;
                     }
                 }
-                save();
             }}><i class="bi bi-dash"></i></div>
         <div class="selectHolder">
             <div class="selector selIndents" class:selectorSelected={showFontSizeSelect}
@@ -161,12 +165,10 @@
                     <div class="opt indentOpt"
                             on:click={() => {
                                 theme.fontSize = undefined;
-                                save();
                                 showFontSizeSelect = !showFontSizeSelect;
                             }}
                             on:keypress={() => {
                                 theme.fontSize = undefined;
-                                save();
                                 showFontSizeSelect = !showFontSizeSelect;
                             }}>
                         -
@@ -175,12 +177,10 @@
                         <div class="opt indentOpt"
                                 on:click={() => {
                                     theme.fontSize = opt;
-                                    save();
                                     showFontSizeSelect = !showFontSizeSelect;
                                 }}
                                 on:keypress={() => {
                                     theme.fontSize = opt;
-                                    save();
                                     showFontSizeSelect = !showFontSizeSelect;
                                 }}>
                             {opt}
@@ -200,25 +200,110 @@
                 }
             }}
             on:keypress={() => {
-
+                if (theme.fontSize) {
+                    if (theme.fontSize < MaxFontSize) {
+                        theme.fontSize++;
+                    }
+                } else {
+                    theme.fontSize = 1;
+                }
             }}><i class="bi bi-plus"></i></div>
     </div>
 
+    <h3>Font Weight:</h3>
+    <div class="row">
+        <div class="selectHolder">
+            <div class="selector selWeights" class:selectorSelected={showFontWeightSelect}
+                    on:click={() => showFontWeightSelect = true}
+                    on:keypress={() => showFontWeightSelect = !showFontWeightSelect}>
+                <div class="selected">{theme.fontWeight ? theme.fontWeight.name : "-"}</div>
+            </div>
+            {#if showFontWeightSelect}
+                <div class="selectorMenu indentsMenu weightsMenu"
+                        use:ClickOutside 
+                        on:outclick={() => {
+                                showFontWeightSelect = false;
+                            }}>
+                    <div class="opt weightOpt"
+                            on:click={() => {
+                                theme.fontWeight = undefined;
+                                showFontWeightSelect = !showFontWeightSelect;
+                            }}
+                            on:keypress={() => {
+                                theme.fontWeight = undefined;
+                                showFontWeightSelect = !showFontWeightSelect;
+                            }}>
+                        -
+                    </div>
+                    {#each fontWeightOpts as opt}
+                        <div class="opt weightOpt"
+                                on:click={() => {
+                                    theme.fontWeight = opt;
+                                    showFontWeightSelect = !showFontWeightSelect;
+                                }}
+                                on:keypress={() => {
+                                    theme.fontWeight = opt;
+                                    showFontWeightSelect = !showFontWeightSelect;
+                                }}>
+                            {opt.name}
+                        </div>
+                    {/each}
+                </div>
+            {/if}
+        </div>
+    </div>
 
+    <h3>Font Color:</h3>
+    <ColorSelector bind:value={theme.fontColor} />
 
+    <h3>Background Color:</h3>
+    <ColorSelector bind:value={theme.bubbleColor} />
 
-    
-    <h3>Page Colors:</h3>
-    <ColorSelector
-        color={""}
-        prompt={""}
-    />
+    <h3>Label:</h3>
+    <div class="selectHolder">
+        <div class="selector selLabel" class:selectorSelected={showLabelSelect}
+                on:click={() => showLabelSelect = true}
+                on:keypress={() => showLabelSelect = !showLabelSelect}>
+            <div class="selected">{theme.label ? theme.label.name : "-"}</div>
+            <i class="bi bi-chevron-down rI"></i>
+        </div>
+        {#if showLabelSelect}
+            <div class="selectorMenu labelMenu"
+                    use:ClickOutside 
+                    on:outclick={() => {
+                            showLabelSelect = false;
+                        }}>
+                    <div class="opt"
+                            on:click={() => {
+                                theme.label = undefined;
+                                showLabelSelect = !showLabelSelect;
+                            }}
+                            on:keypress={() => {
+                                theme.label = undefined;
+                                showLabelSelect = !showLabelSelect;
+                            }}>
+                        -
+                    </div>
+                {#each Labels as label}
+                    <div class="opt"
+                            on:click={() => {
+                                theme.label = label;
+                                showLabelSelect = !showLabelSelect;
+                            }}
+                            on:keypress={() => {
+                                theme.label = label;
+                                showLabelSelect = !showLabelSelect;
+                            }}>
+                        {label.name}
+                    </div>
+                {/each}
+            </div>
+        {/if}
+    </div>
 
-
-    <h3>More</h3>
-
-
-    <h3>More</h3>
+    {#if theme.label}
+        <h3>Label Settings:</h3>
+    {/if}
 
 {/if}
 
@@ -268,8 +353,21 @@
     }
 
     .indentOpt {
-        padding: 0.3rem 0.5rem 0.35rem 0.5rem;
+        padding: 0.3rem 0.5rem 0.3rem 0.5rem;
         justify-content: center;
+    }
+
+    .selWeights {
+        padding: 0.3rem 0 0.25rem 0;
+        width: 100px;
+    }
+
+    .weightsMenu {
+        width: 100px;
+    }
+
+    .weightOpt {
+        padding: 0.3rem 0.5rem 0.35rem 0.5rem;
     }
 
     .lilBtn {
@@ -277,5 +375,14 @@
         margin: 0.25rem;
         cursor: pointer;
 	    user-select: none;
+    }
+
+    .selLabel {
+        padding: 0.3rem 0.5rem 0.35rem 0.5rem;
+        width: 270px;
+    }
+
+    .labelMenu {
+        width: 270px;
     }
 </style>

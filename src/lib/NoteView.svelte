@@ -208,7 +208,7 @@
 {#if !viewMode.isSortable && note.isPositioned && note.label && 
         theme.noteThemes?.[note.indents]?.label !== undefined}
     <div class="label" bind:this={labelNode}>
-        {getLabelText(note.label, theme.noteThemes[note.indents].label)}.
+        {getLabelText(note.label, theme.noteThemes[note.indents].label?.value)}.
     </div>
 {/if}
 {#if collectionView.editModeId === 2}

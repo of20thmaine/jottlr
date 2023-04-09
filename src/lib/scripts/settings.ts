@@ -55,9 +55,19 @@ export const enum LabelType {
     RomanLowers,
     Disc,
     Circle,
-    Square,
-    Check
+    Square
 }
+
+export const Labels: Label[] = [
+    {name: "Roman Numerals (Uppercase)", value: LabelType.RomanCaps},
+    {name: "Roman Numerals (Lowercase)", value: LabelType.RomanLowers},
+    {name: "Alphabet (Uppercase)", value: LabelType.AlphabetCaps},
+    {name: "Alphabet (Lowercase)", value: LabelType.AlphabetLowers},
+    {name: "Numbered", value: LabelType.Numerals},
+    {name: "Bulleted (Bullet)", value: LabelType.Disc},
+    {name: "Bulleted (Square)", value: LabelType.Square},
+    {name: "Bulleted (Circle)", value: LabelType.Circle}
+];
 
 export const enum SortType {
     Date_Added_Asc,
@@ -86,7 +96,7 @@ export const DefaultThemeList: Theme[] = [
         maxIndents: 6,
         default: {
             marginLeft: 16,
-            label: LabelType.Disc
+            label: {name: "Bulleted (Bullet)", value: LabelType.Disc}
         }
     },
     {
@@ -99,22 +109,22 @@ export const DefaultThemeList: Theme[] = [
         },
         noteThemes: [
             {
-                label: LabelType.RomanCaps
+                label: {name: "Roman Numerals (Uppercase)", value: LabelType.RomanCaps}
             },
             {
-                label: LabelType.RomanCaps
+                label: {name: "Alphabet (Uppercase)", value: LabelType.AlphabetCaps}
             },
             {
-                label: LabelType.RomanCaps
+                label: {name: "Numbered", value: LabelType.Numerals}
             },
             {
-                label: LabelType.RomanCaps
+                label: {name: "Roman Numerals (Lowercase)", value: LabelType.RomanLowers}
             },
             {
-                label: LabelType.RomanCaps
+                label: {name: "Alphabet (Lowercase)", value: LabelType.AlphabetLowers}
             },
             {
-                label: LabelType.RomanCaps
+                label: {name: "Bulleted (Bullet)", value: LabelType.Disc}
             },
         ]
     }
