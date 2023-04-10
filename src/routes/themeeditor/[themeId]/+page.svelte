@@ -11,6 +11,9 @@
 
     let showThemeSelect: boolean = false;
     let showMaxIndentSelect: boolean = false;
+    let showIndentThemeSelect: boolean = false;
+
+    let indentThemeSelection: number = -1;
 
     let themeNameInput: HTMLElement;
     
@@ -311,18 +314,44 @@
             {/if}
         </div>
 
+        <div class="row">
+            <h2>Indent Level Settings:</h2>
+            <div class="selectHolder">
+                <div class="selector selIndents" class:selectorSelected={showIndentThemeSelect}
+                        on:click={() => showIndentThemeSelect = true}
+                        on:keypress={() => showIndentThemeSelect = !showIndentThemeSelect}>
+                    <div class="selected">{indentThemeSelection === -1 ? "*" : indentThemeSelection}</div>
+                    <i class="bi bi-chevron-down rI"></i>
+                </div>
+                {#if showIndentThemeSelect}
+                    <div class="selectorMenu indentsMenu"
+                            use:ClickOutside 
+                            on:outclick={() => {
+                                    showIndentThemeSelect = false;
+                                }}>
+                        {#each {length: currentlyEditing.maxIndents+1} as _, i}
+                            <div class="opt indentOpt"
+                                    on:click={() => {
+                                        indentThemeSelection = i;
+                                        showIndentThemeSelect = !showIndentThemeSelect;
+                                    }}
+                                    on:keypress={() => {
+                                        indentThemeSelection = i;
+                                        showIndentThemeSelect = !showIndentThemeSelect;
+                                    }}>
+                                {i}
+                            </div>
+                        {/each}
+                    </div>
+                {/if}
+            </div>
+        </div>
+        
         <ThemeIndentSettings 
-            indentLevel={-1}
+            indentLevel={indentThemeSelection}
             bind:themePapa={currentlyEditing}
             save={save}
         />
-
-
-
-
-
-
-
 
 
 
@@ -333,7 +362,6 @@
 
 <style>
     .page {
-        /* margin-top: var(--titlebarHeight); */
         margin: 0 auto;
         max-width: 600px;
         padding: 1.0rem;
@@ -346,6 +374,14 @@
         border-bottom: 1px solid;
         margin-bottom: 1.0rem;
         padding: 0.5rem;
+    }
+
+    h2 {
+        font-size: 1.15rem;
+        margin: 1.0rem 0;
+        margin-right: 1.0rem;
+        font-weight: 400;
+        padding: 0.5rem 0;
     }
 
     h3 {

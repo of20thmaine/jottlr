@@ -55,18 +55,20 @@ export const enum LabelType {
     RomanLowers,
     Disc,
     Circle,
-    Square
+    Square,
+    Arrow
 }
 
 export const Labels: Label[] = [
-    {name: "Roman Numerals (Uppercase)", value: LabelType.RomanCaps},
-    {name: "Roman Numerals (Lowercase)", value: LabelType.RomanLowers},
-    {name: "Alphabet (Uppercase)", value: LabelType.AlphabetCaps},
-    {name: "Alphabet (Lowercase)", value: LabelType.AlphabetLowers},
-    {name: "Numbered", value: LabelType.Numerals},
-    {name: "Bulleted (Bullet)", value: LabelType.Disc},
-    {name: "Bulleted (Square)", value: LabelType.Square},
-    {name: "Bulleted (Circle)", value: LabelType.Circle}
+    {name: "Bullets", value: LabelType.Disc, demo: '<i class="bi bi-circle-fill tinyIco"></i></div>, <i class="bi bi-circle-fill tinyIco"></i>'},
+    {name: "Squares", value: LabelType.Square, demo: '<i class="bi bi-square-fill tinyIco"></i>, <i class="bi bi-square-fill tinyIco"></i>'},
+    {name: "Circles", value: LabelType.Circle, demo: '<i class="bi bi-circle tinyIco"></i>, <i class="bi bi-circle tinyIco"></i>'},
+    {name: "Arrows", value: LabelType.Arrow, demo: '<i class="bi bi-arrow-right"></i>, <i class="bi bi-arrow-right"></i>'},
+    {name: "Roman Numerals (Uppercase)", value: LabelType.RomanCaps, demo: "I, II"},
+    {name: "Roman Numerals (Lowercase)", value: LabelType.RomanLowers, demo: "i, ii"},
+    {name: "Alphabet (Uppercase)", value: LabelType.AlphabetCaps, demo: "A, B"},
+    {name: "Alphabet (Lowercase)", value: LabelType.AlphabetLowers, demo: "a, b"},
+    {name: "Numbered", value: LabelType.Numerals, demo: "1, 2"}
 ];
 
 export const enum SortType {
@@ -96,7 +98,7 @@ export const DefaultThemeList: Theme[] = [
         maxIndents: 6,
         default: {
             marginLeft: 16,
-            label: {name: "Bulleted (Bullet)", value: LabelType.Disc}
+            label: {name: "Bullets", value: LabelType.Disc, demo: '<i class="bi bi-circle-fill"></i>, <i class="bi bi-circle-fill"></i>'},
         }
     },
     {
@@ -109,22 +111,22 @@ export const DefaultThemeList: Theme[] = [
         },
         noteThemes: [
             {
-                label: {name: "Roman Numerals (Uppercase)", value: LabelType.RomanCaps}
+                label: {name: "Roman Numerals (Uppercase)", value: LabelType.RomanCaps, demo: "I, II"}
             },
             {
-                label: {name: "Alphabet (Uppercase)", value: LabelType.AlphabetCaps}
+                label: {name: "Alphabet (Uppercase)", value: LabelType.AlphabetCaps, demo: "A, B"}
             },
             {
-                label: {name: "Numbered", value: LabelType.Numerals}
+                label: {name: "Numbered", value: LabelType.Numerals, demo: "1, 2"}
             },
             {
-                label: {name: "Roman Numerals (Lowercase)", value: LabelType.RomanLowers}
+                label: {name: "Roman Numerals (Lowercase)", value: LabelType.RomanLowers, demo: "i, ii"}
             },
             {
-                label: {name: "Alphabet (Lowercase)", value: LabelType.AlphabetLowers}
+                label: {name: "Alphabet (Lowercase)", value: LabelType.AlphabetLowers, demo: "a, b"}
             },
             {
-                label: {name: "Bulleted (Bullet)", value: LabelType.Disc}
+                label: {name: "Bullets", value: LabelType.Disc, demo: '<i class="bi bi-circle-fill"></i>, <i class="bi bi-circle-fill"></i>'},
             },
         ]
     }

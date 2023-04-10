@@ -72,6 +72,7 @@ interface FontWeight {
 interface Label {
     name: string;
     value: LabelType;
+    demo: string;
 }
 
 type ViewMode = Sortable | Positional;

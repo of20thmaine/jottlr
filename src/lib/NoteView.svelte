@@ -39,6 +39,8 @@
         ApplyLabelStyle(labelNode, note, theme);
     }
 
+    //$: theme, ApplyLabelStyle(labelNode, note, theme), ApplyNoteStyle(noteNode, note, theme);
+
     async function saveNote() {
         if (noteCanBeSaved()) {
             if (note.id === -1) {
@@ -113,6 +115,8 @@
                 return alphabetizeLabel(label);
             case LabelType.AlphabetLowers:
                 return alphabetizeLabel(label).toLowerCase();
+            case LabelType.Numerals:
+                return label.toString();
             default:
                 return label.toString();
         }
@@ -205,11 +209,16 @@
     }
 </script>
 
-{#if !viewMode.isSortable && note.isPositioned && note.label && 
-        theme.noteThemes?.[note.indents]?.label !== undefined}
-    <div class="label" bind:this={labelNode}>
-        {getLabelText(note.label, theme.noteThemes[note.indents].label?.value)}.
-    </div>
+{#if !viewMode.isSortable && note.isPositioned && note.label}
+    {#if theme.noteThemes?.[note.indents].label?.value}
+        <div class="label" bind:this={labelNode}>
+            {getLabelText(note.label, theme.noteThemes?.[note.indents].label?.value)}.
+        </div>
+    {:else if theme.default?.label?.value }
+        <div class="label" bind:this={labelNode}>
+            {getLabelText(note.label, theme.default?.label?.value)}.
+        </div>
+    {/if}
 {/if}
 {#if collectionView.editModeId === 2}
     <div class="noteContent"

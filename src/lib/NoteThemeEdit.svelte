@@ -12,6 +12,8 @@
     let showFontSizeSelect: boolean = false;
     let showFontWeightSelect: boolean = false;
     let showLabelSelect: boolean = false;
+    let showLabelFontSizeSelect: boolean = false;
+    let showLabelFontWeightSelect: boolean = false;
 
     const MaxMargin: number = 72;
     const MaxFontSize: number = 72;
@@ -22,6 +24,7 @@
 
     $: if (themePapa) load();
     $: theme.marginLeft, theme.fontSize, theme.fontWeight, theme.fontColor, theme.bubbleColor, theme.label, save();
+    $: theme.labelTheme, theme.labelTheme?.fontSize, theme.labelTheme?.fontWeight, theme.labelTheme?.fontColor, save();
 
     function load() {
         if (indentLevel === -1) {
@@ -45,9 +48,8 @@
     {#if indentLevel === -1}
         <h2>Theme-Wide Settings</h2>
     {:else}
-        <h2>{indentLevel}-Indents Theme Settings</h2>
+        <h2>{indentLevel}-Indents Theme Settings:</h2>
     {/if}
-
     <h3>Indent-Level:</h3>
     <div class="row">
         <div class="lilBtn"
@@ -264,8 +266,8 @@
         <div class="selector selLabel" class:selectorSelected={showLabelSelect}
                 on:click={() => showLabelSelect = true}
                 on:keypress={() => showLabelSelect = !showLabelSelect}>
-            <div class="selected">{theme.label ? theme.label.name : "-"}</div>
-            <i class="bi bi-chevron-down rI"></i>
+            {theme.label ? theme.label.name : "-"}
+            <div class="labelIco"><i class="bi bi-chevron-down"></i></div>
         </div>
         {#if showLabelSelect}
             <div class="selectorMenu labelMenu"
@@ -276,10 +278,12 @@
                     <div class="opt"
                             on:click={() => {
                                 theme.label = undefined;
+                                theme.labelTheme = undefined;
                                 showLabelSelect = !showLabelSelect;
                             }}
                             on:keypress={() => {
                                 theme.label = undefined;
+                                theme.labelTheme = undefined;
                                 showLabelSelect = !showLabelSelect;
                             }}>
                         -
@@ -288,31 +292,159 @@
                     <div class="opt"
                             on:click={() => {
                                 theme.label = label;
+                                if (!theme.labelTheme) theme.labelTheme = {};
                                 showLabelSelect = !showLabelSelect;
                             }}
                             on:keypress={() => {
                                 theme.label = label;
+                                if (!theme.labelTheme) theme.labelTheme = {};
                                 showLabelSelect = !showLabelSelect;
                             }}>
                         {label.name}
+                        <div class="labelIco" bind:innerHTML={label.demo} contenteditable="false" />
                     </div>
                 {/each}
             </div>
         {/if}
     </div>
 
-    {#if theme.label}
+    {#if theme.labelTheme !== undefined}
         <h3>Label Settings:</h3>
+        <h3>Label Font Size:</h3>
+        <div class="row">
+            <div class="lilBtn"
+                on:click={() => {
+                    if (theme.labelTheme?.fontSize) {
+                        if (theme.labelTheme.fontSize > 1) {
+                            theme.labelTheme.fontSize--;
+                        } else {
+                            theme.labelTheme.fontSize = undefined;
+                        }
+                    }
+                }}
+                on:keypress={() => {
+                    if (theme.labelTheme?.fontSize) {
+                        if (theme.labelTheme.fontSize > 1) {
+                            theme.labelTheme.fontSize--;
+                        } else {
+                            theme.labelTheme.fontSize = undefined;
+                        }
+                    }
+                }}><i class="bi bi-dash"></i></div>
+            <div class="selectHolder">
+                <div class="selector selIndents" class:selectorSelected={showLabelFontSizeSelect}
+                        on:click={() => showLabelFontSizeSelect = true}
+                        on:keypress={() => showLabelFontSizeSelect = !showLabelFontSizeSelect}>
+                    <div class="selected">{theme.labelTheme.fontSize ? theme.labelTheme.fontSize : "-"}</div>
+                </div>
+                {#if showLabelFontSizeSelect}
+                    <div class="selectorMenu indentsMenu"
+                            use:ClickOutside 
+                            on:outclick={() => {
+                                    showLabelFontSizeSelect = false;
+                                }}>
+                        <div class="opt indentOpt"
+                                on:click={() => {
+                                    if (theme.labelTheme) theme.labelTheme.fontSize = undefined;
+                                    showLabelFontSizeSelect = !showLabelFontSizeSelect;
+                                }}
+                                on:keypress={() => {
+                                    if (theme.labelTheme) theme.labelTheme.fontSize = undefined;
+                                    showLabelFontSizeSelect = !showLabelFontSizeSelect;
+                                }}>
+                            -
+                        </div>
+                        {#each fontOpts as opt}
+                            <div class="opt indentOpt"
+                                    on:click={() => {
+                                        if (theme.labelTheme) theme.labelTheme.fontSize = opt;
+                                        showLabelFontSizeSelect = !showLabelFontSizeSelect;
+                                    }}
+                                    on:keypress={() => {
+                                        if (theme.labelTheme) theme.labelTheme.fontSize = opt;
+                                        showLabelFontSizeSelect = !showLabelFontSizeSelect;
+                                    }}>
+                                {opt}
+                            </div>
+                        {/each}
+                    </div>
+                {/if}
+            </div>
+            <div class="lilBtn"
+                on:click={() => {
+                    if (theme.labelTheme?.fontSize) {
+                        if (theme.labelTheme.fontSize < MaxFontSize) {
+                            theme.labelTheme.fontSize++;
+                        }
+                    } else {
+                        if (theme.labelTheme) theme.labelTheme.fontSize = undefined;
+                    }
+                }}
+                on:keypress={() => {
+                    if (theme.labelTheme?.fontSize) {
+                        if (theme.labelTheme.fontSize < MaxFontSize) {
+                            theme.labelTheme.fontSize++;
+                        }
+                    } else {
+                        if (theme.labelTheme) theme.labelTheme.fontSize = 1;
+                    }
+                }}><i class="bi bi-plus"></i></div>
+        </div>
+    
+        <h3>Label Font Weight:</h3>
+        <div class="row">
+            <div class="selectHolder">
+                <div class="selector selWeights" class:selectorSelected={showLabelFontWeightSelect}
+                        on:click={() => showLabelFontWeightSelect = true}
+                        on:keypress={() => showLabelFontWeightSelect = !showLabelFontWeightSelect}>
+                    <div class="selected">{theme.labelTheme.fontWeight ? theme.labelTheme.fontWeight.name : "-"}</div>
+                </div>
+                {#if showLabelFontWeightSelect}
+                    <div class="selectorMenu indentsMenu weightsMenu"
+                            use:ClickOutside 
+                            on:outclick={() => {
+                                    showLabelFontWeightSelect = false;
+                                }}>
+                        <div class="opt weightOpt"
+                                on:click={() => {
+                                    if (theme.labelTheme) theme.labelTheme.fontWeight = undefined;
+                                    showLabelFontWeightSelect = !showLabelFontWeightSelect;
+                                }}
+                                on:keypress={() => {
+                                    if (theme.labelTheme) theme.labelTheme.fontWeight = undefined;
+                                    showLabelFontWeightSelect = !showLabelFontWeightSelect;
+                                }}>
+                            -
+                        </div>
+                        {#each fontWeightOpts as opt}
+                            <div class="opt weightOpt"
+                                    on:click={() => {
+                                        if (theme.labelTheme) theme.labelTheme.fontWeight = opt;
+                                        showLabelFontWeightSelect = !showLabelFontWeightSelect;
+                                    }}
+                                    on:keypress={() => {
+                                        if (theme.labelTheme) theme.labelTheme.fontWeight = opt;
+                                        showLabelFontWeightSelect = !showLabelFontWeightSelect;
+                                    }}>
+                                {opt.name}
+                            </div>
+                        {/each}
+                    </div>
+                {/if}
+            </div>
+        </div>
+    
+        <h3>Label Font Color:</h3>
+        <ColorSelector bind:value={theme.labelTheme.fontColor} />
     {/if}
-
 {/if}
 
 <style>
     h2 {
         font-size: 1.15rem;
         margin: 1.0rem 0;
+        padding: 0.5rem;
         font-weight: 400;
-        padding: 0.5rem 0;
         border-bottom: 1px solid;
         width: max-content;
     }
@@ -384,5 +516,9 @@
 
     .labelMenu {
         width: 270px;
+    }
+
+    .labelIco {
+        margin-left: auto;
     }
 </style>

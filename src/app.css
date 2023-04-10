@@ -108,6 +108,10 @@ body {
 	border-radius: 4px;
 }
 
+.tinyIco {
+	font-size: 0.6rem;
+}
+
 /* width */
 ::-webkit-scrollbar {
 	width: 16px;
