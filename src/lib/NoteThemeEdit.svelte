@@ -45,11 +45,18 @@
 </script>
 
 {#if theme}
-    {#if indentLevel === -1}
-        <h2>Theme-Wide Settings</h2>
-    {:else}
-        <h2>{indentLevel}-Indents Theme Settings:</h2>
-    {/if}
+    <div class="row mB">
+        {#if indentLevel === -1}
+            <div class="headerIco"
+                    title="Settings applied here will apply to all indent levels unless overridden.">
+                <i class="bi bi-easel"></i></div>
+            <h2>Theme-Wide:</h2>
+        {:else}
+            <div class="headerIco"><i class="bi bi-list-nested"></i></div>
+            <h2>{indentLevel}-Indents:</h2>
+        {/if}
+    </div>
+    
     <h3>Indent-Level:</h3>
     <div class="row">
         <div class="lilBtn"
@@ -218,7 +225,8 @@
             <div class="selector selWeights" class:selectorSelected={showFontWeightSelect}
                     on:click={() => showFontWeightSelect = true}
                     on:keypress={() => showFontWeightSelect = !showFontWeightSelect}>
-                <div class="selected">{theme.fontWeight ? theme.fontWeight.name : "-"}</div>
+                {theme.fontWeight ? theme.fontWeight.name : "-"}
+                <i class="bi bi-chevron-down rI"></i>
             </div>
             {#if showFontWeightSelect}
                 <div class="selectorMenu indentsMenu weightsMenu"
@@ -309,7 +317,10 @@
     </div>
 
     {#if theme.labelTheme !== undefined}
-        <h3>Label Settings:</h3>
+        <div class="row bufferedRow">
+            <div class="headerIco"><i class="bi bi-list-ol"></i></div>
+            <h2>Label Settings:</h2>
+        </div>
         <h3>Label Font Size:</h3>
         <div class="row">
             <div class="lilBtn"
@@ -397,7 +408,8 @@
                 <div class="selector selWeights" class:selectorSelected={showLabelFontWeightSelect}
                         on:click={() => showLabelFontWeightSelect = true}
                         on:keypress={() => showLabelFontWeightSelect = !showLabelFontWeightSelect}>
-                    <div class="selected">{theme.labelTheme.fontWeight ? theme.labelTheme.fontWeight.name : "-"}</div>
+                    {theme.labelTheme.fontWeight ? theme.labelTheme.fontWeight.name : "-"}
+                    <i class="bi bi-chevron-down rI"></i>
                 </div>
                 {#if showLabelFontWeightSelect}
                     <div class="selectorMenu indentsMenu weightsMenu"
@@ -441,12 +453,8 @@
 
 <style>
     h2 {
-        font-size: 1.15rem;
-        margin: 1.0rem 0;
-        padding: 0.5rem;
+        font-size: 1.1rem;
         font-weight: 400;
-        border-bottom: 1px solid;
-        width: max-content;
     }
 
     h3 {
@@ -458,6 +466,14 @@
     .row {
         display: flex;
         align-items: center;
+    }
+
+    .mB {
+        margin-bottom: 1.5rem;
+    }
+
+    .bufferedRow {
+        margin: 1.5rem 0;
     }
 
     .selIndents {
@@ -490,12 +506,12 @@
     }
 
     .selWeights {
-        padding: 0.3rem 0 0.25rem 0;
-        width: 100px;
+        padding: 0.3rem 0.3rem 0.25rem 0.3rem;
+        width: 120px;
     }
 
     .weightsMenu {
-        width: 100px;
+        width: 120px;
     }
 
     .weightOpt {
@@ -519,6 +535,15 @@
     }
 
     .labelIco {
+        margin-left: auto;
+    }
+
+    .headerIco {
+        margin-right: 1.0rem;
+        color: #d7b474;
+    }
+
+    .rI {
         margin-left: auto;
     }
 </style>

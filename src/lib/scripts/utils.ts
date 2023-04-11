@@ -48,7 +48,6 @@ export function ApplyLabelStyle(node: HTMLElement, note: Note, theme: Theme) {
     if (theme.noteThemes?.[note.indents]?.labelTheme?.fontSize) {
         node.style.fontSize = theme.noteThemes[note.indents].labelTheme!.fontSize! + "px";
     } else if (theme.default?.labelTheme?.fontSize) {
-        console.log(1);
         node.style.fontSize = theme.default.labelTheme.fontSize + "px";
     }
 

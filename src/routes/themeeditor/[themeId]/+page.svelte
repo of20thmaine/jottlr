@@ -3,38 +3,49 @@
     import { WindowTitle } from "$lib/scripts/stores";
     import { ClickOutside } from "$lib/scripts/utils";
     import ThemeIndentSettings from "$lib/NoteThemeEdit.svelte";
+    import NoteView from "$lib/NoteView.svelte";
 
     export let data;
 
+    // CURRENT PROBLEMS:
+    // 1. If note indents exceeds themes max indents an error is thrown on theme application. Best thing to do would
+    //    be to draw the note as the max allowed theme and add an information error to the view, say the "i" logo next
+    //    to the note card with a hover-over tooltip
+    // 2. The theme demo isn't refreshing on theme edits, need to learn more about svelte object prop change reactivity.
+    // 3. The input for "append-mode" on a positional isn't working properly.
+
     let showCreateArea: boolean = false;
     let createCopy: boolean = false;
-
     let showThemeSelect: boolean = false;
     let showMaxIndentSelect: boolean = false;
     let showIndentThemeSelect: boolean = false;
-
     let indentThemeSelection: number = -1;
-
     let themeNameInput: HTMLElement;
-    
     let createNameStr: string = "";
     let changeNameStr: string = "";
-
     let createNameErrorStr: string = "";
     let changeNameErrorStr: string = "";
 
     let currentlyEditing: Theme;
     let themes: Theme[];
 
+    let mockNotes: Note[];
+
     const ThemesReservedIdMax: number = 20;
     const DefaultMaxIndents: number = 6;
     const MaxMaxIndents: number = 16;
-    const ThemeNameMaxLength: number = 42;
+    const ThemeNameMaxLength: number = 30;
+    const MockNote: string = "Test";
 
     loadData();
     WindowTitle.set("Theme Editor");
 
     $: if (themeNameInput && (showCreateArea || createCopy)) themeNameInput.focus();
+    $: if (currentlyEditing) {
+        currentlyEditing = currentlyEditing;
+        generateMockNotes();
+        mockNotes = mockNotes;
+    }
 
     async function loadData() {
         themes = await GetThemeList();
@@ -154,81 +165,44 @@
                 return;
         }
     }
+
+    function generateMockNotes() {
+        mockNotes = [];
+        for (let i = 0; i < currentlyEditing.maxIndents; ++i) {
+            mockNotes.push(
+                {
+                    id: i,
+                    content: MockNote,
+                    created_at: "",
+                    updated_at: "",
+                    position: i,
+                    indents: i,
+                    isPositioned: true,
+                    label: 1
+                }
+            );
+        }
+    }
+
+    function getNoteHolderStyle(note: Note): string {
+        if (!note.isPositioned) return "";
+        let marginLeft = 0;
+
+        if (typeof currentlyEditing.noteThemes?.[note.indents]?.marginLeft === 'number') {
+            marginLeft = currentlyEditing.noteThemes[note.indents].marginLeft!;
+        } else if (typeof currentlyEditing.default?.marginLeft === 'number') {
+            marginLeft = currentlyEditing.default.marginLeft * note.indents;
+        }
+        return "margin-left:" + marginLeft + "px;";
+    }
 </script>
 
 <div class="scroller">
     <div class="page">
     {#if currentlyEditing}
         <h1>Theme Editor</h1>
-        <div class="createBar">
-            <div class="btn createCo mR" class:btnSelected={showCreateArea && !createCopy}
-                on:click={() => {
-                    if (createCopy) {
-                        createCopy = false;
-                    } else {
-                        showCreateArea = !showCreateArea;
-                    }
-                }}
-                on:keypress={() => {
-                    if (createCopy) {
-                        createCopy = false;
-                    } else {
-                        showCreateArea = !showCreateArea;
-                    }
-                }}>
-                <i class="bi bi-plus-lg mR"></i>Create Theme</div>
-            <div class="btn copyCo mR" class:btnSelected={createCopy}
-                on:click={() => {
-                    if (showCreateArea && createCopy) {
-                        showCreateArea = false;
-                        createCopy = false;
-                    } else {
-                        showCreateArea = true;
-                        createCopy = true;
-                    }
-                }}
-                on:keypress={() => {
-                    if (showCreateArea && createCopy) {
-                        showCreateArea = false;
-                        createCopy = false;
-                    } else {
-                        showCreateArea = true;
-                        createCopy = true;
-                    }
-                }}>
-                <i class="bi bi-clipboard sIco mR"></i>Copy "{currentlyEditing.name}"</div>
-        </div>
-        {#if showCreateArea}
-            <div class="createArea" style="border-color: {createCopy ? "#d7b474" : "#34be7b"};">
-                <div class="row">
-                    {#if createCopy}
-                        <h3>Create copy of "{currentlyEditing.name}"...</h3>
-                    {:else}
-                        <h3>Create new theme...</h3>
-                    {/if}
-                </div>
-                <div class="row">
-                    <textarea class="txtInput"
-                        on:keydown={createNameKeyHandler}
-                        bind:this={themeNameInput}
-                        bind:value={createNameStr}
-                        placeholder="New theme name"
-                    />
-                    <div class="submitBtn {createCopy ? "copyCo" : "createCo"}"
-                            on:click={() => createNewTheme()}
-                            on:keypress={() => createNewTheme()}>
-                        {#if createCopy}
-                            <i class="bi bi-clipboard"></i>
-                        {:else}
-                            <i class="bi bi-plus-lg"></i>
-                        {/if}
-                    </div>
-                </div>
-                <div class="errorMsg">{createNameErrorStr}</div>
-            </div>
-        {/if}
 
-        <h3>Theme being edited:</h3>
+        <h3 class="emph">Theme being edited:</h3>
         <div class="row">
             <div class="selectHolder">
                 <div class="selector selTheme" class:selectorSelected={showThemeSelect}
@@ -275,46 +249,126 @@
             {/if}
         </div>
 
+        <div class="createBar">
+            <div class="btn createCo mR" class:btnSelected={showCreateArea && !createCopy}
+                on:click={() => {
+                    if (createCopy) {
+                        createCopy = false;
+                    } else {
+                        showCreateArea = !showCreateArea;
+                    }
+                }}
+                on:keypress={() => {
+                    if (createCopy) {
+                        createCopy = false;
+                    } else {
+                        showCreateArea = !showCreateArea;
+                    }
+                }}>
+                <i class="bi bi-plus-lg mR"></i>Create Theme</div>
+            <div class="btn copyCo mR" class:btnSelected={createCopy}
+                on:click={() => {
+                    if (showCreateArea && createCopy) {
+                        showCreateArea = false;
+                        createCopy = false;
+                    } else {
+                        showCreateArea = true;
+                        createCopy = true;
+                    }
+                }}
+                on:keypress={() => {
+                    if (showCreateArea && createCopy) {
+                        showCreateArea = false;
+                        createCopy = false;
+                    } else {
+                        showCreateArea = true;
+                        createCopy = true;
+                    }
+                }}>
+                <i class="bi bi-clipboard sIco mR"></i>Copy "{currentlyEditing.name}"</div>
+        </div>
+        {#if showCreateArea}
+            <div class="createArea" style="border-color: {createCopy ? "#d7b474" : "#34be7b"};">
+                <div class="row">
+                    {#if createCopy}
+                        <h4>Create copy of "{currentlyEditing.name}"...</h4>
+                    {:else}
+                        <h4>Create new theme...</h4>
+                    {/if}
+                    <div class="closeBtn" title="{createCopy ? "Close Theme Copy Creator" : "Close Theme Creator"}"
+                            on:click={() => showCreateArea = createCopy = false}
+                            on:keypress={() => showCreateArea = createCopy = false}>
+                        <i class="bi bi-x-lg"></i>
+                    </div>
+                </div>
+                <div class="row">
+                    <textarea class="txtInput"
+                        on:keydown={createNameKeyHandler}
+                        bind:this={themeNameInput}
+                        bind:value={createNameStr}
+                        placeholder="New theme name"
+                    />
+                    <div class="submitBtn {createCopy ? "copyCo" : "createCo"}"
+                            title="{createCopy ? "Create Theme Copy" : "Create New Theme"}"
+                            on:click={() => createNewTheme()}
+                            on:keypress={() => createNewTheme()}>
+                        {#if createCopy}
+                            <i class="bi bi-clipboard"></i>
+                        {:else}
+                            <i class="bi bi-plus-lg"></i>
+                        {/if}
+                    </div>
+                </div>
+                <div class="errorMsg">{createNameErrorStr}</div>
+            </div>
+        {/if}
+
         <h3>Change Name:</h3>
-        <textarea class="txtInput"
-            on:keydown={changeNameKeyHandler}
-            on:focusout={changeThemeName}
-            bind:value={changeNameStr}
-        />
+        <div class="row">
+            <div class="rowIco"><i class="bi bi-type"></i></div>
+            <textarea class="txtInput"
+                on:keydown={changeNameKeyHandler}
+                on:focusout={changeThemeName}
+                bind:value={changeNameStr}
+            />
+        </div>
         <div class="errorMsg">{changeNameErrorStr}</div>
 
         <h3>Max Indents:</h3>
-        <div class="selectHolder">
-            <div class="selector selIndents" class:selectorSelected={showMaxIndentSelect}
-                    on:click={() => showMaxIndentSelect = true}
-                    on:keypress={() => showMaxIndentSelect = !showMaxIndentSelect}>
-                <div class="selected">{currentlyEditing.maxIndents}</div>
-                <i class="bi bi-chevron-down rI"></i>
-            </div>
-            {#if showMaxIndentSelect}
-                <div class="selectorMenu indentsMenu"
-                        use:ClickOutside 
-                        on:outclick={() => {
-                                showMaxIndentSelect = false;
-                            }}>
-                    {#each {length: MaxMaxIndents+1} as _, i}
-                        <div class="opt indentOpt"
-                                on:click={() => {
-                                    currentlyEditing.maxIndents = i;
-                                    showMaxIndentSelect = !showMaxIndentSelect;
-                                }}
-                                on:keypress={() => {
-                                    currentlyEditing.maxIndents = i;
-                                    showMaxIndentSelect = !showMaxIndentSelect;
-                                }}>
-                            {i}
-                        </div>
-                    {/each}
+        <div class="row">
+            <div class="rowIco"><i class="bi bi-list-nested"></i></div>
+            <div class="selectHolder">
+                <div class="selector selIndents" class:selectorSelected={showMaxIndentSelect}
+                        on:click={() => showMaxIndentSelect = true}
+                        on:keypress={() => showMaxIndentSelect = !showMaxIndentSelect}>
+                    <div class="selected">{currentlyEditing.maxIndents}</div>
+                    <i class="bi bi-chevron-down rI"></i>
                 </div>
-            {/if}
+                {#if showMaxIndentSelect}
+                    <div class="selectorMenu indentsMenu"
+                            use:ClickOutside 
+                            on:outclick={() => {
+                                    showMaxIndentSelect = false;
+                                }}>
+                        {#each {length: MaxMaxIndents+1} as _, i}
+                            <div class="opt indentOpt"
+                                    on:click={() => {
+                                        currentlyEditing.maxIndents = i;
+                                        showMaxIndentSelect = !showMaxIndentSelect;
+                                    }}
+                                    on:keypress={() => {
+                                        currentlyEditing.maxIndents = i;
+                                        showMaxIndentSelect = !showMaxIndentSelect;
+                                    }}>
+                                {i}
+                            </div>
+                        {/each}
+                    </div>
+                {/if}
+            </div>
         </div>
 
-        <div class="row">
+        <div class="row barrier">
             <h2>Indent Level Settings:</h2>
             <div class="selectHolder">
                 <div class="selector selIndents" class:selectorSelected={showIndentThemeSelect}
@@ -329,6 +383,17 @@
                             on:outclick={() => {
                                     showIndentThemeSelect = false;
                                 }}>
+                        <div class="opt indentOpt"
+                                on:click={() => {
+                                    indentThemeSelection = -1;
+                                    showIndentThemeSelect = !showIndentThemeSelect;
+                                }}
+                                on:keypress={() => {
+                                    indentThemeSelection = -1;
+                                    showIndentThemeSelect = !showIndentThemeSelect;
+                                }}>
+                            *
+                        </div>
                         {#each {length: currentlyEditing.maxIndents+1} as _, i}
                             <div class="opt indentOpt"
                                     on:click={() => {
@@ -345,17 +410,43 @@
                     </div>
                 {/if}
             </div>
+            <div class="rowEndIco"
+                    title="Select settings which apply to a specific indent level. * settings apply to the entire theme at all indent levels, unless specifically overriden by a setting at the indent level.">
+                <i class="bi bi-info-circle"></i>
+            </div>
         </div>
-        
         <ThemeIndentSettings 
             indentLevel={indentThemeSelection}
             bind:themePapa={currentlyEditing}
             save={save}
         />
 
+        {#if mockNotes}
+            <div class="row barrier">
+                <div class="rowIco"><i class="bi bi-easel"></i></div>
+                <h2>See It:</h2>
+            </div>
 
-
-
+            <div class="collectionMock">
+                {#each mockNotes as note, i}
+                    <div class="noteHolder" style="{getNoteHolderStyle(note)}">
+                        <NoteView 
+                            idx={i}
+                            bind:note={note}
+                            collectionView={{id: 1, name: "", editModeId: 3, viewCategoryId: 3, viewModeId: 3, themeId: currentlyEditing.id}}
+                            focusNoteId={null}
+                            maxIndents={currentlyEditing.maxIndents}
+                            viewMode={{id: 1, name: "", created_at: "", last_open: "", isSortable: false}}
+                            theme={currentlyEditing}
+                            forceFocusChange={() => {}}
+                            moveNote={() => {}}
+                            deleteSavedNote={() => {}}
+                            deleteUnsavedNote={() => {}}
+                        />
+                    </div>
+                {/each}
+            </div>
+        {/if}
     {/if}
     </div>
 </div>
@@ -377,7 +468,7 @@
     }
 
     h2 {
-        font-size: 1.15rem;
+        font-size: 1.2rem;
         margin: 1.0rem 0;
         margin-right: 1.0rem;
         font-weight: 400;
@@ -390,10 +481,20 @@
         font-weight: 400;
     }
 
+    h4 {
+        font-size: 1.0rem;
+        margin-bottom: 1.0rem;
+        font-weight: 400;
+    }
+
+    .emph {
+        font-weight: 500;
+    }
+
     .createArea {
         margin: 1.0rem 0 1.0rem 1.0rem;
         border-left: 1px dashed;
-        padding-left: 1.5rem;
+        padding: 0.5rem 0 0.3rem 1.5rem;
     }
 
     .txtInput {
@@ -496,6 +597,20 @@
         border: 1px solid;
     }
 
+    .closeBtn {
+        cursor: pointer;
+	    user-select: none;
+        font-size: 0.75rem;
+        padding: 0.15rem;
+        align-self: start;
+        justify-self: end;
+        margin-left: 2.0rem;
+    }
+
+    .closeBtn:hover {
+        color: #BE3455;
+    }
+
     .createCo {
         color: #34be7b;
     }
@@ -507,6 +622,19 @@
     .row {
         display: flex;
         align-items: center;
+    }
+
+    .rowIco {
+        margin-right: 1.0rem;
+    }
+
+    .rowEndIco {
+        margin-left: 1.0rem;
+    }
+    
+    .barrier {
+        border-top: 1px dashed var(--fontColor);
+        margin-top: 2.0rem;
     }
 
     .submitBtn {
@@ -525,5 +653,15 @@
         margin: 1.0rem 0;
         font-size: 0.9rem;
         color: #BE3455;
+    }
+
+    .collectionMock {
+        width: 100%;
+    }
+
+    .noteHolder {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: baseline;
     }
 </style>
