@@ -68,16 +68,12 @@
             <input type="range" min="400" max="1600" class="slider" id="pageWidth" bind:value={pageWidth}>
         </div>
         <div class="pageWidth">{pageWidth}px {pageWidth === 800 ? "(default)" : ""}</div>
+        <h3 class="bigMT">Themes:</h3>
+        <a href="./themeeditor/0"><div class="themeEditor">Open Theme Editor</div></a>
     </div>
 </div>
 
 <style>
-    .scroller {
-        margin-top: var(--titlebarHeight);
-        height: calc(100vh - var(--titlebarHeight));
-        overflow-y: auto;
-    }
-
     .page {
         margin: 0 auto;
         max-width: 600px;
@@ -96,6 +92,10 @@
     h3 {
         font-size: 1.15rem;
         margin-bottom: 0.5rem;
+    }
+
+    a {
+        text-decoration: none;
     }
     
     .bigMT {
@@ -155,5 +155,20 @@
 
     .slider {
         width: 100%;
+    }
+
+    .themeEditor {
+        border: 1px solid;
+        border-radius: 4px;
+        color: #d7b474;
+        font-size: 1.2rem;
+        width: max-content;
+        padding: 0.4rem 2.0rem;
+        margin-top: 1.0rem;
+    }
+
+    .themeEditor:hover {
+        background-color: #d7b474;
+        color: var(--fontColor);
     }
 </style>

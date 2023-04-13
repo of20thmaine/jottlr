@@ -2,6 +2,7 @@
     import { CreateNote, GetCollectionList } from "$lib/scripts/db";
     import { GetDefaultCollection } from "$lib/scripts/settings";
     import { WindowTitle } from "$lib/scripts/stores";
+    import { ClickOutside } from "$lib/scripts/utils";
 
     WindowTitle.set("Quick Note");
 
@@ -68,29 +69,28 @@
             <div class="collectionPrompt">
                 <i class="bi bi-arrow-return-right icoRestraint"></i>
                 <div class="selector qnSelector" class:selectorSelected={showCollectionSelect}
-                        on:click={() => {showCollectionSelect = !showCollectionSelect}}
-                        on:keypress={() => {showCollectionSelect = !showCollectionSelect}}>
+                        on:click={() => showCollectionSelect = !showCollectionSelect}
+                        on:keypress={() => showCollectionSelect = !showCollectionSelect}>
                     <div class="selected">{selectedCollection.name}</div>
                     <i class="bi bi-chevron-down rI"></i>
                 </div>
             </div>
             {#if showCollectionSelect}
-                <div class="blinder"
-                    on:click={() => {showCollectionSelect = !showCollectionSelect}}
-                    on:keypress={() => {showCollectionSelect = !showCollectionSelect}}></div>
-                <div class="selectorMenu qnSelMen ">
-                {#each collections as collection}
-                    <div class="opt"
-                            on:click={() => {
-                                selectedCollection = collection;
-                                showCollectionSelect = !showCollectionSelect;
-                            }}
-                            on:keypress={() => {
-                                selectedCollection = collection;
-                                showCollectionSelect = !showCollectionSelect;
-                            }}>
-                        {collection.name}</div>
-                {/each}
+                <div class="selectorMenu qnSelMen"
+                        use:ClickOutside 
+                        on:outclick={() => showCollectionSelect = !showCollectionSelect}>
+                    {#each collections as collection}
+                        <div class="opt"
+                                on:click={() => {
+                                    selectedCollection = collection;
+                                    showCollectionSelect = !showCollectionSelect;
+                                }}
+                                on:keypress={() => {
+                                    selectedCollection = collection;
+                                    showCollectionSelect = !showCollectionSelect;
+                                }}>
+                            {collection.name}</div>
+                    {/each}
                 </div>
             {/if}
         </div>
@@ -122,7 +122,7 @@
 <style>
     .page {
         margin: 0 auto;
-        margin-top: var(--titlebarHeight);
+        /* margin-top: var(--titlebarHeight); */
         max-width: 600px;
         padding: 1.0rem;
     }

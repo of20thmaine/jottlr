@@ -1,7 +1,7 @@
 <script lang="ts">
     import { flip } from 'svelte/animate';
-    import { CreateNote, GetCollection, GetCollectionsPositionals, GetPositional, DeleteNote, DeleteFromPositionedNotes, UpdateCollectionLastOpen } from "$lib/scripts/db";
-    import { DefaultViewModes, EditModes, GetPageWidth, ChangeType, LabelType, SortType, SetCollectionView, GetCollectionView } from "$lib/scripts/settings";
+    import { CreateNote, CreatePositionedNote, GetCollection, GetCollectionsPositionals, GetPositional, DeleteNote, DeleteFromPositionedNotes, UpdateCollectionLastOpen } from "$lib/scripts/db";
+    import { DefaultViewModes, EditModes, GetPageWidth, ChangeType, SortType, SetCollectionView, GetCollectionView, GetThemeList } from "$lib/scripts/settings";
     import { WindowTitle } from "$lib/scripts/stores";
     import NoteView from "$lib/NoteView.svelte";
     import Toolbar from "$lib/Toolbar.svelte";
@@ -15,16 +15,22 @@
     let focusNoteId: number | null = null;
     let editMode: EditMode;
     let viewModes: ViewModeCategory[] = DefaultViewModes;
+    let themes: Theme[];
+    let theme: Theme;
     let viewMode: ViewMode;
     let pageWidth: number = 800;
 
     WindowTitle.set(data.name);
-
     GetPageWidth().then((value) => {if (value) pageWidth = value});
 
     $: if (noteInput) noteInput.focus();
     $: if (collectionView) SetCollectionView(collectionView);
     $: if (collectionElement) collectionElement.scrollTop = collectionElement.scrollHeight;
+
+    $: if (theme) {
+        collectionView.themeId = theme.id;
+        notes = notes;
+    }
 
     $: if (editMode && viewMode && notes) {
         if (editMode.id === 2 && notes.length === 0) {
@@ -56,18 +62,6 @@
         notes = notes;
     }
 
-    let theme: Theme = {
-        name: "Default",
-        maxIndents: 4,
-        noteThemes: [
-            {marginLeft: 0, isLabeled: true, label: LabelType.RomanCaps},
-            {marginLeft: 1.0, isLabeled: true, label: LabelType.Numerals},
-            {marginLeft: 2.0, isLabeled: true, label: LabelType.AlphabetCaps},
-            {marginLeft: 3.0, isLabeled: true, label: LabelType.RomanLowers},
-            {marginLeft: 4.0, isLabeled: true, label: LabelType.AlphabetLowers}
-        ]
-    };
-
     async function initialDataLoad() {
         return await GetCollectionView(data.id).then((value) => {
             if (value) {
@@ -78,12 +72,17 @@
                     name: data.name,
                     editModeId: 1,
                     viewCategoryId: 1,
-                    viewModeId: 1
+                    viewModeId: 1,
+                    themeId: 1
                 }
             }
             loadPositionals();
             editMode = getEditModeFromId(collectionView.editModeId);
             viewMode = getViewModeFromId(collectionView.viewCategoryId, collectionView.viewModeId);
+            GetThemeList().then((value) => {
+                themes = value;
+                theme = getThemeFromId(collectionView.themeId);
+            })
 
             if (viewMode.isSortable) {
                 GetCollection(data.id, viewMode.sort)
@@ -126,6 +125,15 @@
             }
         }
         return viewModes[0].options[0];
+    }
+
+    function getThemeFromId(id: number): Theme {
+        for (let theme of themes) {
+            if (theme.id === id) {
+                return theme;
+            }
+        }
+        return themes[0];
     }
 
     function jumpToPageEnd() {
@@ -201,10 +209,10 @@
 
     async function updateCollection() {
         if (viewMode.isSortable) {
-            GetCollection(data.id, viewMode.sort)
+            return await GetCollection(data.id, viewMode.sort)
                 .then((value) => notes = value)
         } else {
-            GetPositional(viewMode.id)
+            return await GetPositional(viewMode.id)
                 .then((value) => notes = value)
         }
     }
@@ -250,78 +258,66 @@
         }
     }
 
-    function editingKeyHandler(event: KeyboardEvent): void {
-        const target = event.target as HTMLElement;
+    function appendNote() {
+        if (!(noteInput.innerHTML.length > 0)) return;
+
+        if (viewMode.isSortable) {
+            CreateNote(noteInput.innerHTML, collectionView.id)
+                .then(() => {
+                    updateCollection().then(() => {
+                        jumpToPageEnd();
+                        noteInput.innerHTML = "";
+                    });
+                });
+        } else {
+            CreateNote(noteInput.innerHTML, collectionView.id)
+                .then((value) => {
+                    CreatePositionedNote(collectionView.viewModeId, 
+                                        value.lastInsertId, 
+                                        notes.length,
+                                        0)
+                        .then(() => {
+                            updateCollection().then(() => {
+                                jumpToPageEnd();
+                                noteInput.innerHTML = "";
+                            });
+                        });
+                });
+        }
+    }
+
+    function appendModeKeyHandler(event: KeyboardEvent): void {
         switch (event.key) {
             case "Enter":
                 event.preventDefault();
-                if (target.innerHTML.length > 0) {
-                    CreateNote(target.innerHTML, data.id);
-                    updateCollection().then(() => {jumpToPageEnd();});
-                    target.innerHTML = "";
-                }
+                appendNote();
                 break;
         }
     }
 
-    function romanizeLabel(number: number): any {
-        let numerals: Array<[number, string]> = [
-            [1000, 'M'],
-            [900, 'CM'],
-            [500, 'D'],
-            [400, 'CD'],
-            [100, 'C'],
-            [90, 'XC'],
-            [50, 'L'],
-            [40, 'XL'],
-            [10, 'X'],
-            [9, 'IX'],
-            [5, 'V'],
-            [4, 'IV'],
-            [1, 'I']
-        ];
-        if (number === 0) {
-            return "";
-        }
-        for (let i = 0; i < numerals.length; ++i) {
-            if (number >= numerals[i][0]) {
-                return numerals[i][1] + romanizeLabel(number - numerals[i][0]);
-            }
-        }
-    }
+    function getNoteHolderStyle(note: Note): string {
+        if (!note.isPositioned) return "";
+        let marginLeft = 0;
 
-    function alphabetizeLabel(number: number): any {
-        if (number === 0) {
-            return "";
+        if (typeof theme.noteThemes?.[note.indents]?.marginLeft === 'number') {
+            marginLeft = theme.noteThemes[note.indents].marginLeft!;
+        } else if (typeof theme.default?.marginLeft === 'number') {
+            marginLeft = theme.default.marginLeft * note.indents;
         }
-        return String.fromCharCode(64 + (number % 26)) + alphabetizeLabel(Math.floor(number / 26));
-    }
-
-    function getLabelText(indents: number, label: number): string {
-        let labelType = theme.noteThemes[indents].label;
-
-        switch (labelType) {
-            case LabelType.RomanCaps:
-                return romanizeLabel(label);
-            case LabelType.RomanLowers:
-                return romanizeLabel(label).toLowerCase();
-            case LabelType.AlphabetCaps:
-                return alphabetizeLabel(label);
-            case LabelType.AlphabetLowers:
-                return alphabetizeLabel(label).toLowerCase();
-            default:
-                return label.toString();
-        }
+        return "margin-left:" + marginLeft + "px;";
     }
 </script>
 
 {#await initialDataLoad() then x}
     <div class="page">
-        <Toolbar
+        <Toolbar 
             editMode={editMode}
             viewMode={viewMode}
             viewModes={viewModes}
+            bind:theme={theme}
+            themes={themes}
             collection={data}
+            pageWidth={pageWidth}
             changeEditMode={changeEditMode}
             changeViewMode={changeViewMode}
             loadPositionals={loadPositionals}
@@ -329,28 +325,18 @@
         <div class="outerCollection" bind:this={collectionElement}>
             <div class="noteCollection" style="max-width:{pageWidth}px;">
                 {#each notes as note, i (note)}
-                    <div class="noteHolder" animate:flip="{{duration: 100}}"
-                            style="margin-left: {note.isPositioned && theme.noteThemes[note.indents] 
-                                ? theme.noteThemes[note.indents].marginLeft : 0}rem;">
-                        {#if !viewMode.isSortable && note.isPositioned && note.label}
-                            {#if theme.noteThemes[note.indents] && theme.noteThemes[note.indents].isLabeled}
-                                <div class="label">
-                                    {getLabelText(note.indents, note.label)}.
-                                </div>
-                            {/if}
-                        {/if}
-                        <div class="note">
-                            <NoteView 
-                                idx={i}
-                                bind:note={note}
-                                bind:collectionView={collectionView}
-                                bind:focusNoteId={focusNoteId}
-                                maxIndents={theme.maxIndents}
-                                forceFocusChange={forceFocusChange}
-                                moveNote={moveNote}
-                                deleteSavedNote={deleteSavedNote}
-                                deleteUnsavedNote={deleteUnsavedNote} />
-                        </div>
+                    <div class="noteHolder" animate:flip="{{duration: 100}}" style="{getNoteHolderStyle(note)}">
+                        <NoteView 
+                            idx={i}
+                            bind:note={note}
+                            bind:collectionView={collectionView}
+                            bind:focusNoteId={focusNoteId}
+                            viewMode={viewMode}
+                            theme={theme}
+                            forceFocusChange={forceFocusChange}
+                            moveNote={moveNote}
+                            deleteSavedNote={deleteSavedNote}
+                            deleteUnsavedNote={deleteUnsavedNote} />
                     </div>
                 {/each}
             </div>
@@ -358,13 +344,13 @@
         {#if editMode.id === 1}
             <div class="outerEntry">
                 <div class="noteEntry">
-                    <div class="inputArea">
-                        <div class="noteInput"
-                            contenteditable="true"
-                            on:keydown={editingKeyHandler}
-                            bind:this={noteInput}
-                            placeholder="Append new note">
-                        </div>
+                    <div class="appendIco"><i class="bi bi-plus-lg"></i></div>
+                    <div class="noteInput"
+                        bind:this={noteInput}
+                        on:keydown={appendModeKeyHandler}
+                        contenteditable="true"
+                        placeholder="Append new note"
+                        style="max-width:{pageWidth}px;">
                     </div>
                 </div>
             </div>
@@ -374,7 +360,7 @@
 
 <style>
     .page {
-        margin-top: var(--titlebarHeight);
+        /* margin-top: var(--titlebarHeight); */
         height: calc(100vh - var(--titlebarHeight));
         display: grid;
         grid-template-rows: min-content 1fr min-content;
@@ -397,16 +383,6 @@
         align-items: baseline;
     }
 
-    .label {
-        width: 60px;
-        color: var(--fontColor);
-        text-align: center;
-    }
-
-    .note {
-        flex: 1;
-    }
-
     .outerEntry {
         border-top: 1px solid var(--hoverBtnColor);
         width: 100%;
@@ -414,21 +390,25 @@
 
     .noteEntry {
         margin: 0 auto;
-        max-width: var(--usableWidth);
-        padding: 0.5rem;
+        max-width: 800px;
+        display: flex;
+        align-items: baseline;
     }
 
-    .inputArea {
-        padding: 0.25rem;
+    .appendIco {
+        color: #34be7b;
+        font-size: 1.5rem;
+        margin: 0 0.75rem;
     }
 
     .noteInput {
+        flex: 1;
+        margin: 0.75rem 0.75rem 0.75rem 0;
+        padding: 0.5rem 0.75rem;
         border-radius: 4px;
         background-color: var(--textfieldColor);
-        padding: 0.5rem;
         color: var(--fontColor);
         line-height: 1.84rem;
-        min-height: 2.84rem;
         font-size: 1.10rem;
     }
 

@@ -62,12 +62,6 @@
 </div>
 
 <style>
-    .scroller {
-        margin-top: var(--titlebarHeight);
-        height: calc(100vh - var(--titlebarHeight));
-        overflow-y: auto;
-    }
-
     .page {
         margin: 0 auto;
         max-width: var(--usableWidth);

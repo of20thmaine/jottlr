@@ -1,8 +1,9 @@
 <script lang="ts">
     import { appWindow } from '@tauri-apps/api/window';
     import { exit } from '@tauri-apps/api/process';
-    import { ColorModeIsDark, WindowTitle } from '$lib/scripts/stores';
     import { goto } from '$app/navigation';
+    import { ColorModeIsDark, WindowTitle } from '$lib/scripts/stores';
+    import { ClickOutside } from "$lib/scripts/utils";
     import CreateCollection from '$lib/CreateCollection.svelte';
 
     let isDarkMode: boolean;
@@ -32,10 +33,9 @@
             on:click={() => showFileMenu = !showFileMenu}
             on:keypress={() => showFileMenu = !showFileMenu}>File</div>
         {#if showFileMenu}
-            <div class="blinder"
-                    on:click={() => showFileMenu = !showFileMenu}
-                    on:keypress={() => showFileMenu = !showFileMenu}></div>
-            <div class="dropdown">
+            <div class="dropdown"
+                    use:ClickOutside 
+                    on:outclick={() => showFileMenu = !showFileMenu}>
                 <div class="dropdownItm"
                         on:click={() => {
                                 showFileMenu = !showFileMenu;
@@ -105,7 +105,7 @@
 
 <style>
     .titlebar {
-        position: fixed;
+        position: relative;
         top: 0;
         left: 0;
         right: 0;
@@ -120,7 +120,7 @@
     .menuSelection {
         font-size: 0.9rem;
         color: var(--fontColor);
-        padding: 0.4rem;
+        padding: 0.25rem 0.5rem;
     }
 
     .menuSelection:hover {
@@ -129,7 +129,8 @@
 
     .title {
         margin: 0 auto;
-        color: #d7b474;
+        color: var(--fontColor);
+        font-style: italic;
         font-size: 0.9rem;
     }
 

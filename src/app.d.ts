@@ -30,6 +30,7 @@ interface CollectionView {
     editModeId: number;
     viewCategoryId: number;
     viewModeId: number;
+    themeId: number;
 }
 
 interface CollectionSelection {
@@ -63,6 +64,17 @@ interface Sortable {
     isSortable: true;
 }
 
+interface FontWeight {
+    name: string;
+    value: string;
+}
+
+interface Label {
+    name: string;
+    value: LabelType;
+    demo: string;
+}
+
 type ViewMode = Sortable | Positional;
 
 interface ViewModeCategory {
@@ -79,13 +91,26 @@ declare namespace svelteHTML {
 }
 
 interface Theme {
+    id: number;
+    system: boolean;
     name: string;
     maxIndents: number;
-    noteThemes: NoteTheme[];
+    default?: NoteTheme;
+    noteThemes?: NoteTheme[];
 }
 
 interface NoteTheme {
-    marginLeft: number;
-    isLabeled: boolean;
-    label: LabelType;
+    marginLeft?: number;
+    fontSize?: number;
+    fontWeight?: FontWeight;
+    fontColor?: string;
+    bubbleColor?: string;
+    label?: Label;
+    labelTheme?: LabelTheme;
+}
+
+interface LabelTheme {
+    fontSize?: number;
+    fontWeight?: FontWeight;
+    fontColor?: string;
 }
