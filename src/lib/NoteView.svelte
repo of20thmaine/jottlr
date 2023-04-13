@@ -88,7 +88,6 @@
         if (timeout) {
             clearTimeout(timeout);
         }
-
         if (noteCanBeSaved()) {
             await saveNote();
         } else if (!noteCanBeSaved() && note.id === -1) {
@@ -133,16 +132,22 @@
                 labelNode.innerHTML = label.toString() + ".";
                 return;
             case LabelType.Disc:
-                labelNode.innerHTML = "&bull;";
+                labelNode.innerHTML = "&#9679;";
                 return;
             case LabelType.Circle:
                 labelNode.innerHTML = "&#9675;";
                 return;
             case LabelType.Square:
-                labelNode.innerHTML = "&FilledSmallSquare;";
+                labelNode.innerHTML = "&#9632;";
                 return;
             case LabelType.Arrow:
                 labelNode.innerHTML = "&rarr;";
+                return;
+            case LabelType.Diamond:
+                labelNode.innerHTML = "&#9670;";
+                return;
+            case LabelType.Caret:
+                labelNode.innerHTML = "&#9655;";
                 return;
         }
     }

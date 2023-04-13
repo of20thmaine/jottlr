@@ -29,8 +29,8 @@
         if (!(positionalName.length > 0)) {
             errorString = "Positional name cannot be blank."
             return;
-        } else if (positionalName.length > 36) {
-            errorString = "Positional name cannot exceed 36 characters."
+        } else if (positionalName.length > 30) {
+            errorString = "Positional name cannot exceed 30 characters."
             return;
         }
         CreatePositional(positionalName, collection.id)

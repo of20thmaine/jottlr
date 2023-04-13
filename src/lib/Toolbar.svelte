@@ -262,12 +262,12 @@
 
     .selTheme {
         padding: 0.25rem 0.4rem;
-        width: 160px;
+        width: 190px;
         color: #d7b474;
     }
 
     .themeMenu {
-        width: 160px;
+        width: 190px;
     }
 
     .themeOpt {

@@ -56,14 +56,18 @@ export const enum LabelType {
     Disc,
     Circle,
     Square,
-    Arrow
+    Arrow,
+    Diamond,
+    Caret
 }
 
 export const Labels: Label[] = [
-    {name: "Bullets", value: LabelType.Disc, demo: '<i class="bi bi-circle-fill tinyIco"></i></div>, <i class="bi bi-circle-fill tinyIco"></i>'},
-    {name: "Squares", value: LabelType.Square, demo: '<i class="bi bi-square-fill tinyIco"></i>, <i class="bi bi-square-fill tinyIco"></i>'},
-    {name: "Circles", value: LabelType.Circle, demo: '<i class="bi bi-circle tinyIco"></i>, <i class="bi bi-circle tinyIco"></i>'},
-    {name: "Arrows", value: LabelType.Arrow, demo: '<i class="bi bi-arrow-right"></i>, <i class="bi bi-arrow-right"></i>'},
+    {name: "Bullets", value: LabelType.Disc, demo: '&#9679;, &#9679;'},
+    {name: "Squares", value: LabelType.Square, demo: '&#9632;, &#9632;'},
+    {name: "Circles", value: LabelType.Circle, demo: '&#9675;, &#9675;'},
+    {name: "Arrows", value: LabelType.Arrow, demo: '&rarr;, &rarr;'},
+    {name: "Diamonds", value: LabelType.Diamond, demo: '&#9670;, &#9670;'},
+    {name: "Carets", value: LabelType.Caret, demo: '&#9655;, &#9655;'},
     {name: "Roman Numerals (Uppercase)", value: LabelType.RomanCaps, demo: "I, II"},
     {name: "Roman Numerals (Lowercase)", value: LabelType.RomanLowers, demo: "i, ii"},
     {name: "Alphabet (Uppercase)", value: LabelType.AlphabetCaps, demo: "A, B"},

@@ -225,7 +225,11 @@
             <div class="selector selWeights" class:selectorSelected={showFontWeightSelect}
                     on:click={() => showFontWeightSelect = true}
                     on:keypress={() => showFontWeightSelect = !showFontWeightSelect}>
-                {theme.fontWeight ? theme.fontWeight.name : "-"}
+                {#if theme.fontWeight === undefined}
+                    <div class="selected">-</div>
+                {:else}
+                    {theme.fontWeight.name}
+                {/if}
                 <i class="bi bi-chevron-down rI"></i>
             </div>
             {#if showFontWeightSelect}
@@ -243,7 +247,7 @@
                                 theme.fontWeight = undefined;
                                 showFontWeightSelect = !showFontWeightSelect;
                             }}>
-                        -
+                        <div class="selected">-</div>
                     </div>
                     {#each fontWeightOpts as opt}
                         <div class="opt weightOpt"
@@ -274,7 +278,11 @@
         <div class="selector selLabel" class:selectorSelected={showLabelSelect}
                 on:click={() => showLabelSelect = true}
                 on:keypress={() => showLabelSelect = !showLabelSelect}>
-            {theme.label ? theme.label.name : "-"}
+            {#if theme.label}
+                {theme.label.name}
+            {:else}
+                <div class="selected">-</div>
+            {/if}
             <div class="labelIco"><i class="bi bi-chevron-down"></i></div>
         </div>
         {#if showLabelSelect}
@@ -294,7 +302,7 @@
                                 theme.labelTheme = undefined;
                                 showLabelSelect = !showLabelSelect;
                             }}>
-                        -
+                        <div class="selected">-</div>
                     </div>
                 {#each Labels as label}
                     <div class="opt"
@@ -408,7 +416,11 @@
                 <div class="selector selWeights" class:selectorSelected={showLabelFontWeightSelect}
                         on:click={() => showLabelFontWeightSelect = true}
                         on:keypress={() => showLabelFontWeightSelect = !showLabelFontWeightSelect}>
-                    {theme.labelTheme.fontWeight ? theme.labelTheme.fontWeight.name : "-"}
+                    {#if theme.labelTheme.fontWeight}
+                        {theme.labelTheme.fontWeight.name}
+                    {:else}
+                        <div class="selected">-</div>
+                    {/if}
                     <i class="bi bi-chevron-down rI"></i>
                 </div>
                 {#if showLabelFontWeightSelect}
@@ -426,7 +438,7 @@
                                     if (theme.labelTheme) theme.labelTheme.fontWeight = undefined;
                                     showLabelFontWeightSelect = !showLabelFontWeightSelect;
                                 }}>
-                            -
+                            <div class="selected">-</div>
                         </div>
                         {#each fontWeightOpts as opt}
                             <div class="opt weightOpt"
@@ -507,11 +519,11 @@
 
     .selWeights {
         padding: 0.3rem 0.3rem 0.25rem 0.3rem;
-        width: 120px;
+        width: 130px;
     }
 
     .weightsMenu {
-        width: 120px;
+        width: 130px;
     }
 
     .weightOpt {
