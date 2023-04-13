@@ -1,7 +1,7 @@
 <script lang="ts">
     import { flip } from 'svelte/animate';
-    import { CreateNote, GetCollection, GetCollectionsPositionals, GetPositional, DeleteNote, DeleteFromPositionedNotes, UpdateCollectionLastOpen } from "$lib/scripts/db";
-    import { DefaultViewModes, EditModes, GetPageWidth, ChangeType, LabelType, SortType, SetCollectionView, GetCollectionView, GetThemeList } from "$lib/scripts/settings";
+    import { CreateNote, CreatePositionedNote, GetCollection, GetCollectionsPositionals, GetPositional, DeleteNote, DeleteFromPositionedNotes, UpdateCollectionLastOpen } from "$lib/scripts/db";
+    import { DefaultViewModes, EditModes, GetPageWidth, ChangeType, SortType, SetCollectionView, GetCollectionView, GetThemeList } from "$lib/scripts/settings";
     import { WindowTitle } from "$lib/scripts/stores";
     import NoteView from "$lib/NoteView.svelte";
     import Toolbar from "$lib/Toolbar.svelte";
@@ -21,10 +21,7 @@
     let pageWidth: number = 800;
 
     WindowTitle.set(data.name);
-
     GetPageWidth().then((value) => {if (value) pageWidth = value});
-
-    // APPEND MODE NOT WORKING WITH POSITIONALS AT ALL
 
     $: if (noteInput) noteInput.focus();
     $: if (collectionView) SetCollectionView(collectionView);
@@ -212,10 +209,10 @@
 
     async function updateCollection() {
         if (viewMode.isSortable) {
-            GetCollection(data.id, viewMode.sort)
+            return await GetCollection(data.id, viewMode.sort)
                 .then((value) => notes = value)
         } else {
-            GetPositional(viewMode.id)
+            return await GetPositional(viewMode.id)
                 .then((value) => notes = value)
         }
     }
@@ -261,16 +258,39 @@
         }
     }
 
-    function editingKeyHandler(event: KeyboardEvent): void {
-        const target = event.target as HTMLElement;
+    function appendNote() {
+        if (!(noteInput.innerHTML.length > 0)) return;
+
+        if (viewMode.isSortable) {
+            CreateNote(noteInput.innerHTML, collectionView.id)
+                .then(() => {
+                    updateCollection().then(() => {
+                        jumpToPageEnd();
+                        noteInput.innerHTML = "";
+                    });
+                });
+        } else {
+            CreateNote(noteInput.innerHTML, collectionView.id)
+                .then((value) => {
+                    CreatePositionedNote(collectionView.viewModeId, 
+                                        value.lastInsertId, 
+                                        notes.length,
+                                        0)
+                        .then(() => {
+                            updateCollection().then(() => {
+                                jumpToPageEnd();
+                                noteInput.innerHTML = "";
+                            });
+                        });
+                });
+        }
+    }
+
+    function appendModeKeyHandler(event: KeyboardEvent): void {
         switch (event.key) {
             case "Enter":
                 event.preventDefault();
-                if (target.innerHTML.length > 0) {
-                    CreateNote(target.innerHTML, data.id);
-                    updateCollection().then(() => {jumpToPageEnd();});
-                    target.innerHTML = "";
-                }
+                appendNote();
                 break;
         }
     }
@@ -311,7 +331,6 @@
                             bind:note={note}
                             bind:collectionView={collectionView}
                             bind:focusNoteId={focusNoteId}
-                            maxIndents={theme.maxIndents}
                             viewMode={viewMode}
                             theme={theme}
                             forceFocusChange={forceFocusChange}
@@ -327,9 +346,9 @@
                 <div class="noteEntry">
                     <div class="appendIco"><i class="bi bi-plus-lg"></i></div>
                     <div class="noteInput"
-                        contenteditable="true"
-                        on:keydown={editingKeyHandler}
                         bind:this={noteInput}
+                        on:keydown={appendModeKeyHandler}
+                        contenteditable="true"
                         placeholder="Append new note"
                         style="max-width:{pageWidth}px;">
                     </div>
@@ -383,15 +402,14 @@
     }
 
     .noteInput {
-        border-radius: 4px;
-        background-color: var(--textfieldColor);
-        padding: 0.5rem;
-        color: var(--fontColor);
-        line-height: 1.84rem;
-        min-height: 2.84rem;
-        font-size: 1.10rem;
         flex: 1;
         margin: 0.75rem 0.75rem 0.75rem 0;
+        padding: 0.5rem 0.75rem;
+        border-radius: 4px;
+        background-color: var(--textfieldColor);
+        color: var(--fontColor);
+        line-height: 1.84rem;
+        font-size: 1.10rem;
     }
 
     [contenteditable=true]:empty:before {

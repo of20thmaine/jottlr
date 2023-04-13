@@ -7,12 +7,15 @@
 
     export let data;
 
-    // CURRENT PROBLEMS:
-    // 1. If note indents exceeds themes max indents an error is thrown on theme application. Best thing to do would
-    //    be to draw the note as the max allowed theme and add an information error to the view, say the "i" logo next
-    //    to the note card with a hover-over tooltip
-    // 2. The theme demo isn't refreshing on theme edits, need to learn more about svelte object prop change reactivity.
-    // 3. The input for "append-mode" on a positional isn't working properly.
+    const ThemesReservedIdMax: number = 20;
+    const DefaultMaxIndents: number = 6;
+    const MaxMaxIndents: number = 16;
+    const ThemeNameMaxLength: number = 30;
+    const MockNote: string = "Test";
+
+    let currentlyEditing: Theme;
+    let themes: Theme[];
+    let mockNotes: Note[];
 
     let showCreateArea: boolean = false;
     let createCopy: boolean = false;
@@ -26,17 +29,6 @@
     let createNameErrorStr: string = "";
     let changeNameErrorStr: string = "";
 
-    let currentlyEditing: Theme;
-    let themes: Theme[];
-
-    let mockNotes: Note[];
-
-    const ThemesReservedIdMax: number = 20;
-    const DefaultMaxIndents: number = 6;
-    const MaxMaxIndents: number = 16;
-    const ThemeNameMaxLength: number = 30;
-    const MockNote: string = "Test";
-
     loadData();
     WindowTitle.set("Theme Editor");
 
@@ -48,13 +40,18 @@
     }
 
     async function loadData() {
-        themes = await GetThemeList();
-        currentlyEditing = getThemeFromId(data.id);
-        changeNameStr = currentlyEditing.name;
+        return await GetThemeList()
+            .then((value) => {
+                themes = value;
+                currentlyEditing = getThemeFromId(data.id);
+                changeNameStr = currentlyEditing.name;
+            });
     }
 
     function save() {
-        SetThemeList(themes);
+        SetThemeList(themes)
+        generateMockNotes();
+        mockNotes = mockNotes;
     }
 
     function getNextValidUserThemeId() {
@@ -416,7 +413,7 @@
             </div>
         </div>
         <ThemeIndentSettings 
-            indentLevel={indentThemeSelection}
+            bind:indentLevel={indentThemeSelection}
             bind:themePapa={currentlyEditing}
             save={save}
         />
@@ -426,7 +423,6 @@
                 <div class="rowIco"><i class="bi bi-easel"></i></div>
                 <h2>See It:</h2>
             </div>
-
             <div class="collectionMock">
                 {#each mockNotes as note, i}
                     <div class="noteHolder" style="{getNoteHolderStyle(note)}">
@@ -435,7 +431,6 @@
                             bind:note={note}
                             collectionView={{id: 1, name: "", editModeId: 3, viewCategoryId: 3, viewModeId: 3, themeId: currentlyEditing.id}}
                             focusNoteId={null}
-                            maxIndents={currentlyEditing.maxIndents}
                             viewMode={{id: 1, name: "", created_at: "", last_open: "", isSortable: false}}
                             theme={currentlyEditing}
                             forceFocusChange={() => {}}

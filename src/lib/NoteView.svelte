@@ -7,7 +7,6 @@
     export let idx: number;
     export let collectionView: CollectionView;
     export let focusNoteId: number | null;
-    export let maxIndents: number;
     export let viewMode: ViewMode;
     export let theme: Theme;
     export let forceFocusChange: (currentFocusIdx: number, changeType: ChangeType, toBeDeleted: boolean) => void;
@@ -31,15 +30,7 @@
         }
     }
 
-    $: if (noteNode && theme) {
-        ApplyNoteStyle(noteNode, note, theme);
-    }
-
-    $: if (labelNode && theme) {
-        ApplyLabelStyle(labelNode, note, theme);
-    }
-
-    //$: theme, ApplyLabelStyle(labelNode, note, theme), ApplyNoteStyle(noteNode, note, theme);
+    $: theme, applyTheme();
 
     async function saveNote() {
         if (noteCanBeSaved()) {
@@ -53,6 +44,24 @@
                     });
             } else {
                 UpdateNote(note.id, note.content);
+            }
+        }
+    }
+
+    function applyTheme() {
+        if (noteNode) {
+            ApplyNoteStyle(noteNode, note, theme);
+        }
+
+        if (labelNode) {
+            ApplyLabelStyle(labelNode, note, theme);
+
+            if (note.isPositioned && note.label) {
+                if (theme.noteThemes?.[note.indents]?.label?.value !== undefined) {
+                    setLabelText(note.label, theme.noteThemes[note.indents].label?.value);
+                } else if (theme.default?.label?.value !== undefined) {
+                    setLabelText(note.label, theme.default?.label?.value);
+                }
             }
         }
     }
@@ -96,29 +105,45 @@
         };
     }
 
-    function changeIndents(delta: number) {
-        if (note.isPositioned) {
-            if (note.indents + delta >= 0 && note.indents + delta <= maxIndents) {
-                note.indents += delta;
-                UpdateNotePosition(collectionView.viewModeId, note.id, idx, note.indents);
-            }
-        }
+    function incrementIndent() {
+        if (!note.isPositioned || note.indents+1 > theme.maxIndents) return;
+        UpdateNotePosition(collectionView.viewModeId, note.id, idx, ++note.indents);
     }
 
-    function getLabelText(label: number, labelType: LabelType): string {
+    function decrementIndent() {
+        if (!note.isPositioned || note.indents-1 < 0) return;
+        UpdateNotePosition(collectionView.viewModeId, note.id, idx, --note.indents);
+    }
+
+    function setLabelText(label: number, labelType: LabelType) {
         switch (labelType) {
             case LabelType.RomanCaps:
-                return romanizeLabel(label);
+                labelNode.innerHTML = romanizeLabel(label) + ".";
+                return;
             case LabelType.RomanLowers:
-                return romanizeLabel(label).toLowerCase();
+                labelNode.innerHTML = romanizeLabel(label).toLowerCase() + ".";
+                return;
             case LabelType.AlphabetCaps:
-                return alphabetizeLabel(label);
+                labelNode.innerHTML = alphabetizeLabel(label) + ".";
+                return;
             case LabelType.AlphabetLowers:
-                return alphabetizeLabel(label).toLowerCase();
+                labelNode.innerHTML = alphabetizeLabel(label).toLowerCase() + ".";
+                return;
             case LabelType.Numerals:
-                return label.toString();
-            default:
-                return label.toString();
+                labelNode.innerHTML = label.toString() + ".";
+                return;
+            case LabelType.Disc:
+                labelNode.innerHTML = "&bull;";
+                return;
+            case LabelType.Circle:
+                labelNode.innerHTML = "&#9675;";
+                return;
+            case LabelType.Square:
+                labelNode.innerHTML = "&FilledSmallSquare;";
+                return;
+            case LabelType.Arrow:
+                labelNode.innerHTML = "&rarr;";
+                return;
         }
     }
 
@@ -188,21 +213,21 @@
             case "Tab":
                 event.preventDefault();
                 if (event.shiftKey) {
-                    changeIndents(-1);
+                    decrementIndent();
                 } else {
-                    changeIndents(1);
+                    incrementIndent();
                 }
                 return;
             case "ArrowLeft":
                 if (event.ctrlKey) {
                     event.preventDefault();
-                    changeIndents(-1);
+                    decrementIndent();
                 }
                 return;
             case "ArrowRight":
                 if (event.ctrlKey) {
                     event.preventDefault();
-                    changeIndents(1);
+                    incrementIndent();
                 }
                 return;
         }
@@ -210,14 +235,14 @@
 </script>
 
 {#if !viewMode.isSortable && note.isPositioned && note.label}
-    {#if theme.noteThemes?.[note.indents].label?.value}
-        <div class="label" bind:this={labelNode}>
-            {getLabelText(note.label, theme.noteThemes?.[note.indents].label?.value)}.
+    {#if note.indents > theme.maxIndents}
+        <div class="label">
+            <i class="bi bi-info-circle" 
+                title="Note indents exceeds theme indent limit. To fix either edit the theme indent limit or unindent this note.">
+            </i>
         </div>
-    {:else if theme.default?.label?.value }
-        <div class="label" bind:this={labelNode}>
-            {getLabelText(note.label, theme.default?.label?.value)}.
-        </div>
+    {:else if theme.noteThemes?.[note.indents]?.label?.value !== undefined || theme.default?.label?.value !== undefined}
+        <div class="label" bind:this={labelNode} />
     {/if}
 {/if}
 {#if collectionView.editModeId === 2}
@@ -265,6 +290,7 @@
     .label {
         min-width: 42px;
         color: var(--fontColor);
+        font-size: 1.10rem;
         text-align: center;
     }
 </style>

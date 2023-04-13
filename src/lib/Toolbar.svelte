@@ -143,7 +143,7 @@
                     <div class="opt themeOpt themeCo"
                             on:click={() => goto("/themeeditor/" + theme.id)}
                             on:keypress={() => goto("/themeeditor/" + theme.id)}>
-                        Create New
+                        Create / Edit Themes
                         <i class="bi bi-plus-lg mLA"></i>
                     </div>
                 </div>
@@ -292,7 +292,7 @@
     }
 
     .editing {
-        color: #f5e28e;
+        color: #34be7b;
     }
 
     .readOnly {

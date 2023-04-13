@@ -17,12 +17,12 @@
 
     const MaxMargin: number = 72;
     const MaxFontSize: number = 72;
-    const marginOpts: number[] = [4, 8, 16, 32, 64, 72];
+    const marginOpts: number[] = [4,8,16,32,64,72];
     const fontOpts: number[] = [8,9,10,11,12,14,16,18,24,30,36,48,60,72];
     const fontWeightOpts: FontWeight[] = [{name:"Light",value:"300"},{name:"Normal",value:"400"},
         {name:"Semi-Bold",value:"600"},{name:"Bold",value:"700"}];
 
-    $: if (themePapa) load();
+    $: themePapa, indentLevel, load();
     $: theme.marginLeft, theme.fontSize, theme.fontWeight, theme.fontColor, theme.bubbleColor, theme.label, save();
     $: theme.labelTheme, theme.labelTheme?.fontSize, theme.labelTheme?.fontWeight, theme.labelTheme?.fontColor, save();
 
