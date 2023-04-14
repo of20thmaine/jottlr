@@ -4,6 +4,7 @@
     import { goto } from '$app/navigation';
     import { ColorModeIsDark, WindowTitle } from '$lib/scripts/stores';
     import { ClickOutside } from "$lib/scripts/utils";
+    import { ExportAs } from '$lib/scripts/fs';
     import CreateCollection from '$lib/CreateCollection.svelte';
 
     let isDarkMode: boolean;
@@ -56,7 +57,17 @@
                                 showCreateCollection = !showCreateCollection;
                             }}>
                     New Collection...</div>
-                    <div class="dropdownItm"
+                <div class="dropdownItm"
+                        on:click={() => {
+                                showFileMenu = !showFileMenu;
+                                ExportAs();
+                            }}
+                        on:keypress={() => {
+                                showFileMenu = !showFileMenu;
+                                ExportAs();
+                            }}>
+                    Export As...</div>
+                <div class="dropdownItm"
                         on:click={() => {
                                 showFileMenu = !showFileMenu;
                                 goto("/settings");
