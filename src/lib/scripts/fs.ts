@@ -16,8 +16,6 @@ import { SortType } from "$lib/scripts/settings";
  * 
  */
 
-
-
 export async function ExportToJottlr(collection: Collection, theme?: Theme): Promise<void> {
     const filePath = await save(
         { title: "Export To", filters: [{ name: "Jottlr", extensions: ["jottlr"] }] }

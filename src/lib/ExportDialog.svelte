@@ -235,11 +235,10 @@
             </div>
         {/if}
     </div>
-    <div class="footer">
-        <div class="exportBtn"
+    <div class="exportBtn"
             on:click={exportHandler}
             on:keypress={exportHandler}>
-        Export</div>
+        Export
     </div>
 </div>
 

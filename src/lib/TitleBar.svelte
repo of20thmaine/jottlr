@@ -6,6 +6,7 @@
     import { ClickOutside } from "$lib/scripts/utils";
     import CreateCollection from '$lib/CreateCollection.svelte';
     import ExportDialog from '$lib/ExportDialog.svelte';
+    import ImportDialog from '$lib/ImportDialog.svelte';
 
     let isDarkMode: boolean;
     let darkPath = "dark_";
@@ -14,6 +15,7 @@
     let showFileMenu = false;
     let showCreateCollection = false;
     let showExportCollection = false;
+    let showImportCollection = false;
     let windowTitle: string = "";
     
     WindowTitle.subscribe(value => windowTitle = value);
@@ -64,11 +66,27 @@
                         on:click={() => {
                                 showFileMenu = !showFileMenu;
                                 showCreateCollection = false;
+                                showExportCollection = false;
+                                showImportCollection = true;
+                            }}
+                        on:keypress={() => {
+                                showFileMenu = !showFileMenu;
+                                showCreateCollection = false;
+                                showExportCollection = false;
+                                showImportCollection = true;
+                            }}>
+                    Import</div>
+                <div class="dropdownItm"
+                        on:click={() => {
+                                showFileMenu = !showFileMenu;
+                                showCreateCollection = false;
+                                showImportCollection = false;
                                 showExportCollection = true;
                             }}
                         on:keypress={() => {
                                 showFileMenu = !showFileMenu;
                                 showCreateCollection = false;
+                                showImportCollection = false;
                                 showExportCollection = true;
                             }}>
                     Export As...</div>
@@ -121,6 +139,10 @@
 
 {#if showExportCollection}
     <ExportDialog bind:showDialog={showExportCollection} />
+{/if}
+
+{#if showImportCollection}
+    <ImportDialog bind:showDialog={showImportCollection} />
 {/if}
 
 <style>
