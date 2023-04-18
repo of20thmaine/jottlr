@@ -122,7 +122,6 @@
 <style>
     .page {
         margin: 0 auto;
-        /* margin-top: var(--titlebarHeight); */
         max-width: 600px;
         padding: 1.0rem;
     }

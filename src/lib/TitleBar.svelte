@@ -4,8 +4,8 @@
     import { goto } from '$app/navigation';
     import { ColorModeIsDark, WindowTitle } from '$lib/scripts/stores';
     import { ClickOutside } from "$lib/scripts/utils";
-    import { ExportAs } from '$lib/scripts/fs';
     import CreateCollection from '$lib/CreateCollection.svelte';
+    import ExportDialog from '$lib/ExportDialog.svelte';
 
     let isDarkMode: boolean;
     let darkPath = "dark_";
@@ -13,6 +13,7 @@
     let currentPath = "";
     let showFileMenu = false;
     let showCreateCollection = false;
+    let showExportCollection = false;
     let windowTitle: string = "";
     
     WindowTitle.subscribe(value => windowTitle = value);
@@ -50,21 +51,25 @@
                 <div class="dropdownItm"
                         on:click={() => {
                                 showFileMenu = !showFileMenu;
+                                showExportCollection = false;
                                 showCreateCollection = !showCreateCollection;
                             }}
                         on:keypress={() => {
                                 showFileMenu = !showFileMenu;
+                                showExportCollection = false;
                                 showCreateCollection = !showCreateCollection;
                             }}>
                     New Collection...</div>
                 <div class="dropdownItm"
                         on:click={() => {
                                 showFileMenu = !showFileMenu;
-                                ExportAs();
+                                showCreateCollection = false;
+                                showExportCollection = true;
                             }}
                         on:keypress={() => {
                                 showFileMenu = !showFileMenu;
-                                ExportAs();
+                                showCreateCollection = false;
+                                showExportCollection = true;
                             }}>
                     Export As...</div>
                 <div class="dropdownItm"
@@ -112,6 +117,10 @@
 
 {#if showCreateCollection}
     <CreateCollection bind:showCreateCollection={showCreateCollection} />
+{/if}
+
+{#if showExportCollection}
+    <ExportDialog bind:showDialog={showExportCollection} />
 {/if}
 
 <style>

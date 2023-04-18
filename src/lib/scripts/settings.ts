@@ -43,6 +43,22 @@ export async function GetThemeList(): Promise<Theme[]> {
     return themes;
 }
 
+export async function GetUserThemeList(): Promise<Theme[] | null> {
+    let themes: Theme[] | null = await store.get("theme-list");
+    let userThemes = [];
+    if (themes) {
+        for (let theme of themes) {
+            if (!theme.system) {
+                userThemes.push(theme);
+            }
+        }
+    }
+    if (userThemes.length > 0) {
+        return userThemes;
+    }
+    return null;
+}
+
 export async function SetThemeList(themeList: Theme[]) {
     store.set("theme-list", themeList);
 }
