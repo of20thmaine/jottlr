@@ -163,8 +163,34 @@ async function GetPositionsSavedNotes(positional: SavePositional): Promise<SaveP
     );
 }
 
-export async function ImportCollectionFromJottlr() {
+export async function ImportCollectionFromJottlr(data: JottlrSave) {
+    if (data.version !== await getVersion()) return;
+    
+    let noteIdMap = new Map<number, number>();
+    let positionalIdMap = new Map<number, number>();
 
+    let collection = await CreateCollection(data.collection.name);
+
+    for (let note of data.notes) {
+        let saveNote = await CreateNote(note.content, collection.lastInsertId);
+        noteIdMap.set(note.id, saveNote.lastInsertId);
+    }
+
+    for (let positional of data.positionals) {
+        let savePositional = await CreatePositional(positional.name, collection.lastInsertId);
+        positionalIdMap.set(positional.id, savePositional.lastInsertId);
+    }
+
+    for (let note of data.positionedNotes) {
+        if (positionalIdMap.has(note.positional_id) && noteIdMap.has(note.note_id)) {
+            CreatePositionedNote(
+                positionalIdMap.get(note.positional_id)!,
+                noteIdMap.get(note.note_id)!, 
+                note.position,
+                note.indents
+            );
+        }
+    }
 }
 
 /**
