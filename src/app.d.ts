@@ -1,3 +1,9 @@
+declare namespace svelteHTML {
+    interface HTMLAttributes<T> {
+        'on:outclick'?: (event: any) => any;
+    }
+}
+
 interface StandardNote {
     id: number;
     content: string;
@@ -48,6 +54,13 @@ interface EditMode {
     ico: string;
 }
 
+interface ViewModeCategory {
+    id: number;
+    name: string;
+    ico: string;
+    options: ViewMode[];
+}
+
 interface Positional {
     id: number;
     name: string;
@@ -64,6 +77,8 @@ interface Sortable {
     isSortable: true;
 }
 
+type ViewMode = Sortable | Positional;
+
 interface FontWeight {
     name: string;
     value: string;
@@ -73,21 +88,6 @@ interface Label {
     name: string;
     value: LabelType;
     demo: string;
-}
-
-type ViewMode = Sortable | Positional;
-
-interface ViewModeCategory {
-    id: number;
-    name: string;
-    ico: string;
-    options: ViewMode[];
-}
-
-declare namespace svelteHTML {
-    interface HTMLAttributes<T> {
-        'on:outclick'?: (event: any) => any;
-    }
 }
 
 interface Theme {
@@ -113,4 +113,42 @@ interface LabelTheme {
     fontSize?: number;
     fontWeight?: FontWeight;
     fontColor?: string;
+}
+
+interface ExportOption {
+    name: string;
+    type: ExportType;
+}
+
+interface JottlrSave {
+    version: string;
+    collection: SaveCollection;
+    notes: SaveNote[];
+    positionals: SavePositional[];
+    positionedNotes: SavePositionedNote[];
+    theme?: Theme;
+}
+
+interface SaveCollection {
+    name: string;
+}
+
+interface SaveNote {
+    id: number;
+    content: string;
+    created_at: string;
+    updated_at: string;
+}
+
+interface SavePositional {
+    id: number;
+    name: string;
+    created_at: string;
+}
+
+interface SavePositionedNote {
+    positional_id: number;
+    note_id: number;
+    position: number;
+    indents: number;
 }

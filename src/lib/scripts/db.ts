@@ -1,4 +1,5 @@
 import Database, { type QueryResult } from "tauri-plugin-sql-api";
+import { getVersion } from '@tauri-apps/api/app';
 import { SortType } from "$lib/scripts/settings";
 
 const db = await Database.load("sqlite:notes.db");
@@ -120,6 +121,79 @@ export async function DeleteFromPositionedNotes(positionId: number, noteId: numb
         "DELETE FROM positioned_notes WHERE positional_id = $1 AND note_id = $2",
         [positionId, noteId]
     );
+}
+
+export async function ExportCollectionAsJottlr(collection: Collection): Promise<JottlrSave> {
+    const positionals: SavePositional[] = await GetSavePositionals(collection.id);
+    return {
+        version: await getVersion(),
+        collection: collection as SaveCollection,
+        notes: await GetSaveNotes(collection.id),
+        positionals: positionals,
+        positionedNotes: await GetSavePositionedNotes(positionals)
+    };
+}
+
+async function GetSaveNotes(collection_id: number): Promise<SaveNote[]> {
+    return await db.select(
+        "SELECT * FROM notes WHERE collection_id = $1",
+        [collection_id]
+    );
+}
+
+async function GetSavePositionals(collection_id: number): Promise<SavePositional[]> {
+    return await db.select(
+        "SELECT id, name, created_at FROM positionals WHERE collection_id = $1",
+        [collection_id]
+    );
+}
+
+async function GetSavePositionedNotes(positionals: SavePositional[]): Promise<SavePositionedNote[]> {
+    let notes: SavePositionedNote[] = [];
+    for (let positional of positionals) {
+        notes.push(...await GetPositionsSavedNotes(positional));
+    }
+    return notes;
+}
+
+async function GetPositionsSavedNotes(positional: SavePositional): Promise<SavePositionedNote[]> {
+    return await db.select(
+        "SELECT * FROM positioned_notes WHERE positional_id = $1",
+        [positional.id]
+    );
+}
+
+export async function ImportCollectionFromJottlr(data: JottlrSave): Promise<Collection> {
+    if (data.version !== await getVersion()) {
+        throw new Error("Import version does not match app version.");
+    }
+    
+    let noteIdMap = new Map<number, number>();
+    let positionalIdMap = new Map<number, number>();
+
+    let collection = await CreateCollection(data.collection.name);
+
+    for (let note of data.notes) {
+        let saveNote = await CreateNote(note.content, collection.lastInsertId);
+        noteIdMap.set(note.id, saveNote.lastInsertId);
+    }
+
+    for (let positional of data.positionals) {
+        let savePositional = await CreatePositional(positional.name, collection.lastInsertId);
+        positionalIdMap.set(positional.id, savePositional.lastInsertId);
+    }
+
+    for (let note of data.positionedNotes) {
+        if (positionalIdMap.has(note.positional_id) && noteIdMap.has(note.note_id)) {
+            CreatePositionedNote(
+                positionalIdMap.get(note.positional_id)!,
+                noteIdMap.get(note.note_id)!, 
+                note.position,
+                note.indents
+            );
+        }
+    }
+    return { id: collection.lastInsertId, name: data.collection.name };
 }
 
 /**
