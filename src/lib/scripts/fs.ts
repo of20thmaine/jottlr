@@ -3,19 +3,6 @@ import { writeTextFile } from '@tauri-apps/api/fs';
 import { ExportCollectionAsJottlr, GetCollection, GetPositional } from './db';
 import { SortType } from "$lib/scripts/settings";
 
-/**
- * The way this is going to work... ->
- * 
- * 1. Export mode will open a dialog, the export dialog. This will allow the user to choose
- * between a range of export options, initially just ".jottlr" (JSON dump) and .txt (this is
- * only for v0.1 !!!!!, its okay to heavily restrict!).
- * 
- * 2. Import mode will first open the system open file dialog, after which if a valid selection
- * is made an import mode dialog will be opened, this will include options for importing the
- * theme (if included in the file)
- * 
- */
-
 export async function ExportToJottlr(collection: Collection, theme?: Theme): Promise<void> {
     const filePath = await save(
         { title: "Export To", filters: [{ name: "Jottlr", extensions: ["jottlr"] }] }

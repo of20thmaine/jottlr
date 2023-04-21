@@ -104,10 +104,11 @@
         }
         if (data && collectionErrorStr === "") {
             data.collection.name = collectionName;
-            ImportCollectionFromJottlr(data);
-            showDialog = false;
-            //goto("/" + onfulfilled.lastInsertId + "/" + collectionName + "/0/0");
-
+            ImportCollectionFromJottlr(data)
+                .then((value) => {
+                    showDialog = false;
+                    goto("/" + value.id + "/" + value.name + "/0/0");
+                });
         }
     }
 </script>
@@ -156,7 +157,7 @@
             {/if}
         {/if}
         
-        {#if collectionErrorStr === "" && themeErrorStr === ""}
+        {#if collectionErrorStr === "" && (!includeTheme || themeErrorStr === "")}
             <div class="importBtn"
                     on:click={importHandler}
                     on:keypress={importHandler}>

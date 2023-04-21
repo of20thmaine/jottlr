@@ -151,7 +151,7 @@ async function GetSavePositionals(collection_id: number): Promise<SavePositional
 async function GetSavePositionedNotes(positionals: SavePositional[]): Promise<SavePositionedNote[]> {
     let notes: SavePositionedNote[] = [];
     for (let positional of positionals) {
-        notes.concat(await GetPositionsSavedNotes(positional));
+        notes.push(...await GetPositionsSavedNotes(positional));
     }
     return notes;
 }
@@ -163,8 +163,10 @@ async function GetPositionsSavedNotes(positional: SavePositional): Promise<SaveP
     );
 }
 
-export async function ImportCollectionFromJottlr(data: JottlrSave) {
-    if (data.version !== await getVersion()) return;
+export async function ImportCollectionFromJottlr(data: JottlrSave): Promise<Collection> {
+    if (data.version !== await getVersion()) {
+        throw new Error("Import version does not match app version.");
+    }
     
     let noteIdMap = new Map<number, number>();
     let positionalIdMap = new Map<number, number>();
@@ -191,6 +193,7 @@ export async function ImportCollectionFromJottlr(data: JottlrSave) {
             );
         }
     }
+    return { id: collection.lastInsertId, name: data.collection.name };
 }
 
 /**
