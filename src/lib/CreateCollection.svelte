@@ -5,6 +5,8 @@
 
     export let showCreateCollection: boolean;
 
+    const CollectionNameMaxLength: number = 30;
+
     let input: HTMLElement;
     let collectionName: string = "";
     let errorString: string = "";
@@ -26,8 +28,8 @@
 
     function createCollection() {
         if (collectionName.length > 0) {
-            if (collectionName.length > 36) {
-                errorString = "Collection name cannot exceed 36 characters."
+            if (collectionName.length > CollectionNameMaxLength) {
+                errorString = "Collection name cannot exceed " + CollectionNameMaxLength + " characters."
             } else {
                 CreateCollection(collectionName)
                     .catch((reason) => {

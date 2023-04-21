@@ -1,5 +1,6 @@
 <script lang="ts">
     import { open } from '@tauri-apps/api/dialog';
+    import { goto } from '$app/navigation';
     import { readTextFile } from '@tauri-apps/api/fs';
     import { ClickOutside } from "$lib/scripts/utils";
     import { GetThemeList, SetThemeList } from '$lib/scripts/settings';
@@ -7,18 +8,18 @@
 
     export let showDialog: boolean;
 
+    const NameMaxLength: number = 30;
     let data: JottlrSave | null;
     let collections: Collection[];
     let collectionName: string;
+    let collectionErrorStr: string = "";
     let collectionNameInput: HTMLElement;
     let fileName: string = ""
-    let errorStr: string = "";
     let includeTheme: boolean = false;
-
+    let themes: Theme[];
     let themeName: string = "";
     let themeErrorStr: string = ""
 
-    $: if (collectionName !== undefined) checkCollectionName();
     $: if (collectionNameInput) collectionNameInput.focus();
 
     async function getData() {
@@ -38,21 +39,36 @@
 
         if (!data) return;
         collectionName = data.collection.name;
+        checkCollectionName();
 
         if (data.theme) {
+            themes = await GetThemeList();
             themeName = data.theme.name;
+            checkThemeName();
         }
     }
 
     function checkCollectionName() {
         if (collectionNameUsed()) {
-            errorStr = "A collection with this name already exists."
+            collectionErrorStr = "A collection with this name already exists."
         } else if (collectionName.length === 0) {
-            errorStr = "Collection cannot be imported without a name."
-        } else if (collectionName.length > 36) {
-            errorStr = "Collection name cannot exceed 36 characters.";
+            collectionErrorStr = "Collection cannot be imported without a name."
+        } else if (collectionName.length > NameMaxLength) {
+            collectionErrorStr = "Collection name cannot exceed " + NameMaxLength + " characters.";
         } else {
-            errorStr = "";
+            collectionErrorStr = "";
+        }
+    }
+
+    function checkThemeName() {
+        if (themeNameUsed()) {
+            themeErrorStr = "A theme with this name already exists."
+        } else if (themeName.length === 0) {
+            themeErrorStr = "Theme cannot be imported without a name."
+        } else if (themeName.length > NameMaxLength) {
+            themeErrorStr = "Theme name cannot exceed " + NameMaxLength + " characters.";
+        } else {
+            themeErrorStr = "";
         }
     }
 
@@ -65,14 +81,34 @@
         return false;
     }
 
+    function themeNameUsed() {
+        for (let theme of themes) {
+            if (theme.name === themeName) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     function reset() {
         fileName = "";
-        errorStr = "";
+        collectionErrorStr = "";
         data = null;
     }
 
     function importHandler() {
+        if (data?.theme && themeErrorStr === "") {
+            data.theme.name = themeName;
+            themes.push(data.theme);
+            SetThemeList(themes);
+        }
+        if (data && collectionErrorStr === "") {
+            data.collection.name = collectionName;
+            ImportCollectionFromJottlr(data);
+            showDialog = false;
+            //goto("/" + onfulfilled.lastInsertId + "/" + collectionName + "/0/0");
 
+        }
     }
 </script>
 
@@ -104,27 +140,29 @@
     </div>
 
     {#if data}
-        <input type="text" class="txtInput" bind:this={collectionNameInput} bind:value={collectionName} />
-        <div class="errorStr">{errorStr}</div>
+        <input type="text" class="txtInput" bind:this={collectionNameInput} 
+            bind:value={collectionName} on:keyup={checkCollectionName} />
+        <div class="errorStr">{collectionErrorStr}</div>
 
         {#if data.theme}
             <h4 class="mT">File includes theme "{data.theme.name}"...</h4>
             <div class="row mT">
-                <input type="checkbox" class="includeTheme" bind:value={includeTheme}>
+                <input type="checkbox" class="includeTheme" bind:checked={includeTheme}>
                 <h3>Import Theme?</h3>
             </div>
             {#if includeTheme}
-                <input type="text" class="txtInput" bind:value={themeName} />
+                <input type="text" class="txtInput" bind:value={themeName} on:keyup={checkThemeName} />
                 <div class="errorStr">{themeErrorStr}</div>
             {/if}
         {/if}
-
-        <div class="importBtn"
-                on:click={importHandler}
-                on:keypress={importHandler}>
-            Import
-        </div>
-
+        
+        {#if collectionErrorStr === "" && themeErrorStr === ""}
+            <div class="importBtn"
+                    on:click={importHandler}
+                    on:keypress={importHandler}>
+                Import
+            </div>
+        {/if}
     {/if}
 </div>
 
@@ -235,9 +273,9 @@
         border: 1px solid;
         border-radius: 4px;
         color: #be349c;
-        padding: 0.2rem 1.5rem;
+        padding: 0.2rem 1.5rem 0.25rem 1.5rem;
         width: fit-content;
-        font-weight: 500;
+        font-weight: 400;
         margin-top: 1.0rem;
         cursor: pointer;
 	    user-select: none;
