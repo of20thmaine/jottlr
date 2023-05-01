@@ -34,12 +34,12 @@
         </div>
     </a>
     <div class="menuSelection"
-            on:click={() => showFileMenu = !showFileMenu}
-            on:keypress={() => showFileMenu = !showFileMenu}>File</div>
+            on:click|self={() => showFileMenu = true}
+            on:keypress|self={() => showFileMenu = true}>File</div>
         {#if showFileMenu}
             <div class="dropdown"
                     use:ClickOutside 
-                    on:outclick={() => showFileMenu = !showFileMenu}>
+                    on:outclick={() => showFileMenu = false}>
                 <div class="dropdownItm"
                         on:click={() => {
                                 showFileMenu = !showFileMenu;

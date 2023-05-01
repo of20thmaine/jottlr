@@ -11,8 +11,8 @@
     export let theme: Theme;
     export let forceFocusChange: (currentFocusIdx: number, changeType: ChangeType, toBeDeleted: boolean) => void;
     export let moveNote: (oldIdx: number, newIdx: number) => void;
-    export let deleteSavedNote: (noteId: number, idx: number) => void;
-    export let deleteUnsavedNote: (idx: number) => void;
+    export let deleteSavedNote: (noteId: number, idx: number) => Promise<void>;
+    export let deleteUnsavedNote: (idx: number) => Promise<void>;
 
     let noteNode: HTMLElement;
     let labelNode: HTMLElement;
@@ -210,9 +210,9 @@
             case "Delete":
                 event.preventDefault();
                 if (note.id === -1) {
-                    deleteUnsavedNote(idx);
+                    deleteUnsavedNote(idx).then(() => forceFocusChange(idx, ChangeType.AfterDelete, false));
                 } else {
-                    deleteSavedNote(note.id, idx);
+                    deleteSavedNote(note.id, idx).then(() => forceFocusChange(idx, ChangeType.AfterDelete, false));
                 }
                 return;
             case "Tab":

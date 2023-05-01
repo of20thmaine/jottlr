@@ -165,11 +165,12 @@
         if (viewMode.isSortable) {
             await DeleteNote(noteId).then(() => deleteUnsavedNote(idx));
         } else {
-            await DeleteFromPositionedNotes(viewMode.id, noteId).then(() => deleteUnsavedNote(idx));
+            await DeleteFromPositionedNotes(viewMode.id, noteId)
+                .then(() => DeleteNote(noteId).then(() => deleteUnsavedNote(idx)));
         }
     }
     
-    function deleteUnsavedNote(idx: number) {
+    async function deleteUnsavedNote(idx: number) {
         notes.splice(idx, 1);
         notes = notes;
     }
@@ -264,6 +265,13 @@
             case ChangeType.ArrowDown:
                 if (notes[currentFocusIdx+1]) {
                     focusNoteId = notes[currentFocusIdx+1].id;
+                }
+                break;
+            case ChangeType.AfterDelete:
+                if (notes[currentFocusIdx]) {
+                    focusNoteId = notes[currentFocusIdx].id;
+                } else if (notes[currentFocusIdx-1]) {
+                    focusNoteId = notes[currentFocusIdx-1].id;
                 }
                 break;
         }

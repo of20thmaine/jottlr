@@ -1,8 +1,9 @@
 <script lang="ts">
     import { goto } from '$app/navigation';
-    import { EditModes, GetThemeList } from "$lib/scripts/settings";
+    import { EditModes, GetThemeList, DeleteOption } from "$lib/scripts/settings";
     import { ClickOutside } from "$lib/scripts/utils";
     import CreatePositional from "$lib/CreatePositional.svelte";
+    import DeleteDialog from '$lib/DeleteDialog.svelte';
 
     export let editMode: EditMode;
     export let viewMode: ViewMode;
@@ -13,11 +14,14 @@
     export let pageWidth: Number;
     export let changeEditMode: (modeSelection: number) => void;
     export let changeViewMode: (categoryId: number, optionId: number) => void;
-    export let loadPositionals: () => void;
+    export let loadPositionals: () => Promise<void>;
 
     let showEditModeSelect: boolean = false;
     let showViewModeSelect: boolean = false;
     let showThemeSelect: boolean = false;
+    let showOtherOptsSelect: boolean = false;
+    let showDeletePositional: boolean = false;
+    let showDeleteCollection: boolean = false;
     let showCreatePositional: boolean = false;
 </script>
 
@@ -25,8 +29,8 @@
     <div class="toolBar" style="max-width:{pageWidth}px;">
         <div class="selectHolder">
             <div class="selector selTB {editMode.class}" class:selectorSelected={showEditModeSelect}
-                    on:click={() => showEditModeSelect = !showEditModeSelect}
-                    on:keypress={() => showEditModeSelect = !showEditModeSelect}>
+                    on:click={() => showEditModeSelect = true}
+                    on:keypress={() => showEditModeSelect = true}>
                 <div class="ico {editMode.class}"><i class="{editMode.ico}"></i></div>
                 <div class="name {editMode.class}">{editMode.name}</div>
                 <div class="tIco"><i class="bi bi-chevron-down"></i></div>
@@ -34,7 +38,7 @@
             {#if showEditModeSelect}
                 <div class="selectorMenu smTB"
                         use:ClickOutside 
-                        on:outclick={() => showEditModeSelect = !showEditModeSelect}>
+                        on:outclick={() => showEditModeSelect = false}>
                     {#each EditModes as mode}
                         <div class="opt"
                                 on:click={() => {
@@ -54,8 +58,8 @@
         </div>
         <div class="selectHolder mL">
             <div class="selector selTBVM" class:selectorSelected={showViewModeSelect}
-                    on:click={() => showViewModeSelect = !showViewModeSelect}
-                    on:keypress={() => showViewModeSelect = !showViewModeSelect}>
+                    on:click={() => showViewModeSelect = true}
+                    on:keypress={() => showViewModeSelect = true}>
                 {#if viewMode.isSortable}
                     <div class="ico"><i class="{viewMode.ico}"></i></div>
                 {:else}
@@ -67,7 +71,7 @@
             {#if showViewModeSelect}
                 <div class="selectorMenu selTBVMsm"
                         use:ClickOutside 
-                        on:outclick={() => showViewModeSelect = !showViewModeSelect}>
+                        on:outclick={() => showViewModeSelect = false}>
                     {#each viewModes as viewModeCat}
                         <div class="cat catCo">
                             <i class="{viewModeCat.ico}"></i>
@@ -150,7 +154,56 @@
             {/if}
         </div>
 
-        <div class="otherOpts"><i class="bi bi-three-dots-vertical"></i></div>
+        <div class="selectHolder mla">
+            <div class="otherOpts" class:optsSelected={showOtherOptsSelect}
+                    on:click={() => showOtherOptsSelect = true}
+                    on:keypress={() => showOtherOptsSelect = true}>
+                <i class="bi bi-three-dots-vertical"></i>
+            </div>
+            {#if showOtherOptsSelect}
+                <div class="optMenu"
+                        use:ClickOutside 
+                        on:outclick={() => {
+                                showOtherOptsSelect = false;
+                            }}>
+                    {#if !viewMode.isSortable}
+                        <div class="optsOpt">
+                            <i class="bi bi-pencil-square"></i>
+                            Rename Positional
+                        </div>
+                        <div class="optsOpt"
+                                on:click={() => {
+                                    showOtherOptsSelect = false;
+                                    showDeletePositional = true;
+                                }}
+                                on:keypress={() => {
+                                    showOtherOptsSelect = false;
+                                    showDeletePositional = true;
+                                }}>
+                            <i class="bi bi-trash"></i>
+                            Delete Positional
+                        </div>
+                    {/if}
+                    <div class="optsOpt">
+                        <i class="bi bi-pencil-square"></i>
+                        Rename Collection
+                    </div>
+                    <div class="optsOpt"
+                            on:click={() => {
+                                showOtherOptsSelect = false;
+                                showDeleteCollection = true;
+                            }}
+                            on:keypress={() => {
+                                showOtherOptsSelect = false;
+                                showDeleteCollection = true;
+                            }}>
+                        <i class="bi bi-trash"></i>
+                        Delete Collection
+                    </div>
+
+                </div>
+            {/if}
+        </div>
 
     </div>
 </div>
@@ -161,6 +214,18 @@
         collection={collection}
         changeViewMode={changeViewMode}
         loadPositionals={loadPositionals} />
+{:else if showDeleteCollection}
+    <DeleteDialog
+        bind:showDialog={showDeleteCollection}
+        deleteOption={DeleteOption.Collection}
+        deleteObject={collection}
+    />
+{:else if showDeletePositional}
+    <DeleteDialog
+        bind:showDialog={showDeletePositional}
+        deleteOption={DeleteOption.Positional}
+        deleteObject={{ id: viewMode.id, name: viewMode.name }}
+    />
 {/if}
 
 <style>
@@ -279,8 +344,39 @@
     }
 
     .otherOpts {
-        margin-left: auto;
         color: var(--fontColor);
+        border-radius: 50%;
+        cursor: pointer;
+	    user-select: none;
+        padding: 0.25rem;
+    }
+
+    .otherOpts:hover {
+        background-color: var(--textfieldColor);
+    }
+
+    .optMenu {
+        position: absolute;
+        z-index: 3;
+        right: 0;
+        color: var(--fontColor);
+        border: 1px solid;
+        background-color: var(--textfieldColor);
+        cursor: pointer;
+        user-select: none;
+        width: 200px;
+    }
+
+    .optsSelected {
+        background-color: var(--textfieldColor);
+    }
+
+    .mla {
+        margin-left: auto;
+    }
+
+    .mra {
+        margin-right: auto;
     }
 
     .catCo {

@@ -101,7 +101,13 @@ export const enum SortType {
 export const enum ChangeType {
     Enter,
     ArrowDown,
-    ArrowUp
+    ArrowUp,
+    AfterDelete
+}
+
+export const enum DeleteOption {
+    Positional,
+    Collection
 }
 
 export const EditModes: EditMode[] = [
