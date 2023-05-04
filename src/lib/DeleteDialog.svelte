@@ -1,25 +1,33 @@
 <script lang="ts">
     import { goto } from '$app/navigation';
     import { DeleteCollection, DeletePositional } from "$lib/scripts/db";
-    import { DeleteOption } from "$lib/scripts/settings";
+    import { ChangeOption } from "$lib/scripts/settings";
     import { ClickOutside } from "$lib/scripts/utils";
 
     export let showDialog: boolean;
-    export let deleteOption: DeleteOption;
-    export let deleteObject: Collection;
+    export let changeOption: ChangeOption;
+    export let changeObject: ChangeObject;
+    export let changeViewMode: (categoryId: number, optionId: number) => void;
+    export let loadPositionals: () => Promise<void>;
 
     async function executeDeletion() {
-        if (deleteOption === DeleteOption.Collection) {
-            await DeleteCollection(deleteObject.id)
+        if (changeOption === ChangeOption.Collection) {
+            await DeleteCollection(changeObject.collection.id)
                 .then(() => goto("/"));
         } else {
-            await DeletePositional(deleteObject.id, true)
-                .then(() => goto("/"));
+            await DeletePositional(changeObject.viewMode.id, true)
+                .then(() => {
+                    loadPositionals()
+                        .then(() => {
+                            changeViewMode(0, 0);
+                            showDialog = false;
+                        });
+                });
         }
     }
 </script>
 
-<div class="dialog" 
+<div class="dialog"
         use:ClickOutside 
         on:outclick={() => showDialog = false}>
     <div class="closeBtn"
@@ -27,13 +35,13 @@
             on:keypress={() => showDialog = false}>
         <i class="bi bi-x"></i>
     </div>
-    {#if deleteOption === DeleteOption.Positional}
+    {#if changeOption === ChangeOption.Positional}
         <div class="title">
-            Are you sure you want to delete positional "{deleteObject.name}"?
+            Are you sure you want to delete positional "{changeObject.viewMode.name}"?
         </div>
-    {:else if deleteOption === DeleteOption.Collection}
+    {:else if changeOption === ChangeOption.Collection}
         <div class="title">
-            Are you sure you want to delete collection "{deleteObject.name}"?
+            Are you sure you want to delete collection "{changeObject.collection.name}"?
         </div>
     {/if}
     <div class="subTitle">This action cannot be reversed.</div>

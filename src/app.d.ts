@@ -152,3 +152,8 @@ interface SavePositionedNote {
     position: number;
     indents: number;
 }
+
+interface ChangeObject {
+    collection: Collection;
+    viewMode: ViewMode;
+}

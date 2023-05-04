@@ -105,7 +105,7 @@ export const enum ChangeType {
     AfterDelete
 }
 
-export const enum DeleteOption {
+export const enum ChangeOption {
     Positional,
     Collection
 }

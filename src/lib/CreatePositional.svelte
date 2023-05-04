@@ -35,9 +35,12 @@
         }
         CreatePositional(positionalName, collection.id)
             .then((value) => {
-                loadPositionals().then(() => changeViewMode(3, value.lastInsertId));
+                loadPositionals()
+                    .then(() => {
+                        changeViewMode(3, value.lastInsertId);
+                        showCreatePositional = !showCreatePositional;
+                    });
             });
-        showCreatePositional = !showCreatePositional;
     }
 </script>
 

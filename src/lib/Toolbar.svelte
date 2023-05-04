@@ -1,8 +1,9 @@
 <script lang="ts">
     import { goto } from '$app/navigation';
-    import { EditModes, GetThemeList, DeleteOption } from "$lib/scripts/settings";
+    import { EditModes, ChangeOption } from "$lib/scripts/settings";
     import { ClickOutside } from "$lib/scripts/utils";
     import CreatePositional from "$lib/CreatePositional.svelte";
+    import RenameDialog from '$lib/RenameDialog.svelte';
     import DeleteDialog from '$lib/DeleteDialog.svelte';
 
     export let editMode: EditMode;
@@ -22,6 +23,8 @@
     let showOtherOptsSelect: boolean = false;
     let showDeletePositional: boolean = false;
     let showDeleteCollection: boolean = false;
+    let showRenamePositional: boolean = false;
+    let showRenameCollection: boolean = false;
     let showCreatePositional: boolean = false;
 </script>
 
@@ -167,7 +170,15 @@
                                 showOtherOptsSelect = false;
                             }}>
                     {#if !viewMode.isSortable}
-                        <div class="optsOpt">
+                        <div class="optsOpt"
+                                on:click={() => {
+                                    showOtherOptsSelect = false;
+                                    showRenamePositional = true;
+                                }}
+                                on:keypress={() => {
+                                    showOtherOptsSelect = false;
+                                    showRenamePositional = true;
+                                }}>
                             <i class="bi bi-pencil-square"></i>
                             Rename Positional
                         </div>
@@ -184,7 +195,15 @@
                             Delete Positional
                         </div>
                     {/if}
-                    <div class="optsOpt">
+                    <div class="optsOpt"
+                            on:click={() => {
+                                showOtherOptsSelect = false;
+                                showRenameCollection = true;
+                            }}
+                            on:keypress={() => {
+                                showOtherOptsSelect = false;
+                                showRenameCollection = true;
+                            }}>
                         <i class="bi bi-pencil-square"></i>
                         Rename Collection
                     </div>
@@ -213,18 +232,37 @@
         bind:showCreatePositional={showCreatePositional} 
         collection={collection}
         changeViewMode={changeViewMode}
-        loadPositionals={loadPositionals} />
+        loadPositionals={loadPositionals}
+    />
 {:else if showDeleteCollection}
     <DeleteDialog
         bind:showDialog={showDeleteCollection}
-        deleteOption={DeleteOption.Collection}
-        deleteObject={collection}
+        changeOption={ChangeOption.Collection}
+        changeObject={{ collection: collection, viewMode: viewMode }}
+        changeViewMode={changeViewMode}
+        loadPositionals={loadPositionals}
     />
 {:else if showDeletePositional}
     <DeleteDialog
         bind:showDialog={showDeletePositional}
-        deleteOption={DeleteOption.Positional}
-        deleteObject={{ id: viewMode.id, name: viewMode.name }}
+        changeOption={ChangeOption.Positional}
+        changeObject={{ collection: collection, viewMode: viewMode }}
+        changeViewMode={changeViewMode}
+        loadPositionals={loadPositionals}
+    />
+{:else if showRenameCollection}
+    <RenameDialog 
+        bind:showDialog={showRenameCollection}
+        changeOption={ChangeOption.Collection}
+        changeObject={{ collection: collection, viewMode: viewMode }}
+        changeViewMode={changeViewMode}
+    />
+{:else if showRenamePositional}
+    <RenameDialog 
+        bind:showDialog={showRenamePositional}
+        changeOption={ChangeOption.Positional}
+        changeObject={{ collection: collection, viewMode: viewMode }}
+        changeViewMode={changeViewMode}
     />
 {/if}
 

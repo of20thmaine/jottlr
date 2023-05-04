@@ -38,7 +38,7 @@
                     .then((onfulfilled) => {
                         if (onfulfilled) {
                             showCreateCollection = !showCreateCollection;
-                            goto("/" + onfulfilled.lastInsertId + "/" + collectionName + "/0/0");
+                            goto("/" + onfulfilled.lastInsertId + "/" + collectionName);
                         }
                     });
             }
