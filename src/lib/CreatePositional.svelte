@@ -5,7 +5,7 @@
     export let showCreatePositional: boolean;
     export let collection: Collection;
     export let changeViewMode: (categoryId: number, optionId: number) => void;
-    export let loadPositionals: () => void;
+    export let loadPositionals: () => Promise<void>;
 
     let input: HTMLElement;
     let positionalName: string = "";
@@ -35,10 +35,12 @@
         }
         CreatePositional(positionalName, collection.id)
             .then((value) => {
-                loadPositionals();
-                changeViewMode(3, value.lastInsertId);
+                loadPositionals()
+                    .then(() => {
+                        changeViewMode(3, value.lastInsertId);
+                        showCreatePositional = !showCreatePositional;
+                    });
             });
-        showCreatePositional = !showCreatePositional;
     }
 </script>
 

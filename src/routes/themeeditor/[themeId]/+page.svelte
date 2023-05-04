@@ -435,8 +435,8 @@
                             theme={currentlyEditing}
                             forceFocusChange={() => {}}
                             moveNote={() => {}}
-                            deleteSavedNote={() => {}}
-                            deleteUnsavedNote={() => {}}
+                            deleteSavedNote={async () => {}}
+                            deleteUnsavedNote={async () => {}}
                         />
                     </div>
                 {/each}

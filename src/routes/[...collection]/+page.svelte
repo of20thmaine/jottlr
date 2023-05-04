@@ -165,11 +165,12 @@
         if (viewMode.isSortable) {
             await DeleteNote(noteId).then(() => deleteUnsavedNote(idx));
         } else {
-            await DeleteFromPositionedNotes(viewMode.id, noteId).then(() => deleteUnsavedNote(idx));
+            await DeleteFromPositionedNotes(viewMode.id, noteId)
+                .then(() => DeleteNote(noteId).then(() => deleteUnsavedNote(idx)));
         }
     }
     
-    function deleteUnsavedNote(idx: number) {
+    async function deleteUnsavedNote(idx: number) {
         notes.splice(idx, 1);
         notes = notes;
     }
@@ -224,6 +225,17 @@
         focusNoteId = notes[newIdx].id;
     }
 
+    function onDragStart(event: DragEvent, idx: number) {
+        event.dataTransfer?.setData('text/plain', idx.toString());
+    }
+
+    function onDragDrop(event: DragEvent, idx: number) {
+        let oldIdx = event.dataTransfer?.getData('text/plain');
+        if (!oldIdx) return;
+
+        moveNote(parseInt(oldIdx), idx);
+    }
+
     function forceFocusChange(currentFocusIdx: number, changeType: ChangeType, toBeDeleted: boolean) {
         switch (changeType) {
             case ChangeType.Enter:
@@ -253,6 +265,13 @@
             case ChangeType.ArrowDown:
                 if (notes[currentFocusIdx+1]) {
                     focusNoteId = notes[currentFocusIdx+1].id;
+                }
+                break;
+            case ChangeType.AfterDelete:
+                if (notes[currentFocusIdx]) {
+                    focusNoteId = notes[currentFocusIdx].id;
+                } else if (notes[currentFocusIdx-1]) {
+                    focusNoteId = notes[currentFocusIdx-1].id;
                 }
                 break;
         }
@@ -325,18 +344,23 @@
         <div class="outerCollection" bind:this={collectionElement}>
             <div class="noteCollection" style="max-width:{pageWidth}px;">
                 {#each notes as note, i (note)}
-                    <div class="noteHolder" animate:flip="{{duration: 100}}" style="{getNoteHolderStyle(note)}">
+                    <div class="noteHolder" animate:flip="{{duration: 100}}"
+                            style="{getNoteHolderStyle(note)}" 
+                            draggable="true"
+                            on:dragstart={event => onDragStart(event, i)}
+                            on:dragover|preventDefault
+                            on:drop={event => onDragDrop(event, i)}>
                         <NoteView 
-                            idx={i}
-                            bind:note={note}
-                            bind:collectionView={collectionView}
-                            bind:focusNoteId={focusNoteId}
-                            viewMode={viewMode}
-                            theme={theme}
-                            forceFocusChange={forceFocusChange}
-                            moveNote={moveNote}
-                            deleteSavedNote={deleteSavedNote}
-                            deleteUnsavedNote={deleteUnsavedNote} />
+                                idx={i}
+                                bind:note={note}
+                                bind:collectionView={collectionView}
+                                bind:focusNoteId={focusNoteId}
+                                viewMode={viewMode}
+                                theme={theme}
+                                forceFocusChange={forceFocusChange}
+                                moveNote={moveNote}
+                                deleteSavedNote={deleteSavedNote}
+                                deleteUnsavedNote={deleteUnsavedNote} />
                     </div>
                 {/each}
             </div>
@@ -360,7 +384,6 @@
 
 <style>
     .page {
-        /* margin-top: var(--titlebarHeight); */
         height: calc(100vh - var(--titlebarHeight));
         display: grid;
         grid-template-rows: min-content 1fr min-content;

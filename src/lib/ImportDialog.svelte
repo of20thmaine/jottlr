@@ -107,7 +107,7 @@
             ImportCollectionFromJottlr(data)
                 .then((value) => {
                     showDialog = false;
-                    goto("/" + value.id + "/" + value.name + "/0/0");
+                    goto("/" + value.id + "/" + value.name);
                 });
         }
     }

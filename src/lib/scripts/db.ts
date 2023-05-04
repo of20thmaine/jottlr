@@ -52,6 +52,12 @@ export async function GetCollections(): Promise<CollectionSelection[]> {
     );
 }
 
+export async function GetPositionalList(): Promise<Positional[]> {
+    return await db.select(
+        "SELECT * FROM positionals"
+    );
+}
+
 export async function GetLastOpenCollection(): Promise<Collection[]> {
     return await db.select(
         "SELECT id, name, MAX(last_open) FROM collections"
@@ -120,6 +126,40 @@ export async function DeleteFromPositionedNotes(positionId: number, noteId: numb
     return await db.execute(
         "DELETE FROM positioned_notes WHERE positional_id = $1 AND note_id = $2",
         [positionId, noteId]
+    );
+}
+
+export async function DeleteCollection(collectionId: number) {
+    return await db.execute(
+        "DELETE FROM collections WHERE id = $1",
+        [collectionId]
+    );
+}
+
+export async function DeletePositional(positionalId: number, deleteNotes: boolean) {
+    if (deleteNotes) {
+        let notes = await GetPositional(positionalId);
+        for (let note of notes) {
+            DeleteNote(note.id);
+        }
+    }
+    return await db.execute(
+        "DELETE FROM positionals WHERE id = $1",
+        [positionalId]
+    );
+}
+
+export async function RenameCollection(collectionId: number, name: string) {
+    return await db.execute(
+        "UPDATE collections SET name = $1 WHERE id = $2",
+        [name, collectionId]
+    );
+}
+
+export async function RenamePositional(positionalId: number, name: string) {
+    return await db.execute(
+        "UPDATE positionals SET name = $1 WHERE id = $2",
+        [name, positionalId]
     );
 }
 
