@@ -31,9 +31,13 @@
                 return (b.note_count < a.note_count) ? -1 : 1;
             }); break;
             case 4: collections.sort((a, b) => { // new-old
+                if (a.last_open === null) return 1;
+                if (b.last_open === null) return -1;
                 return +new Date(b.last_open) - +new Date(a.last_open);
             }); break;
             case 5: collections.sort((a, b) => { // old-new
+                if (a.last_open === null) return -1;
+                if (b.last_open === null) return 1;
                 return +new Date(a.last_open) - +new Date(b.last_open);
             }); break;
         }
@@ -87,7 +91,9 @@
                     toggleCollectionFavorite(collection.id, collection.favorite)}}></i></div>
             <div class="co">{collection.name}</div>
             <div class="co">{collection.note_count}</div>
-            {#if +new Date() - +new Date(collection.last_open) > (12*60*60*1000)}
+            {#if collection.last_open === null}
+                <div class="co" style="padding-left:2.0rem;">-</div>
+            {:else if +new Date() - +new Date(collection.last_open) > (12*60*60*1000)}
                 <div class="co">{new Date(collection.last_open).toLocaleDateString([], {year: "numeric", month: "short", day: "numeric"})}</div>
             {:else}
                 <div class="co">{new Date(collection.last_open).toLocaleTimeString([], {hour: "numeric", minute: "numeric", hour12: true})}</div>

@@ -43,7 +43,7 @@ interface CollectionSelection {
     id: number;
     name: string;
     note_count: number;
-    last_open: string;
+    last_open: string | null;
     favorite: boolean;
 }
 
@@ -65,7 +65,7 @@ interface Positional {
     id: number;
     name: string;
     created_at: string;
-    last_open: string;
+    last_open: string | null;
     isSortable: false;
 }
 

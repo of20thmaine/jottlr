@@ -82,7 +82,7 @@
             GetThemeList().then((value) => {
                 themes = value;
                 theme = getThemeFromId(collectionView.themeId);
-            })
+            });
 
             if (viewMode.isSortable) {
                 GetCollection(data.id, viewMode.sort)
@@ -360,7 +360,8 @@
                                 forceFocusChange={forceFocusChange}
                                 moveNote={moveNote}
                                 deleteSavedNote={deleteSavedNote}
-                                deleteUnsavedNote={deleteUnsavedNote} />
+                                deleteUnsavedNote={deleteUnsavedNote}
+                            />
                     </div>
                 {/each}
             </div>
