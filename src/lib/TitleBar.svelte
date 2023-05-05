@@ -25,22 +25,23 @@
 </script>
 
 <div data-tauri-drag-region class="titlebar">
-    <a href="/">
-        <div class="icon">
-            <img
-                src="../logo.png"
-                alt="Logo"
-            />
+    <div class="icon">
+        <img
+            src="../logo.png"
+            alt="Logo"
+        />
+    </div>
+    <div class="selectHolder">
+        <div class="selector menuSelector" class:menuSelectorSelected={showFileMenu}
+                on:click={() => showFileMenu = true}
+                on:keypress={() => showFileMenu = true}>
+            <div class="selectedOpt">File</div>
         </div>
-    </a>
-    <div class="menuSelection"
-            on:click|self={() => showFileMenu = true}
-            on:keypress|self={() => showFileMenu = true}>File</div>
         {#if showFileMenu}
-            <div class="dropdown"
+            <div class="selectorMenu fileSelectorMenu"
                     use:ClickOutside 
                     on:outclick={() => showFileMenu = false}>
-                <div class="dropdownItm"
+                <div class="opt"
                         on:click={() => {
                                 showFileMenu = !showFileMenu;
                                 goto("/quicknote");
@@ -50,7 +51,7 @@
                                 goto("/quicknote");
                             }}>
                     Quick Note...</div>
-                <div class="dropdownItm"
+                <div class="opt"
                         on:click={() => {
                                 showFileMenu = !showFileMenu;
                                 showExportCollection = false;
@@ -62,7 +63,7 @@
                                 showCreateCollection = !showCreateCollection;
                             }}>
                     New Collection...</div>
-                <div class="dropdownItm"
+                <div class="opt"
                         on:click={() => {
                                 showFileMenu = !showFileMenu;
                                 showCreateCollection = false;
@@ -76,7 +77,7 @@
                                 showImportCollection = true;
                             }}>
                     Import</div>
-                <div class="dropdownItm"
+                <div class="opt"
                         on:click={() => {
                                 showFileMenu = !showFileMenu;
                                 showCreateCollection = false;
@@ -90,7 +91,7 @@
                                 showExportCollection = true;
                             }}>
                     Export As...</div>
-                <div class="dropdownItm"
+                <div class="opt"
                         on:click={() => {
                                 showFileMenu = !showFileMenu;
                                 goto("/settings");
@@ -99,13 +100,14 @@
                                 showFileMenu = !showFileMenu;
                                 goto("/settings");
                             }}>
-                    Settings...</div>
-                <div class="dropdownItm"
+                    Settings</div>
+                <div class="opt"
                         on:click={async () => {await exit(1)}}
                         on:keypress={async () => {await exit(1);}}>
                     Exit</div>
             </div>
         {/if}
+    </div>
     <div class="title">{windowTitle}</div>
     <div class="titlebar-button" id="titlebar-minimize"
             on:click={() => {appWindow.minimize()}}
@@ -159,16 +161,6 @@
         justify-content: center;
     }
 
-    .menuSelection {
-        font-size: 0.9rem;
-        color: var(--fontColor);
-        padding: 0.25rem 0.5rem;
-    }
-
-    .menuSelection:hover {
-        background-color: var(--hoverBtnColor);
-    }
-
     .title {
         margin: 0 auto;
         color: var(--fontColor);
@@ -186,27 +178,32 @@
     }
 
     .icon img {
-        height: 60%;
+        height: 65%;
     }
 
-    .dropdown {
-        position: fixed;
-        z-index: 4;
-        top: 30px;
-        left: 2.5rem;
+    .menuSelector {
+        font-size: 0.9rem;
+        padding: 0.25rem 0.5rem;
+        background-color: var(--titlebarColor);
+    }
+
+    .menuSelector:hover {
+        background-color: var(--fontColor);
+        color: var(--titlebarColor);
+    }
+
+    .menuSelectorSelected {
+        background-color: var(--fontColor);
+        color: var(--titlebarColor);
+        border-bottom-right-radius: 0;
+        border-bottom-left-radius: 0;
+    }
+
+    .fileSelectorMenu {
         background-color: var(--backgroundColor);
         border: 1px solid var(--borderColor);
         font-size: 0.9rem;
-        padding: 0.3rem;
-    }
-
-    .dropdownItm {
-        color: var(--fontColor);
-        padding: 0.3rem;
-    }
-
-    .dropdownItm:hover {
-        background-color: var(--highlightColor);
+        width: 200px;
     }
 
     .titlebar-button {
@@ -215,6 +212,8 @@
         align-items: center;
         width: 30px;
         height: 30px;
+        cursor: pointer;
+        user-select: none;
     }
 
     .titlebar-button:hover {

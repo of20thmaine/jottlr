@@ -39,11 +39,11 @@
 
 :root[color-mode="light"] {
 	--backgroundColor: white;
-	--textfieldColor: white;
-	--fontColor: black;
+	--textfieldColor: #eeeeee;
+	--fontColor: #1f1f1f;
 	--borderColor: gray;
-	--titlebarColor: white;
-	--hoverBtnColor: white;
+	--titlebarColor: #dddddd;
+	--hoverBtnColor: #cecece;
 	--footerColor: white;
 }
 
