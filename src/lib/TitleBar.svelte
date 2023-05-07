@@ -22,15 +22,35 @@
     ColorModeIsDark.subscribe(value => isDarkMode = value);
 
     $: isDarkMode ? currentPath = darkPath : currentPath = lightPath;
+
+    function keyShortCutHandler(event: KeyboardEvent) {
+        if (event.ctrlKey) {
+            switch (event.key.toLowerCase()) {
+                case "i":
+                    showImportCollection = true;
+                    break;
+                case "e":
+                    showExportCollection = true;
+                    break;
+                case "n":
+                    goto("/quicknote");
+                    break;
+                case ",":
+                    goto("/settings");
+                    break;
+            }
+        }
+    }
 </script>
 
+<svelte:window on:keydown={keyShortCutHandler}/>
+
 <div data-tauri-drag-region class="titlebar">
-    <div class="icon">
-        <img
-            src="../logo.png"
-            alt="Logo"
-        />
-    </div>
+    <a href="/">
+        <div class="icon">
+            <img src="../logo.png" alt="Logo" />
+        </div>
+    </a>
     <div class="selectHolder">
         <div class="selector menuSelector" class:menuSelectorSelected={showFileMenu}
                 on:click={() => showFileMenu = true}
@@ -50,7 +70,9 @@
                                 showFileMenu = !showFileMenu;
                                 goto("/quicknote");
                             }}>
-                    Quick Note...</div>
+                    <div class="optName">Quick Note</div>
+                    <div class="optKey">Ctrl+N</div>
+                </div>
                 <div class="opt"
                         on:click={() => {
                                 showFileMenu = !showFileMenu;
@@ -62,7 +84,8 @@
                                 showExportCollection = false;
                                 showCreateCollection = !showCreateCollection;
                             }}>
-                    New Collection...</div>
+                    <div class="optName">New Collection</div>
+                </div>
                 <div class="opt"
                         on:click={() => {
                                 showFileMenu = !showFileMenu;
@@ -76,7 +99,9 @@
                                 showExportCollection = false;
                                 showImportCollection = true;
                             }}>
-                    Import</div>
+                    <div class="optName">Import</div>
+                    <div class="optKey">Ctrl+I</div>
+                </div>
                 <div class="opt"
                         on:click={() => {
                                 showFileMenu = !showFileMenu;
@@ -90,7 +115,9 @@
                                 showImportCollection = false;
                                 showExportCollection = true;
                             }}>
-                    Export As...</div>
+                    <div class="optName">Export As...</div>
+                    <div class="optKey">Ctrl+E</div>
+                </div>
                 <div class="opt"
                         on:click={() => {
                                 showFileMenu = !showFileMenu;
@@ -100,15 +127,20 @@
                                 showFileMenu = !showFileMenu;
                                 goto("/settings");
                             }}>
-                    Settings</div>
+                    <div class="optName">Settings</div>
+                    <div class="optKey">Ctrl+,</div>
+                </div>
                 <div class="opt"
                         on:click={async () => {await exit(1)}}
                         on:keypress={async () => {await exit(1);}}>
-                    Exit</div>
+                    <div class="optName">Exit</div>
+                </div>
             </div>
         {/if}
     </div>
-    <div class="title">{windowTitle}</div>
+    <div class="center">
+        <div class="title">{windowTitle}</div>
+    </div>
     <div class="titlebar-button" id="titlebar-minimize"
             on:click={() => {appWindow.minimize()}}
             on:keypress={() => {appWindow.minimize()}}>
@@ -161,9 +193,15 @@
         justify-content: center;
     }
 
-    .title {
+    .center {
         margin: 0 auto;
         color: var(--fontColor);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .title {
         font-style: italic;
         font-size: 0.9rem;
     }
@@ -197,6 +235,10 @@
         color: var(--titlebarColor);
         border-bottom-right-radius: 0;
         border-bottom-left-radius: 0;
+    }
+
+    .optKey {
+        margin-left: auto;
     }
 
     .fileSelectorMenu {
