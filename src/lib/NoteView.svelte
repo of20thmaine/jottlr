@@ -189,7 +189,7 @@
         switch (event.key) {
             case "Enter":
                 event.preventDefault();
-                forceFocusChange(idx, ChangeType.Enter, !noteCanBeSaved());
+                if (!event.ctrlKey && !event.shiftKey) forceFocusChange(idx, ChangeType.Enter, !noteCanBeSaved());
                 return;
             case "ArrowDown":
                 event.preventDefault();
@@ -235,6 +235,11 @@
                     incrementIndent();
                 }
                 return;
+            case "a":
+                if (event.ctrlKey) {
+                    event.stopPropagation();
+                }
+                return;
         }
     }
 </script>
@@ -252,6 +257,7 @@
 {/if}
 {#if collectionView.editModeId === 2}
     <div class="noteContent"
+        class:noteSelected={note.selected}
         contenteditable="true"
         placeholder="Empty notes are not saved"
         bind:this={noteNode}
@@ -266,6 +272,7 @@
     </div>
 {:else}
     <div class="noteContent"
+        class:noteSelected={note.selected}
         contenteditable="false"
         bind:this={noteNode}
         bind:innerHTML={note.content}>
@@ -275,6 +282,7 @@
 <style>
     .noteContent {
         flex: 1;
+        border: 1px solid transparent;
         border-radius: 4px;
         background-color: var(--textfieldColor);
         padding: 0.5rem 0.75rem;
@@ -285,11 +293,21 @@
         scroll-margin: 1.0rem;
     }
 
+    .noteContent:hover {
+        border: 1px solid var(--fontColor);
+    }
+
     [contenteditable=true]:empty:before {
         content:attr(placeholder);
         color: grey;
         user-select: none;
         cursor: text;
+    }
+
+    .noteSelected {
+        -webkit-box-shadow: inset 0px 0px 0px 2px var(--highlightColor);
+        -moz-box-shadow: inset 0px 0px 0px 2px var(--highlightColor);
+        box-shadow: inset 0px 0px 0px 2px var(--highlightColor);
     }
 
     .label {

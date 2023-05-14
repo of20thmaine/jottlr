@@ -170,7 +170,7 @@
                                 showOtherOptsSelect = false;
                             }}>
                     {#if !viewMode.isSortable}
-                        <div class="optsOpt"
+                        <div class="opt"
                                 on:click={() => {
                                     showOtherOptsSelect = false;
                                     showRenamePositional = true;
@@ -180,9 +180,9 @@
                                     showRenamePositional = true;
                                 }}>
                             <i class="bi bi-pencil-square"></i>
-                            Rename Positional
+                            <div class="mL">Rename Positional</div>
                         </div>
-                        <div class="optsOpt"
+                        <div class="opt"
                                 on:click={() => {
                                     showOtherOptsSelect = false;
                                     showDeletePositional = true;
@@ -192,10 +192,10 @@
                                     showDeletePositional = true;
                                 }}>
                             <i class="bi bi-trash"></i>
-                            Delete Positional
+                            <div class="mL">Delete Positional</div>
                         </div>
                     {/if}
-                    <div class="optsOpt"
+                    <div class="opt"
                             on:click={() => {
                                 showOtherOptsSelect = false;
                                 showRenameCollection = true;
@@ -205,9 +205,9 @@
                                 showRenameCollection = true;
                             }}>
                         <i class="bi bi-pencil-square"></i>
-                        Rename Collection
+                        <div class="mL">Rename Collection</div>
                     </div>
-                    <div class="optsOpt"
+                    <div class="opt"
                             on:click={() => {
                                 showOtherOptsSelect = false;
                                 showDeleteCollection = true;
@@ -217,9 +217,8 @@
                                 showDeleteCollection = true;
                             }}>
                         <i class="bi bi-trash"></i>
-                        Delete Collection
+                        <div class="mL">Delete Collection</div>
                     </div>
-
                 </div>
             {/if}
         </div>
@@ -402,7 +401,7 @@
         background-color: var(--textfieldColor);
         cursor: pointer;
         user-select: none;
-        width: 200px;
+        width: max-content;
     }
 
     .optsSelected {

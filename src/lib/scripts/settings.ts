@@ -110,6 +110,12 @@ export const enum ChangeOption {
     Collection
 }
 
+export const enum SelectionAction {
+    CopyToPositional,
+    CopyToCollection,
+    CutToCollection
+}
+
 export const EditModes: EditMode[] = [
     {id: 1, name: 'Append', class: 'append', ico: 'bi bi-plus'},
     {id: 2, name: 'Free-Edit', class: 'editing', ico: 'bi bi-pen sIco'},

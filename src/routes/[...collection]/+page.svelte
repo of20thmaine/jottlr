@@ -1,8 +1,10 @@
 <script lang="ts">
     import { flip } from 'svelte/animate';
+    import { ClickOutside } from "$lib/scripts/utils";
     import { CreateNote, CreatePositionedNote, GetCollection, GetCollectionsPositionals, GetPositional, DeleteNote, DeleteFromPositionedNotes, UpdateCollectionLastOpen } from "$lib/scripts/db";
-    import { DefaultViewModes, EditModes, GetPageWidth, ChangeType, SortType, SetCollectionView, GetCollectionView, GetThemeList } from "$lib/scripts/settings";
+    import { DefaultViewModes, EditModes, GetPageWidth, ChangeType, SortType, SetCollectionView, GetCollectionView, GetThemeList, SelectionAction } from "$lib/scripts/settings";
     import { WindowTitle } from "$lib/scripts/stores";
+    import SelectionDialog from '$lib/SelectionDialog.svelte';
     import NoteView from "$lib/NoteView.svelte";
     import Toolbar from "$lib/Toolbar.svelte";
 
@@ -19,6 +21,10 @@
     let theme: Theme;
     let viewMode: ViewMode;
     let pageWidth: number = 800;
+    let selectionSet: Set<number> = new Set<number>();
+    let showSelectionMenu: boolean = false;
+    let showSelectionDialog: boolean = false;
+    let action: SelectionAction;
 
     WindowTitle.set(data.name);
     GetPageWidth().then((value) => {if (value) pageWidth = value});
@@ -145,6 +151,8 @@
         collectionView.editModeId = id;
         if (editMode.id === 1) {
             setTimeout(() => {noteInput.focus()}, 0);
+        } else if (editMode.id === 3) {
+            if (selectionSet.size > 0) deselectAll();
         }
     }
 
@@ -325,7 +333,127 @@
         }
         return "margin-left:" + marginLeft + "px;";
     }
+
+    function noteClickHandler(event: MouseEvent, noteIdx: number) {
+        if (event.ctrlKey) {
+            event.stopImmediatePropagation();
+            toggleSelect(noteIdx);
+        } else if (event.shiftKey) {
+            event.stopImmediatePropagation();
+            tryRangeSelect(noteIdx);
+        }
+    }
+
+    function noteKeyDownHandler(event: KeyboardEvent, noteIdx: number) {
+        switch (event.key) {
+            case "Enter":
+                if (event.ctrlKey) {
+                    toggleSelect(noteIdx);
+                } else if (event.shiftKey) {
+                    tryRangeSelect(noteIdx);
+                }
+                break;
+        }
+    }
+
+    function keyShortCutHandler(event: KeyboardEvent) {
+        switch (event.key.toLowerCase()) {
+            case "a":
+                if (event.ctrlKey) {
+                    event.preventDefault();
+                    if (editMode.id !== 3) {
+                        selectAll();
+                    }
+                }
+                break;
+            case "d":
+                if (event.ctrlKey) {
+                    event.preventDefault();
+                    deselectAll();
+                }
+                break;
+            case "escape":
+                deselectAll();
+                break;
+        }
+    }
+
+    function tryRangeSelect(noteIdx: number) {
+        if (selectionSet.size > 0) {
+            selectRange(noteIdx);
+        } else {
+            notes[noteIdx].selected = true;
+            selectionSet.add(noteIdx);
+            notes = notes;
+            selectionSet = selectionSet;
+        }
+    }
+
+    function selectRange(x0: number) {
+        let x1: number = -1;
+
+        for (const idx of selectionSet) {
+            if (idx <= x0 && idx > x1) {
+                if (x1 !== -1) {
+                    selectionSet.delete(x1);
+                    notes[x1].selected = false;
+                }
+                x1 = idx;
+            } else if (idx > x0 && x1 === -1) {
+                x1 = idx;
+            } else {
+                selectionSet.delete(idx);
+                notes[idx].selected = false
+            }
+        }
+
+        if (x0 > x1) {
+            let swap = x0;
+            x0 = x1;
+            x1= swap;
+        }
+
+        for (let i = x0; i <= x1; ++i) {
+            notes[i].selected = true;
+            selectionSet.add(i);
+        }
+
+        notes = notes;
+        selectionSet = selectionSet;
+    }
+
+    function toggleSelect(noteIdx: number) {
+        if (notes[noteIdx].selected) {
+            notes[noteIdx].selected = false;
+            selectionSet.delete(noteIdx);
+        } else {
+            notes[noteIdx].selected = true;
+            selectionSet.add(noteIdx);
+        }
+        notes = notes;
+        selectionSet = selectionSet;
+    }
+
+    function selectAll() {
+        for (let i = 0; i < notes.length; ++i) {
+            notes[i].selected = true;
+            selectionSet.add(i);
+        }
+        notes = notes;
+        selectionSet = selectionSet;
+    }
+
+    function deselectAll() {
+        for (let i = 0; i < notes.length; ++i) {
+            notes[i].selected = false;
+            selectionSet.delete(i);
+        }
+        notes = notes;
+        selectionSet = selectionSet;
+    }
 </script>
+
+<svelte:window on:keydown={keyShortCutHandler}/>
 
 {#await initialDataLoad() then x}
     <div class="page">
@@ -343,14 +471,80 @@
         />
         <div class="outerCollection" bind:this={collectionElement}>
             <div class="noteCollection" style="max-width:{pageWidth}px;">
+                {#if selectionSet.size > 0}
+                    <div class="selectionSelectHolder">
+                        <div class="selector selT" class:selectorSelected={showSelectionMenu}
+                                on:click={() => {
+                                    showSelectionMenu = true;
+                                }}
+                                on:keypress={() => {
+                                    showSelectionMenu = true;
+                                }}>
+                            Selection<i class="mla bi bi-chevron-down"></i>
+                        </div>
+                        {#if showSelectionMenu}
+                            <div class="selectorMenu selectionSelMen"
+                                use:ClickOutside 
+                                on:outclick={() => {
+                                        showSelectionMenu = false;
+                                    }}>
+
+                                <div class="opt"
+                                        on:click={() => {
+                                            action = SelectionAction.CopyToPositional;
+                                            showSelectionDialog = true;
+                                            showSelectionMenu = false;
+                                        }}
+                                        on:keypress={() => {
+                                            action = SelectionAction.CopyToPositional;
+                                            showSelectionDialog = true;
+                                            showSelectionMenu = false;
+                                        }}>
+                                    <i class="tIco bi bi-files"></i>
+                                    Copy to Positional
+                                </div>
+                                <div class="opt"
+                                        on:click={() => {
+                                            action = SelectionAction.CutToCollection;
+                                            showSelectionDialog = true;
+                                            showSelectionMenu = false;
+                                        }}
+                                        on:keypress={() => {
+                                            action = SelectionAction.CutToCollection;
+                                            showSelectionDialog = true;
+                                            showSelectionMenu = false;
+                                        }}>
+                                    <i class="tIco bi bi-scissors"></i>
+                                    Cut to Collection
+                                </div>
+                                <div class="opt"
+                                        on:click={() => {
+                                            action = SelectionAction.CopyToCollection;
+                                            showSelectionDialog = true;
+                                            showSelectionMenu = false;
+                                        }}
+                                        on:keypress={() => {
+                                            action = SelectionAction.CopyToCollection;
+                                            showSelectionDialog = true;
+                                            showSelectionMenu = false;
+                                        }}>
+                                    <i class="tIco bi bi-files"></i>
+                                    Copy to Collection
+                                </div>
+                            </div>
+                        {/if}
+                    </div>
+                {/if}
                 {#each notes as note, i (note)}
                     <div class="noteHolder" animate:flip="{{duration: 100}}"
                             style="{getNoteHolderStyle(note)}" 
-                            draggable="true"
+                            draggable={!viewMode.isSortable}
                             on:dragstart={event => onDragStart(event, i)}
                             on:dragover|preventDefault
-                            on:drop={event => onDragDrop(event, i)}>
-                        <NoteView 
+                            on:drop={event => onDragDrop(event, i)}
+                            on:click={event => noteClickHandler(event, i)}
+                            on:keydown={event => noteKeyDownHandler(event, i)}>
+                        <NoteView
                                 idx={i}
                                 bind:note={note}
                                 bind:collectionView={collectionView}
@@ -383,6 +577,19 @@
     </div>
 {/await}
 
+{#if showSelectionDialog}
+    <SelectionDialog 
+        bind:showDialog={showSelectionDialog}
+        bind:selection={selectionSet}
+        bind:notes={notes}
+        action={action}
+        currentCollection={data}
+        positionals={viewModes[2].options}
+        currentViewMode={viewMode}
+        deselectAll={deselectAll}
+    />
+{/if}
+
 <style>
     .page {
         height: calc(100vh - var(--titlebarHeight));
@@ -399,6 +606,35 @@
         margin: 0 auto;
         max-width: 800px;
         padding: 0.5rem 1.0rem;
+    }
+
+    .selectionSelectHolder {
+        position: absolute;
+	    z-index: 3;
+        right: 1.75rem;
+    }
+
+    .selT {
+        border: 2px solid white;
+        background-color: var(--highlightColor);
+        padding: 0.5rem 1.0rem;
+        font-weight: 500;
+        color: white;
+        width: 220px;
+    }
+
+    .selectionSelMen {
+        width: 220px;
+    }
+
+    .mla {
+        margin-left: auto;
+        font-size: 0.8rem;
+    }
+
+    .tIco {
+        font-size: 0.9rem;
+        margin-right: 1.0rem;
     }
 
     .noteHolder {

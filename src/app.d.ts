@@ -10,6 +10,7 @@ interface StandardNote {
     created_at: string;
     updated_at: string;
     isPositioned: false;
+    selected?: boolean;
 }
 
 interface PositionedNote {
@@ -21,6 +22,7 @@ interface PositionedNote {
     indents: number;
     isPositioned: true;
     label?: number;
+    selected?: boolean;
 }
 
 type Note = StandardNote | PositionedNote;
