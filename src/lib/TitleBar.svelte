@@ -2,7 +2,7 @@
     import { appWindow } from '@tauri-apps/api/window';
     import { exit } from '@tauri-apps/api/process';
     import { goto } from '$app/navigation';
-    import { ColorModeIsDark, WindowTitle } from '$lib/scripts/stores';
+    import { ColorModeIsDark, ShowCreateCollection, WindowTitle } from '$lib/scripts/stores';
     import { ClickOutside } from "$lib/scripts/utils";
     import CreateCollection from '$lib/CreateCollection.svelte';
     import ExportDialog from '$lib/ExportDialog.svelte';
@@ -13,7 +13,6 @@
     let lightPath = "light_";
     let currentPath = "";
     let showFileMenu = false;
-    let showCreateCollection = false;
     let showExportCollection = false;
     let showImportCollection = false;
     let windowTitle: string = "";
@@ -77,25 +76,25 @@
                         on:click={() => {
                                 showFileMenu = !showFileMenu;
                                 showExportCollection = false;
-                                showCreateCollection = !showCreateCollection;
+                                $ShowCreateCollection = !$ShowCreateCollection;
                             }}
                         on:keypress={() => {
                                 showFileMenu = !showFileMenu;
                                 showExportCollection = false;
-                                showCreateCollection = !showCreateCollection;
+                                $ShowCreateCollection = !$ShowCreateCollection;
                             }}>
                     <div class="optName">New Collection</div>
                 </div>
                 <div class="opt"
                         on:click={() => {
                                 showFileMenu = !showFileMenu;
-                                showCreateCollection = false;
+                                $ShowCreateCollection = false;
                                 showExportCollection = false;
                                 showImportCollection = true;
                             }}
                         on:keypress={() => {
                                 showFileMenu = !showFileMenu;
-                                showCreateCollection = false;
+                                $ShowCreateCollection = false;
                                 showExportCollection = false;
                                 showImportCollection = true;
                             }}>
@@ -105,13 +104,13 @@
                 <div class="opt"
                         on:click={() => {
                                 showFileMenu = !showFileMenu;
-                                showCreateCollection = false;
+                                $ShowCreateCollection = false;
                                 showImportCollection = false;
                                 showExportCollection = true;
                             }}
                         on:keypress={() => {
                                 showFileMenu = !showFileMenu;
-                                showCreateCollection = false;
+                                $ShowCreateCollection = false;
                                 showImportCollection = false;
                                 showExportCollection = true;
                             }}>
@@ -167,8 +166,8 @@
     </div>
 </div>
 
-{#if showCreateCollection}
-    <CreateCollection bind:showCreateCollection={showCreateCollection} />
+{#if $ShowCreateCollection}
+    <CreateCollection bind:showDialog={$ShowCreateCollection} />
 {/if}
 
 {#if showExportCollection}

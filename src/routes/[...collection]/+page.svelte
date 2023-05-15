@@ -341,6 +341,8 @@
         } else if (event.shiftKey) {
             event.stopImmediatePropagation();
             tryRangeSelect(noteIdx);
+        } else {
+            deselectAll();
         }
     }
 
@@ -535,29 +537,31 @@
                         {/if}
                     </div>
                 {/if}
-                {#each notes as note, i (note)}
-                    <div class="noteHolder" animate:flip="{{duration: 100}}"
-                            style="{getNoteHolderStyle(note)}" 
-                            draggable={!viewMode.isSortable}
-                            on:dragstart={event => onDragStart(event, i)}
-                            on:dragover|preventDefault
-                            on:drop={event => onDragDrop(event, i)}
-                            on:click={event => noteClickHandler(event, i)}
-                            on:keydown={event => noteKeyDownHandler(event, i)}>
-                        <NoteView
-                                idx={i}
-                                bind:note={note}
-                                bind:collectionView={collectionView}
-                                bind:focusNoteId={focusNoteId}
-                                viewMode={viewMode}
-                                theme={theme}
-                                forceFocusChange={forceFocusChange}
-                                moveNote={moveNote}
-                                deleteSavedNote={deleteSavedNote}
-                                deleteUnsavedNote={deleteUnsavedNote}
-                            />
-                    </div>
-                {/each}
+                {#if notes}
+                    {#each notes as note, i (note)}
+                        <div class="noteHolder" animate:flip="{{duration: 100}}"
+                                style="{getNoteHolderStyle(note)}" 
+                                draggable={!viewMode.isSortable}
+                                on:dragstart={event => onDragStart(event, i)}
+                                on:dragover|preventDefault
+                                on:drop={event => onDragDrop(event, i)}
+                                on:click={event => noteClickHandler(event, i)}
+                                on:keydown={event => noteKeyDownHandler(event, i)}>
+                            <NoteView
+                                    idx={i}
+                                    bind:note={note}
+                                    bind:collectionView={collectionView}
+                                    bind:focusNoteId={focusNoteId}
+                                    viewMode={viewMode}
+                                    theme={theme}
+                                    forceFocusChange={forceFocusChange}
+                                    moveNote={moveNote}
+                                    deleteSavedNote={deleteSavedNote}
+                                    deleteUnsavedNote={deleteUnsavedNote}
+                                />
+                        </div>
+                    {/each}
+                {/if}
             </div>
         </div>
         {#if editMode.id === 1}
@@ -612,6 +616,7 @@
         position: absolute;
 	    z-index: 3;
         right: 1.75rem;
+        font-size: 0.9rem;
     }
 
     .selT {
@@ -620,11 +625,11 @@
         padding: 0.5rem 1.0rem;
         font-weight: 500;
         color: white;
-        width: 220px;
+        width: 175px;
     }
 
     .selectionSelMen {
-        width: 220px;
+        width: 175px;
     }
 
     .mla {

@@ -402,6 +402,7 @@
         cursor: pointer;
         user-select: none;
         width: max-content;
+        font-size: 0.9rem;
     }
 
     .optsSelected {

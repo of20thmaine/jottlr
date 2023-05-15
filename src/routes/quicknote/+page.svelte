@@ -198,18 +198,21 @@
     }
 
     .createBtn {
-        color: white;
-        background-color: #238636;
         width: fit-content;
         text-align: center;
         padding: 0.25rem 1.0rem;
-        border: 2px solid rgba(255, 255, 255, 0.2);
+        color: #34be7b;
+        border: 1px solid;
         border-radius: 4px;
+        font-weight: 500;
+        font-size: 1.05rem;
         cursor: pointer;
+        user-select: none;
         margin-left: 0.25rem;
     }
 
     .createBtn:hover {
-        background-color: #196127;
+        background-color: #34be7b;
+        color: var(--backgroundColor);;
     }
 </style>

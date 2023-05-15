@@ -1,6 +1,6 @@
 <script lang="ts">
     import { GetCollections, GetFavorites, GetLastOpenCollection } from "$lib/scripts/db";
-    import { WindowTitle } from "$lib/scripts/stores";
+    import { ShowCreateCollection, WindowTitle } from "$lib/scripts/stores";
     import CollectionsTable from "$lib/CollectionsTable.svelte";
 
     WindowTitle.set("Home");
@@ -44,8 +44,15 @@
                 {/if}
             </div>
             <div class="btnGroup">
-                <a href="quicknote"><div class="homeBtn quicknote"><i class="bi bi-pencil-square"></i> Quick Note</div></a>
-                <a href="quicknote"><div class="homeBtn createcoll"><i class="bi bi-plus-lg"></i> Create Collection</div></a>
+                <a href="quicknote">
+                    <div class="homeBtn quicknote">
+                        <i class="lM bi bi-pencil-square"></i>Quick Note
+                    </div>
+                </a>
+                <div class="homeBtn createcoll"
+                        on:click={() => $ShowCreateCollection = true}
+                        on:keypress={() => $ShowCreateCollection = true}>
+                <i class="lM bi bi-plus-lg"></i>Create Collection</div>
             </div>
         </div>
 
@@ -70,7 +77,7 @@
 
     .pageTop {
         display: grid;
-        grid-template-columns: 1fr 240px;
+        grid-template-columns: 1fr 220px;
         column-gap: 1.0rem;
         margin-bottom: 1.0rem;
     }
@@ -88,22 +95,33 @@
         font-size: 1.15rem;
     }
 
+    .btnGroup {
+        padding-top: 0.5rem;
+    }
+
     .homeBtn {
-        font-size: 1.2rem;
+        font-size: 1.05rem;
+        font-weight: 500;
         text-align: center;
         width: 100%;
         padding: 0.5rem 0;
         border: 1px solid;
         border-radius: 4px;
         margin-top: 1.0rem;
+        cursor: pointer;
+        user-select: none;
     }
 
     .quicknote {
-        color: #be349c;
+        color: #B19CD8;
     }
 
     .createcoll {
         color: #34be7b;
+    }
+
+    .lM {
+        margin-right: 1.0rem;
     }
 
     a {
