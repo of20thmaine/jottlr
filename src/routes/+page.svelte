@@ -9,10 +9,7 @@
     let collections: CollectionSelection[];
     let favorites: CollectionSelection[];
 
-    GetLastOpenCollection().then((value) => {
-        if (value[0].id !== null) { lastOpen = value[0] }
-    });
-
+    GetLastOpenCollection().then((value) => lastOpen = value[0]);
     updateCollections();
 
     async function updateCollections(): Promise<void> {
@@ -36,10 +33,12 @@
                         </div>
                     </a>
                 {:else}
+                    <div class="header">Welcome to Jottlr!</div>
+                    <div class="subHeader">We created a collection for you so you can get started right away.</div>
                     <a href="1/Jottlr">
-                        <div class="default">
-                            <div class="collection">[Default]</div>
-                        </div>    
+                        <div class="lastOpenCollection">
+                            <i class="bi bi-arrow-return-right"></i> Jottlr
+                        </div>  
                     </a>
                 {/if}
             </div>
@@ -86,17 +85,25 @@
         color: var(--fontColor);
         font-size: 1.5rem;
         border-bottom: 1px solid;
-        margin-bottom: 1.0rem;
         padding: 0.5rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .subHeader {
+        margin-top: 0.5rem;
+        color: var(--fontColor);
+        font-size: 1.0rem;
+        padding: 0 0.5rem;
     }
 
     .lastOpenCollection {
+        margin-top: 0.5rem;
         color: var(--fontColor);
         font-size: 1.15rem;
     }
 
     .btnGroup {
-        padding-top: 0.5rem;
+        padding-top: 1.0rem;
     }
 
     .homeBtn {

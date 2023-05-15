@@ -69,7 +69,7 @@
     }
 
     async function initialDataLoad() {
-        return await GetCollectionView(data.id).then((value) => {
+        return await GetCollectionView(data.id).then(async (value) => {
             if (value) {
                 collectionView = value;
             } else {
@@ -82,21 +82,24 @@
                     themeId: 1
                 }
             }
-            loadPositionals();
-            editMode = getEditModeFromId(collectionView.editModeId);
-            viewMode = getViewModeFromId(collectionView.viewCategoryId, collectionView.viewModeId);
+
+            loadPositionals().then(() => {
+                editMode = getEditModeFromId(collectionView.editModeId);
+                viewMode = getViewModeFromId(collectionView.viewCategoryId, collectionView.viewModeId);
+
+                if (viewMode.isSortable) {
+                    GetCollection(data.id, viewMode.sort)
+                        .then((value) => notes = value)
+                } else {
+                    GetPositional(viewMode.id)
+                        .then((value) => notes = value)
+                }
+            });
+
             GetThemeList().then((value) => {
                 themes = value;
                 theme = getThemeFromId(collectionView.themeId);
             });
-
-            if (viewMode.isSortable) {
-                GetCollection(data.id, viewMode.sort)
-                    .then((value) => notes = value)
-            } else {
-                GetPositional(viewMode.id)
-                    .then((value) => notes = value)
-            }
         }).finally(() => UpdateCollectionLastOpen(data.id));
     }
 

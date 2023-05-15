@@ -30,6 +30,7 @@ type Note = StandardNote | PositionedNote;
 interface Collection {
     id: number;
     name: string;
+    last_open?: string;
 }
 
 interface CollectionView {

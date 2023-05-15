@@ -37,8 +37,8 @@ export async function GetPageWidth(): Promise<number | null> {
 export async function GetThemeList(): Promise<Theme[]> {
     let themes: Theme[] | null = await store.get("theme-list");
     if (!themes) {
-        return SetThemeList(DefaultThemeList)
-            .then(() => {return store.get("theme-list") as Promise<Theme[]>} );
+        SetThemeList(DefaultThemeList)
+        return DefaultThemeList;
     }
     return themes;
 }

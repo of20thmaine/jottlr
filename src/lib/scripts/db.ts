@@ -60,7 +60,7 @@ export async function GetPositionalList(): Promise<Positional[]> {
 
 export async function GetLastOpenCollection(): Promise<Collection[]> {
     return await db.select(
-        "SELECT id, name, MAX(last_open) FROM collections"
+        "SELECT id, name, last_open FROM collections WHERE last_open = (SELECT MAX(last_open) FROM collections)"
     );
 }
 

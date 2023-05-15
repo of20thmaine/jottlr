@@ -138,6 +138,12 @@
         {/if}
     </div>
     <div class="center">
+        <div class="backBtn"
+                title="Alt+&larr;"
+                on:click={() => history.back()}
+                on:keypress={() => history.back()}>
+            &larr;
+        </div>
         <div class="title">{windowTitle}</div>
     </div>
     <div class="titlebar-button" id="titlebar-minimize"
@@ -198,6 +204,13 @@
         display: flex;
         align-items: center;
         justify-content: center;
+    }
+
+    .backBtn {
+        font-size: 1.4rem;
+        cursor: pointer;
+        margin-right: 0.5rem;
+        padding: 0 0.25rem;
     }
 
     .title {
