@@ -7,7 +7,7 @@
     "withGlobalTauri": false
   },
   "package": {
-    "productName": "jottlr",
+    "productName": "Jottlr",
     "version": "0.0.1"
   },
   "tauri": {
