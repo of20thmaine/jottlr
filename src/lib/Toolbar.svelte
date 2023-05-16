@@ -343,7 +343,7 @@
         align-items: center;
         padding: 0.5rem;
         margin: 1px;
-        border-bottom: 1px solid var(--titlebarColor);
+        border-bottom: 1px solid var(--borderColor);
         cursor: auto;
     }
 

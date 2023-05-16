@@ -72,6 +72,7 @@
         <div class="themeEditor"
                 on:click={() => gotoThemeEditor(1)}
                 on:keypress={() => gotoThemeEditor(1)}>
+            <i class="tIco bi bi-easel"></i>
             Open Theme Editor
         </div>
     </div>
@@ -158,19 +159,14 @@
     }
 
     .themeEditor {
-        border: 1px solid;
-        border-radius: 4px;
-        color: #d7b474;
-        font-size: 1.2rem;
+        font-size: 1.1rem;
         width: max-content;
-        padding: 0.4rem 2.0rem;
         margin-top: 1.0rem;
         cursor: pointer;
         user-select: none;
     }
 
-    .themeEditor:hover {
-        background-color: #d7b474;
-        color: var(--fontColor);
+    .tIco {
+        margin-right: 0.5rem;
     }
 </style>

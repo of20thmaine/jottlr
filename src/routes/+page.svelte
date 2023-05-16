@@ -91,14 +91,14 @@
         font-size: 1.5rem;
         border-bottom: 1px solid;
         padding: 0.5rem;
-        margin-bottom: 0.5rem;
+        margin-bottom: 1.0rem;
     }
 
     .subHeader {
-        margin-top: 0.5rem;
         color: var(--fontColor);
         font-size: 1.0rem;
         padding: 0 0.5rem;
+        margin-bottom: 1.0rem;
     }
 
     .lastOpenCollection {
@@ -107,10 +107,6 @@
         font-size: 1.15rem;
         cursor: pointer;
         user-select: none;
-    }
-
-    .btnGroup {
-        padding-top: 1.0rem;
     }
 
     .homeBtn {
