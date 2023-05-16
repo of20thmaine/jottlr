@@ -315,5 +315,6 @@
         color: var(--fontColor);
         font-size: 1.10rem;
         text-align: center;
+        margin-right: 8px;
     }
 </style>
