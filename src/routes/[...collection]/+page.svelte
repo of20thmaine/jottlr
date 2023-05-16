@@ -25,7 +25,8 @@
     let showSelectionMenu: boolean = false;
     let showSelectionDialog: boolean = false;
     let action: SelectionAction;
-
+    
+    initialDataLoad();
     WindowTitle.set(data.name);
     GetPageWidth().then((value) => {if (value) pageWidth = value});
 
@@ -460,129 +461,127 @@
 
 <svelte:window on:keydown={keyShortCutHandler}/>
 
-{#await initialDataLoad() then x}
-    <div class="page">
-        <Toolbar 
-            editMode={editMode}
-            viewMode={viewMode}
-            viewModes={viewModes}
-            bind:theme={theme}
-            themes={themes}
-            collection={data}
-            pageWidth={pageWidth}
-            changeEditMode={changeEditMode}
-            changeViewMode={changeViewMode}
-            loadPositionals={loadPositionals}
-        />
-        <div class="outerCollection" bind:this={collectionElement}>
-            <div class="noteCollection" style="max-width:{pageWidth}px;">
-                {#if selectionSet.size > 0}
-                    <div class="selectionSelectHolder">
-                        <div class="selector selT" class:selectorSelected={showSelectionMenu}
-                                on:click={() => {
-                                    showSelectionMenu = true;
-                                }}
-                                on:keypress={() => {
-                                    showSelectionMenu = true;
+<div class="page">
+    <Toolbar 
+        editMode={editMode}
+        viewMode={viewMode}
+        viewModes={viewModes}
+        bind:theme={theme}
+        themes={themes}
+        collection={data}
+        pageWidth={pageWidth}
+        changeEditMode={changeEditMode}
+        changeViewMode={changeViewMode}
+        loadPositionals={loadPositionals}
+    />
+    <div class="outerCollection" bind:this={collectionElement}>
+        <div class="noteCollection" style="max-width:{pageWidth}px;">
+            {#if selectionSet.size > 0}
+                <div class="selectionSelectHolder">
+                    <div class="selector selT" class:selectorSelected={showSelectionMenu}
+                            on:click={() => {
+                                showSelectionMenu = true;
+                            }}
+                            on:keypress={() => {
+                                showSelectionMenu = true;
+                            }}>
+                        Selection<i class="mla bi bi-chevron-down"></i>
+                    </div>
+                    {#if showSelectionMenu}
+                        <div class="selectorMenu selectionSelMen"
+                            use:ClickOutside 
+                            on:outclick={() => {
+                                    showSelectionMenu = false;
                                 }}>
-                            Selection<i class="mla bi bi-chevron-down"></i>
-                        </div>
-                        {#if showSelectionMenu}
-                            <div class="selectorMenu selectionSelMen"
-                                use:ClickOutside 
-                                on:outclick={() => {
+
+                            <div class="opt"
+                                    on:click={() => {
+                                        action = SelectionAction.CopyToPositional;
+                                        showSelectionDialog = true;
+                                        showSelectionMenu = false;
+                                    }}
+                                    on:keypress={() => {
+                                        action = SelectionAction.CopyToPositional;
+                                        showSelectionDialog = true;
                                         showSelectionMenu = false;
                                     }}>
-
-                                <div class="opt"
-                                        on:click={() => {
-                                            action = SelectionAction.CopyToPositional;
-                                            showSelectionDialog = true;
-                                            showSelectionMenu = false;
-                                        }}
-                                        on:keypress={() => {
-                                            action = SelectionAction.CopyToPositional;
-                                            showSelectionDialog = true;
-                                            showSelectionMenu = false;
-                                        }}>
-                                    <i class="tIco bi bi-files"></i>
-                                    Copy to Positional
-                                </div>
-                                <div class="opt"
-                                        on:click={() => {
-                                            action = SelectionAction.CutToCollection;
-                                            showSelectionDialog = true;
-                                            showSelectionMenu = false;
-                                        }}
-                                        on:keypress={() => {
-                                            action = SelectionAction.CutToCollection;
-                                            showSelectionDialog = true;
-                                            showSelectionMenu = false;
-                                        }}>
-                                    <i class="tIco bi bi-scissors"></i>
-                                    Cut to Collection
-                                </div>
-                                <div class="opt"
-                                        on:click={() => {
-                                            action = SelectionAction.CopyToCollection;
-                                            showSelectionDialog = true;
-                                            showSelectionMenu = false;
-                                        }}
-                                        on:keypress={() => {
-                                            action = SelectionAction.CopyToCollection;
-                                            showSelectionDialog = true;
-                                            showSelectionMenu = false;
-                                        }}>
-                                    <i class="tIco bi bi-files"></i>
-                                    Copy to Collection
-                                </div>
+                                <i class="tIco bi bi-files"></i>
+                                Copy to Positional
                             </div>
-                        {/if}
-                    </div>
-                {/if}
-                {#if notes}
-                    {#each notes as note, i (note)}
-                        <div class="noteHolder" animate:flip="{{duration: 100}}"
-                                style="{getNoteHolderStyle(note)}" 
-                                draggable={!viewMode.isSortable}
-                                on:dragstart={event => onDragStart(event, i)}
-                                on:dragover|preventDefault
-                                on:drop={event => onDragDrop(event, i)}
-                                on:click={event => noteClickHandler(event, i)}
-                                on:keydown={event => noteKeyDownHandler(event, i)}>
-                            <NoteView
-                                    idx={i}
-                                    bind:note={note}
-                                    bind:collectionView={collectionView}
-                                    bind:focusNoteId={focusNoteId}
-                                    viewMode={viewMode}
-                                    theme={theme}
-                                    forceFocusChange={forceFocusChange}
-                                    moveNote={moveNote}
-                                    deleteSavedNote={deleteSavedNote}
-                                    deleteUnsavedNote={deleteUnsavedNote}
-                                />
+                            <div class="opt"
+                                    on:click={() => {
+                                        action = SelectionAction.CutToCollection;
+                                        showSelectionDialog = true;
+                                        showSelectionMenu = false;
+                                    }}
+                                    on:keypress={() => {
+                                        action = SelectionAction.CutToCollection;
+                                        showSelectionDialog = true;
+                                        showSelectionMenu = false;
+                                    }}>
+                                <i class="tIco bi bi-scissors"></i>
+                                Cut to Collection
+                            </div>
+                            <div class="opt"
+                                    on:click={() => {
+                                        action = SelectionAction.CopyToCollection;
+                                        showSelectionDialog = true;
+                                        showSelectionMenu = false;
+                                    }}
+                                    on:keypress={() => {
+                                        action = SelectionAction.CopyToCollection;
+                                        showSelectionDialog = true;
+                                        showSelectionMenu = false;
+                                    }}>
+                                <i class="tIco bi bi-files"></i>
+                                Copy to Collection
+                            </div>
                         </div>
-                    {/each}
-                {/if}
-            </div>
-        </div>
-        {#if editMode.id === 1}
-            <div class="outerEntry">
-                <div class="noteEntry">
-                    <div class="appendIco"><i class="bi bi-plus-lg"></i></div>
-                    <div class="noteInput"
-                        bind:this={noteInput}
-                        on:keydown={appendModeKeyHandler}
-                        contenteditable="true"
-                        placeholder="Append new note"
-                        style="max-width:{pageWidth}px;">
+                    {/if}
+                </div>
+            {/if}
+            {#if notes}
+                {#each notes as note, i (note)}
+                    <div class="noteHolder" animate:flip="{{duration: 100}}"
+                            style="{getNoteHolderStyle(note)}" 
+                            draggable={!viewMode.isSortable}
+                            on:dragstart={event => onDragStart(event, i)}
+                            on:dragover|preventDefault
+                            on:drop={event => onDragDrop(event, i)}
+                            on:click={event => noteClickHandler(event, i)}
+                            on:keydown={event => noteKeyDownHandler(event, i)}>
+                        <NoteView
+                                idx={i}
+                                bind:note={note}
+                                bind:collectionView={collectionView}
+                                bind:focusNoteId={focusNoteId}
+                                viewMode={viewMode}
+                                theme={theme}
+                                forceFocusChange={forceFocusChange}
+                                moveNote={moveNote}
+                                deleteSavedNote={deleteSavedNote}
+                                deleteUnsavedNote={deleteUnsavedNote}
+                            />
                     </div>
+                {/each}
+            {/if}
+        </div>
+    </div>
+    {#if editMode && editMode.id === 1}
+        <div class="outerEntry">
+            <div class="noteEntry">
+                <div class="appendIco"><i class="bi bi-plus-lg"></i></div>
+                <div class="noteInput"
+                    bind:this={noteInput}
+                    on:keydown={appendModeKeyHandler}
+                    contenteditable="true"
+                    placeholder="Append new note"
+                    style="max-width:{pageWidth}px;">
                 </div>
             </div>
-        {/if}
-    </div>
-{/await}
+        </div>
+    {/if}
+</div>
 
 {#if showSelectionDialog}
     <SelectionDialog 
