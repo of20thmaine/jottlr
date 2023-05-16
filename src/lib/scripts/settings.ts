@@ -3,7 +3,7 @@ import { Store } from "tauri-plugin-store-api";
 const store = new Store(".settings.dat");
 
 export async function SetDefaultCollection(collectionId: number) {
-    store.set("default-collection", collectionId);
+    store.set("default-collection", collectionId).then(() => store.save());
 }
 
 export async function GetDefaultCollection() {
@@ -11,7 +11,7 @@ export async function GetDefaultCollection() {
 }
 
 export async function SetColorModeIsDark(isDarkMode: boolean) {
-    return store.set("color-mode", isDarkMode);
+    return store.set("color-mode", isDarkMode).then(() => store.save());
 }
 
 export async function GetColorModeIsDark() {
@@ -19,7 +19,7 @@ export async function GetColorModeIsDark() {
 }
 
 export async function SetCollectionView(collectionView: CollectionView) {
-    store.set("collection-views-" + collectionView.id, collectionView);
+    store.set("collection-views-" + collectionView.id, collectionView).then(() => store.save());
 }
 
 export async function GetCollectionView(collectionId: number): Promise<CollectionView | null> {
@@ -27,7 +27,7 @@ export async function GetCollectionView(collectionId: number): Promise<Collectio
 }
 
 export async function SetPageWidth(pageWidth: number) {
-    return store.set("page-width", pageWidth);
+    return store.set("page-width", pageWidth).then(() => store.save());
 }
 
 export async function GetPageWidth(): Promise<number | null> {
@@ -60,7 +60,7 @@ export async function GetUserThemeList(): Promise<Theme[] | null> {
 }
 
 export async function SetThemeList(themeList: Theme[]) {
-    store.set("theme-list", themeList);
+    store.set("theme-list", themeList).then(() => store.save());
 }
 
 export const enum LabelType {
