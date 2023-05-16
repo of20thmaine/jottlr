@@ -1,4 +1,5 @@
 <script lang="ts">
+    import { gotoCollection } from "$lib/scripts/utils";
     import { SetCollectionFavorite } from "$lib/scripts/db";
 
     export let collections: CollectionSelection[];
@@ -80,13 +81,14 @@
         </div>
     </div>
     {#each collections as collection}
-        <a href="{collection.id + "/" + collection.name}">
-        <div class="row itmR">
+        <div class="row itmR"
+                on:click={() => gotoCollection({id: collection.id, name: collection.name})}
+                on:keypress={() => gotoCollection({id: collection.id, name: collection.name})}>
             <div class="co favIco" class:isFavorite={collection.favorite}><i class="bi bi-star-fill"
-                on:click={(event) => {
+                on:click|stopPropagation={(event) => {
                     event.preventDefault();
                     toggleCollectionFavorite(collection.id, collection.favorite)}}
-                on:keypress={(event) => {
+                on:keypress|stopPropagation={(event) => {
                     event.preventDefault();
                     toggleCollectionFavorite(collection.id, collection.favorite)}}></i></div>
             <div class="co">{collection.name}</div>
@@ -99,7 +101,6 @@
                 <div class="co">{new Date(collection.last_open).toLocaleTimeString([], {hour: "numeric", minute: "numeric", hour12: true})}</div>
             {/if}
         </div>
-        </a>
     {/each}
 </div>
 
@@ -111,6 +112,8 @@
     .row {
         display: grid;
         grid-template-columns: 40px 1fr 100px 140px;
+        user-select: none;
+        cursor: pointer;
     }
 
     .hrow {
@@ -160,9 +163,5 @@
 
     .itmR:hover .favIco:hover {
         color: #F5DF4D;
-    }
-
-    a {
-        text-decoration: none;
     }
 </style>

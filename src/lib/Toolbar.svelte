@@ -1,7 +1,6 @@
 <script lang="ts">
-    import { goto } from '$app/navigation';
     import { EditModes, ChangeOption } from "$lib/scripts/settings";
-    import { ClickOutside } from "$lib/scripts/utils";
+    import { ClickOutside, gotoThemeEditor } from "$lib/scripts/utils";
     import CreatePositional from "$lib/CreatePositional.svelte";
     import RenameDialog from '$lib/RenameDialog.svelte';
     import DeleteDialog from '$lib/DeleteDialog.svelte';
@@ -152,8 +151,8 @@
                             </div>
                         {/each}
                         <div class="opt themeOpt themeCo"
-                                on:click={() => goto("/themeeditor/" + theme.id)}
-                                on:keypress={() => goto("/themeeditor/" + theme.id)}>
+                                on:click={() => gotoThemeEditor(theme.id)}
+                                on:keypress={() => gotoThemeEditor(theme.id)}>
                             Create / Edit Themes
                             <i class="bi bi-plus-lg mLA"></i>
                         </div>

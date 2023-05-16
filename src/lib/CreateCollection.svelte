@@ -1,6 +1,6 @@
 <script lang="ts">
     import { GetCollectionList, CreateCollection } from "$lib/scripts/db";
-    import { ClickOutside } from "$lib/scripts/utils";
+    import { ClickOutside, gotoCollection  } from "$lib/scripts/utils";
 
     export let showDialog: boolean;
 
@@ -21,7 +21,10 @@
     async function create() {
         checkCollectionName();
         if (errorStr.length > 0) return;
-        CreateCollection(name);
+        CreateCollection(name)
+            .then((value) => {
+                gotoCollection({id: value.lastInsertId, name: name});
+            });
         showDialog = false;
     }
 

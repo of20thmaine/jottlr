@@ -1,4 +1,5 @@
 <script lang="ts">
+    import { gotoCollection } from "$lib/scripts/utils";
     import { GetCollections, GetFavorites, GetLastOpenCollection } from "$lib/scripts/db";
     import { ShowCreateCollection, WindowTitle } from "$lib/scripts/stores";
     import CollectionsTable from "$lib/CollectionsTable.svelte";
@@ -27,19 +28,19 @@
             <div class="lastOpen">
                 {#if lastOpen}
                     <div class="header">Last Open</div>
-                    <a href="{lastOpen.id + "/" + lastOpen.name}">
-                        <div class="lastOpenCollection">
-                            <i class="bi bi-arrow-return-right"></i> {lastOpen.name}
-                        </div>
-                    </a>
+                    <div class="lastOpenCollection"
+                            on:click={() => gotoCollection(lastOpen)}
+                            on:keypress={() => gotoCollection(lastOpen)}>
+                        <i class="bi bi-arrow-return-right"></i> {lastOpen.name}
+                    </div>
                 {:else}
                     <div class="header">Welcome to Jottlr!</div>
                     <div class="subHeader">We created a collection for you so you can get started right away.</div>
-                    <a href="1/Jottlr">
-                        <div class="lastOpenCollection">
-                            <i class="bi bi-arrow-return-right"></i> Jottlr
-                        </div>  
-                    </a>
+                    <div class="lastOpenCollection"
+                            on:click={() => gotoCollection({id: 1, name: "Jottlr"})}
+                            on:keypress={() => gotoCollection({id: 1, name: "Jottlr"})}>
+                        <i class="bi bi-arrow-return-right"></i> Jottlr
+                    </div>
                 {/if}
             </div>
             <div class="btnGroup">
@@ -54,15 +55,19 @@
                 <i class="lM bi bi-plus-lg"></i>Create Collection</div>
             </div>
         </div>
-
         {#if favorites && favorites.length > 0}
             <div class="header">Favorites</div>
-            <CollectionsTable bind:collections={favorites} updateCollections={updateCollections} />
+            <CollectionsTable
+                bind:collections={favorites}
+                updateCollections={updateCollections}
+            />
         {/if}
-
         {#if collections}
             <div class="header">Collections</div>
-            <CollectionsTable bind:collections={collections} updateCollections={updateCollections} />
+            <CollectionsTable
+                bind:collections={collections}
+                updateCollections={updateCollections}
+            />
         {/if}
     </div>
 </div>
@@ -100,6 +105,8 @@
         margin-top: 0.5rem;
         color: var(--fontColor);
         font-size: 1.15rem;
+        cursor: pointer;
+        user-select: none;
     }
 
     .btnGroup {

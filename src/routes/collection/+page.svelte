@@ -3,13 +3,12 @@
     import { ClickOutside } from "$lib/scripts/utils";
     import { CreateNote, CreatePositionedNote, GetCollection, GetCollectionsPositionals, GetPositional, DeleteNote, DeleteFromPositionedNotes, UpdateCollectionLastOpen } from "$lib/scripts/db";
     import { DefaultViewModes, EditModes, GetPageWidth, ChangeType, SortType, SetCollectionView, GetCollectionView, GetThemeList, SelectionAction } from "$lib/scripts/settings";
-    import { WindowTitle } from "$lib/scripts/stores";
+    import { OpenCollection, WindowTitle } from "$lib/scripts/stores";
     import SelectionDialog from '$lib/SelectionDialog.svelte';
     import NoteView from "$lib/NoteView.svelte";
     import Toolbar from "$lib/Toolbar.svelte";
 
-    export let data: Collection;
-
+    let data: Collection = $OpenCollection;
     let notes: Note[];
     let collectionView: CollectionView;
     let collectionElement: HTMLElement;

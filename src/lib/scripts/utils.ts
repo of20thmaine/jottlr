@@ -1,3 +1,16 @@
+import { goto } from '$app/navigation';
+import { OpenCollection, ThemeEditorThemeId } from "$lib/scripts/stores";
+
+export function gotoCollection(collection: Collection) {
+    OpenCollection.set(collection);
+    goto("collection");
+}
+
+export function gotoThemeEditor(themeId: number) {
+    ThemeEditorThemeId.set(themeId);
+    goto("themeeditor");
+}
+
 export function ClickOutside(node: HTMLElement) {
     const clickHandler = (event: Event) => {
         if (!(event.target instanceof HTMLElement && node.contains(event.target))) {
