@@ -30,7 +30,7 @@
 <div class="outer">
     <div class="toolBar" style="max-width:{pageWidth}px;">
         {#if editMode}
-            <div class="selectHolder">
+            <div class="selectHolder mL">
                 <div class="selector selTB {editMode.class}" class:selectorSelected={showEditModeSelect}
                         on:click={() => showEditModeSelect = true}
                         on:keypress={() => showEditModeSelect = true}>
@@ -277,7 +277,7 @@
     .toolBar {
         margin: 0 auto;
         max-width: var(--usableWidth);
-        padding: 0.35rem 1.0rem;
+        padding: 0.35rem 0.5rem;
         display: flex;
         align-items: center;
         flex-flow: wrap;
