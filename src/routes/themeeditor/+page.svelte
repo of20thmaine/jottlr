@@ -163,7 +163,7 @@
 
     function generateMockNotes() {
         mockNotes = [];
-        for (let i = 0; i < currentlyEditing.maxIndents; ++i) {
+        for (let i = 0; i <= currentlyEditing.maxIndents; ++i) {
             mockNotes.push(
                 {
                     id: i,

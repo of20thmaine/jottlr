@@ -684,4 +684,10 @@
         user-select: none;
         cursor: text;
     }
+
+    @media screen and (max-width: 580px) {
+        .noteCollection {
+            padding: 0.5rem;
+        }
+    }
 </style>

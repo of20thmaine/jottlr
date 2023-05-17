@@ -311,10 +311,11 @@
     }
 
     .label {
-        min-width: 42px;
+        min-width: 32px;
+        max-width: max-content;
         color: var(--fontColor);
         font-size: 1.10rem;
         text-align: center;
-        margin-right: 8px;
+        margin-right: 1.0rem;
     }
 </style>

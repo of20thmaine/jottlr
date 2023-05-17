@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { CreatePositional } from "$lib/scripts/db";
+    import { CreatePositional, GetPositionalList } from "$lib/scripts/db";
     import { ClickOutside } from "$lib/scripts/utils";
 
     export let showCreatePositional: boolean;
@@ -7,11 +7,20 @@
     export let changeViewMode: (categoryId: number, optionId: number) => void;
     export let loadPositionals: () => Promise<void>;
 
+    const NameMaxLength: number = 30;
+
     let input: HTMLElement;
     let positionalName: string = "";
-    let errorString: string = "";
+    let errorStr: string = "";
+    let existing: Positional[];
+
+    load();
 
     $: if (input) input.focus();
+
+    async function load() {
+        existing = await GetPositionalList();
+    }
 
     function keyHandler(event: KeyboardEvent): void {
         switch (event.key) {
@@ -26,13 +35,9 @@
     }
 
     function createPositional() {
-        if (!(positionalName.length > 0)) {
-            errorString = "Positional name cannot be blank."
-            return;
-        } else if (positionalName.length > 30) {
-            errorString = "Positional name cannot exceed 30 characters."
-            return;
-        }
+        checkPositionalName();
+        if (errorStr.length > 0) return;
+
         CreatePositional(positionalName, collection.id)
             .then((value) => {
                 loadPositionals()
@@ -42,43 +47,53 @@
                     });
             });
     }
+
+    function checkPositionalName() {
+        if (nameUsed(positionalName)) {
+            errorStr = "A positional with this name already exists."
+        } else if (positionalName.length === 0) {
+            errorStr = "Positional requires a name."
+        } else if (positionalName.length > NameMaxLength) {
+            errorStr = "Positional name cannot exceed " + NameMaxLength + " characters.";
+        } else {
+            errorStr = "";
+        }
+    }
+
+    function nameUsed(name: string) {
+        for (let obj of existing) {
+            if (name === obj.name) {
+                return true;
+            }
+        }
+        return false;
+    }
 </script>
 
-<div class="promptBox" 
+<div class="dialog" 
         use:ClickOutside 
-        on:outclick={() => showCreatePositional = !showCreatePositional}>
+        on:outclick={() => showCreatePositional = false}>
     <div class="closeBtn"
-            on:click={() => showCreatePositional = !showCreatePositional}
-            on:keypress={() => showCreatePositional = !showCreatePositional}>
+            on:click={() => showCreatePositional = false}
+            on:keypress={() => showCreatePositional = false}>
         <i class="bi bi-x"></i></div>
     <div class="title">Create Positional</div>
     <div class="collection">
         <i class="bi bi-arrow-return-right icoRestraint"></i>
         <div class="collectionName">{collection.name}</div>
     </div>
-    <div class="nameInput"
-        contenteditable="true"
-        on:keydown={keyHandler}
-        bind:this={input}
-        bind:innerHTML={positionalName}
-        placeholder="Enter positional name">
-    </div>
-    <div class="footer">
-        <div class="messages">
-            {#if errorString.length > 0}
-                <div class="errorString">{errorString}</div>
-            {/if}
-        </div>
-        <div class="createBtn"
-                on:click={() => createPositional()}
-                on:keypress={() => createPositional()}>
-            <i class="bi bi-plus"></i> Create
-        </div>
+    <input type="text" class="nameInput" bind:this={input} on:keydown={keyHandler}
+            bind:value={positionalName} on:keyup={checkPositionalName} />
+        <div class="errorStr">{errorStr}</div>
+    <div class="createBtn"
+            on:click={() => createPositional()}
+            on:keypress={() => createPositional()}>
+        <i class="bi bi-plus"></i> Create
     </div>
 </div>
 
 <style>
-    .promptBox {
+    .dialog {
         margin: 0;
         position: absolute;
         z-index: 3;
@@ -87,7 +102,9 @@
         transform: translate(-50%, -50%);
         background-color: var(--backgroundColor);
         border: 1px solid var(--hoverBtnColor);
-        width: 340px;
+        width: 260px;
+        color: var(--fontColor);
+        padding: 1.0rem 1.5rem;
     }
 
     .closeBtn {
@@ -106,7 +123,6 @@
     .title {
         color: var(--fontColor);
         font-weight: 600;
-        margin: 0.75rem 0 0 1.0rem;
     }
 
     .collection {
@@ -121,32 +137,26 @@
     }
 
     .nameInput {
+        border: none;
         border-radius: 4px;
+        padding: 0.3rem 0.5rem 0.35rem 0.5rem;
         background-color: var(--textfieldColor);
-        padding: 0.5rem;
         color: var(--fontColor);
-        margin: 0.5rem 1.0rem 1.0rem 1.0rem;
+        resize: none;
+        line-height: 1.6rem;
+        height: 2.25rem;
+        max-width: 240px;
+        font-family: inherit;
+        font-size: inherit;
+        white-space: nowrap;
+        overflow-x: hidden;
+        margin: 0.75rem 0;
     }
 
-    [contenteditable=true]:empty:before {
-        content:attr(placeholder);
-        color: grey;
-        user-select: none;
-        cursor: text;
-    }
-
-    .footer {
-        display: grid;
-        grid-template-columns: 1fr max-content;
-        margin: 0 0.75rem 1.0rem 0.75rem;
-    }
-
-    .messages {
+    .errorStr {
         font-size: 0.9rem;
-    }
-
-    .errorString {
         color: #BE3455;
+        margin-bottom: 0.75rem;
     }
 
     .createBtn {
@@ -157,7 +167,8 @@
         border: 1px solid;
         border-radius: 4px;
         cursor: pointer;
-        margin-left: 0.25rem;
+        user-select: none;
+        margin-left: auto;
     }
 
     .createBtn:hover {

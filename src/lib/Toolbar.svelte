@@ -278,9 +278,8 @@
         margin: 0 auto;
         max-width: var(--usableWidth);
         padding: 0.35rem 0.5rem;
-        display: flex;
-        align-items: center;
-        flex-flow: wrap;
+        display: grid;
+        grid-template-columns: minmax(100px, 180px) minmax(100px, 180px) minmax(100px, 180px) minmax(min-content, 1fr);
     }
 
     .selectHolder {
@@ -289,7 +288,7 @@
 
     .selTB {
         padding: 0.25rem 0.4rem;
-        width: 160px;
+        width: 100%;
     }
 
     .selTB:hover {
@@ -297,7 +296,7 @@
     }
 
     .smTB {
-        width: 160px;
+        width: 100%;
     }
 
     .name {
@@ -327,7 +326,7 @@
 
     .selTBVM {
         padding: 0.25rem 0.4rem;
-        width: 160px;
+        width: 100%;
         color: #B19CD8;
     }
 
@@ -336,7 +335,7 @@
     }
 
     .selTBVMsm {
-        width: 160px;
+        width: 100%;
     }
 
     .cat {
@@ -368,12 +367,12 @@
 
     .selTheme {
         padding: 0.25rem 0.4rem;
-        width: 180px;
+        width: 100%;
         color: #d7b474;
     }
 
     .themeMenu {
-        width: 180px;
+        width: 100%;
     }
 
     .themeOpt {
@@ -441,123 +440,9 @@
         color: #d7b474;
     }
 
-    @media screen and (max-width: 575px) {
-        .selTB {
-            width: 140px;
-        }
-
-        .smTB {
-            width: 140px;
-        }
-
-        .selTBVM {
-            width: 140px;
-        }
-
-        .selTBVMsm {
-            width: 140px;
-        }
-
-        .selTheme {
-            width: 150px;
-        }
-
-        .themeMenu {
-            width: 150px;
-        }
-
-        .mL {
-            margin-left: 0.25rem;
-        }
-    }
-
-    @media screen and (max-width: 504px) {
+    @media screen and (max-width: 580px) {
         .toolBar {
-            padding: 0.35rem 0.35rem;
-        }
-    }
-
-    @media screen and (max-width: 482px) {
-        .selTB {
-            width: 130px;
-        }
-
-        .smTB {
-            width: 130px;
-        }
-
-        .selTBVM {
-            width: 130px;
-        }
-
-        .selTBVMsm {
-            width: 130px;
-        }
-
-        .selTheme {
-            width: 140px;
-        }
-
-        .themeMenu {
-            width: 140px;
-        }
-    }
-
-    @media screen and (max-width: 444px) {
-        .selTB {
-            width: 120px;
-        }
-
-        .smTB {
-            width: 120px;
-        }
-
-        .selTBVM {
-            width: 120px;
-        }
-
-        .selTBVMsm {
-            width: 120px;
-        }
-
-        .selTheme {
-            width: 130px;
-        }
-
-        .themeMenu {
-            width: 130px;
-        }
-    }
-
-    @media screen and (max-width: 415px) {
-        .selTB {
-            width: 110px;
-        }
-
-        .smTB {
-            width: 110px;
-        }
-
-        .selTBVM {
-            width: 110px;
-        }
-
-        .selTBVMsm {
-            width: 110px;
-        }
-
-        .selTheme {
-            width: 120px;
-        }
-
-        .themeMenu {
-            width: 120px;
-        }
-    }
-
-    @media screen and (max-width: 362px) {
-        .selector {
-            margin-bottom: 8px;
+            padding: 0.35rem 0;
         }
     }
 </style>
