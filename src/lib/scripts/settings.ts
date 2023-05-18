@@ -129,8 +129,8 @@ export const DefaultThemeList: Theme[] = [
         name: "Bulleted List",
         maxIndents: 6,
         default: {
-            marginLeft: 16,
-            label: {name: "Bullets", value: LabelType.Disc, demo: '<i class="bi bi-circle-fill"></i>, <i class="bi bi-circle-fill"></i>'},
+            marginLeft: 32,
+            label: {name: "Bullets", value: LabelType.Disc, demo: '&#9632;, &#9632;'},
         }
     },
     {
@@ -158,8 +158,11 @@ export const DefaultThemeList: Theme[] = [
                 label: {name: "Alphabet (Lowercase)", value: LabelType.AlphabetLowers, demo: "a, b"}
             },
             {
-                label: {name: "Bullets", value: LabelType.Disc, demo: '<i class="bi bi-circle-fill"></i>, <i class="bi bi-circle-fill"></i>'},
-            },
+                label: {name: "Bullets", value: LabelType.Disc, demo: '&#9679;, &#9679;'}
+            }, 
+            {
+                label: {name: "Squares", value: LabelType.Square, demo: '&#9632;, &#9632;'}
+            }
         ]
     }
 ];

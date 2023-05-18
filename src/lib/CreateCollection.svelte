@@ -150,6 +150,8 @@
         cursor: pointer;
         user-select: none;
         margin-left: auto;
+        font-size: 1.05rem;
+        font-weight: 500;
     }
 
     .renameBtn:hover {

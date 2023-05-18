@@ -117,6 +117,7 @@
         themes.push(newTheme);
         save();
         currentlyEditing = newTheme;
+        changeNameStr = createNameStr;
         createNameStr = "";
         showCreateArea = createCopy = false;
     }

@@ -41,7 +41,8 @@
     $: if (editMode && viewMode && notes) {
         if (editMode.id === 2 && notes.length === 0) {
             if (!viewMode.isSortable) {
-                freeEditAppend(0, 0);
+                freeEditAppend(0, 0, 1);
+                focusNoteId = -1;
             }
         }
     }
@@ -153,13 +154,16 @@
         editMode = getEditModeFromId(id);
         collectionView.editModeId = id;
         if (editMode.id === 1) {
+            if (notes.length === 1 && notes[0].id === -1) {
+                deleteUnsavedNote(0);
+            }
             setTimeout(() => {noteInput.focus()}, 0);
         } else if (editMode.id === 3) {
             if (selectionSet.size > 0) deselectAll();
         }
     }
 
-    function freeEditAppend(idx: number, indents: number) {
+    function freeEditAppend(idx: number, indents: number, label?: number) {
         notes.splice(idx, 0, {
             id: -1,
             content: "",
@@ -167,7 +171,8 @@
             updated_at: "",
             isPositioned: true,
             position: idx,
-            indents: indents
+            indents: indents,
+            label: label !== undefined ? label : undefined
         });
         notes = notes;
     }
@@ -182,6 +187,7 @@
     }
     
     async function deleteUnsavedNote(idx: number) {
+        if (notes.length === 1 && editMode.id === 2) return;
         notes.splice(idx, 1);
         notes = notes;
     }

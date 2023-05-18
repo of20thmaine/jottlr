@@ -32,6 +32,18 @@
 
     $: theme, applyTheme();
 
+    $: if (labelNode) {
+        ApplyLabelStyle(labelNode, note, theme);
+
+        if (note.isPositioned && note.label) {
+            if (theme.noteThemes?.[note.indents]?.label?.value !== undefined) {
+                setLabelText(note.label, theme.noteThemes[note.indents].label?.value);
+            } else if (theme.default?.label?.value !== undefined) {
+                setLabelText(note.label, theme.default?.label?.value);
+            }
+        }
+    }
+
     async function saveNote() {
         if (noteCanBeSaved()) {
             if (note.id === -1) {
@@ -51,18 +63,6 @@
     function applyTheme() {
         if (noteNode) {
             ApplyNoteStyle(noteNode, note, theme);
-        }
-
-        if (labelNode) {
-            ApplyLabelStyle(labelNode, note, theme);
-
-            if (note.isPositioned && note.label) {
-                if (theme.noteThemes?.[note.indents]?.label?.value !== undefined) {
-                    setLabelText(note.label, theme.noteThemes[note.indents].label?.value);
-                } else if (theme.default?.label?.value !== undefined) {
-                    setLabelText(note.label, theme.default?.label?.value);
-                }
-            }
         }
     }
 
@@ -85,11 +85,10 @@
     }
 
     async function onFocusLostHandler() {
-        if (timeout) {
-            clearTimeout(timeout);
-        }
+        if (timeout) clearTimeout(timeout);
+
         if (noteCanBeSaved()) {
-            await saveNote();
+            saveNote();
         } else if (!noteCanBeSaved() && note.id === -1) {
             deleteUnsavedNote(idx);
         } else {
@@ -179,10 +178,17 @@
     }
 
     function alphabetizeLabel(number: number): any {
-        if (number === 0) {
-            return "";
+        if (number < 1) return "";
+        let label = "";
+        let current: number;
+
+        while (number > 0) {
+            current = (number - 1) % 26;
+            label = String.fromCharCode(65 + current) + label;
+            number = (number - current) / 26 | 0;
         }
-        return String.fromCharCode(64 + (number % 26)) + alphabetizeLabel(Math.floor(number / 26));
+
+        return label;
     }
 
     function freeEditKeyHandler(event: KeyboardEvent): void {

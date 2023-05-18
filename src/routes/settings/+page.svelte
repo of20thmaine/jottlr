@@ -164,6 +164,8 @@
         margin-top: 1.0rem;
         cursor: pointer;
         user-select: none;
+        border-left: 4px solid #d7b474;
+        padding: 0.25rem 0 0.25rem 1.0rem;
     }
 
     .tIco {
