@@ -3,22 +3,20 @@
 <br>
 ### Home Screen:
 <p align="center">
-  <img src="./static/readme-img/homepage.png">
+  <img src="./static/readme-img/homepage.PNG">
 </p>
-<br>
 
 ### Free-Edit Mode:
 <p align="center">
-  <img src="./static/readme-img/freeedit.png">
+  <img src="./static/readme-img/freeedit.PNG">
 </p>
 
 ### Append Mode:
 <p align="center">
-  <img src="./static/readme-img/appendmode.png">
+  <img src="./static/readme-img/appendmode.PNG">
 </p>
-
 
 ### Theme Editor:
 <p align="center">
-  <img src="./static/readme-img/themeeditor.png">
+  <img src="./static/readme-img/themeeditor.PNG">
 </p>
