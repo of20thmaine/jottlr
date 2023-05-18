@@ -187,7 +187,10 @@
     }
     
     async function deleteUnsavedNote(idx: number) {
-        if (notes.length === 1 && editMode.id === 2) return;
+        if (notes.length === 1 && editMode.id === 2) {
+            if (viewMode.isSortable) notes[0].content = "";
+            return;
+        }
         notes.splice(idx, 1);
         notes = notes;
     }
