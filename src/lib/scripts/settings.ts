@@ -3,7 +3,7 @@ import { Store } from "tauri-plugin-store-api";
 const store = new Store(".settings.dat");
 
 export async function SetDefaultCollection(collectionId: number) {
-    store.set("default-collection", collectionId);
+    store.set("default-collection", collectionId).then(() => store.save());
 }
 
 export async function GetDefaultCollection() {
@@ -11,7 +11,7 @@ export async function GetDefaultCollection() {
 }
 
 export async function SetColorModeIsDark(isDarkMode: boolean) {
-    return store.set("color-mode", isDarkMode);
+    return store.set("color-mode", isDarkMode).then(() => store.save());
 }
 
 export async function GetColorModeIsDark() {
@@ -19,7 +19,7 @@ export async function GetColorModeIsDark() {
 }
 
 export async function SetCollectionView(collectionView: CollectionView) {
-    store.set("collection-views-" + collectionView.id, collectionView);
+    store.set("collection-views-" + collectionView.id, collectionView).then(() => store.save());
 }
 
 export async function GetCollectionView(collectionId: number): Promise<CollectionView | null> {
@@ -27,7 +27,7 @@ export async function GetCollectionView(collectionId: number): Promise<Collectio
 }
 
 export async function SetPageWidth(pageWidth: number) {
-    return store.set("page-width", pageWidth);
+    return store.set("page-width", pageWidth).then(() => store.save());
 }
 
 export async function GetPageWidth(): Promise<number | null> {
@@ -37,8 +37,8 @@ export async function GetPageWidth(): Promise<number | null> {
 export async function GetThemeList(): Promise<Theme[]> {
     let themes: Theme[] | null = await store.get("theme-list");
     if (!themes) {
-        return SetThemeList(DefaultThemeList)
-            .then(() => {return store.get("theme-list") as Promise<Theme[]>} );
+        SetThemeList(DefaultThemeList)
+        return DefaultThemeList;
     }
     return themes;
 }
@@ -60,7 +60,7 @@ export async function GetUserThemeList(): Promise<Theme[] | null> {
 }
 
 export async function SetThemeList(themeList: Theme[]) {
-    store.set("theme-list", themeList);
+    store.set("theme-list", themeList).then(() => store.save());
 }
 
 export const enum LabelType {
@@ -110,6 +110,12 @@ export const enum ChangeOption {
     Collection
 }
 
+export const enum SelectionAction {
+    CopyToPositional,
+    CopyToCollection,
+    CutToCollection
+}
+
 export const EditModes: EditMode[] = [
     {id: 1, name: 'Append', class: 'append', ico: 'bi bi-plus'},
     {id: 2, name: 'Free-Edit', class: 'editing', ico: 'bi bi-pen sIco'},
@@ -120,18 +126,25 @@ export const DefaultThemeList: Theme[] = [
     {
         id: 1,
         system: true,
-        name: "Bulleted List",
-        maxIndents: 6,
+        name: "Bulleted",
+        maxIndents: 5,
         default: {
-            marginLeft: 16,
-            label: {name: "Bullets", value: LabelType.Disc, demo: '<i class="bi bi-circle-fill"></i>, <i class="bi bi-circle-fill"></i>'},
-        }
+            marginLeft: 32
+        },
+        noteThemes: [
+            {label: {demo:"&#9679;, &#9679;", name:"Bullets", value: 5}, labelTheme: {}},
+            {label:{demo:"&#9632;, &#9632;",name:"Squares",value:7},labelTheme:{fontSize:12}},
+            {label:{demo:"&#9675;, &#9675;",name:"Circles",value:6},labelTheme:{fontSize:12}},
+            {label:{demo:"&#9670;, &#9670;",name:"Diamonds",value:9},labelTheme:{fontSize:12}},
+            {label:{demo:"&#9655;, &#9655;",name:"Carets",value:10},labelTheme:{fontSize:12}},
+            {label:{demo:"&rarr;, &rarr;",name:"Arrows",value:8},labelTheme:{}}
+        ]
     },
     {
         id: 2,
         system: true,
         name: "Ordered List",
-        maxIndents: 6,
+        maxIndents: 4,
         default: {
             marginLeft: 32
         },
@@ -150,10 +163,26 @@ export const DefaultThemeList: Theme[] = [
             },
             {
                 label: {name: "Alphabet (Lowercase)", value: LabelType.AlphabetLowers, demo: "a, b"}
-            },
-            {
-                label: {name: "Bullets", value: LabelType.Disc, demo: '<i class="bi bi-circle-fill"></i>, <i class="bi bi-circle-fill"></i>'},
-            },
+            }
+        ]
+    },
+    {
+        id: 3,
+        system: true,
+        name: "Bubbly",
+        maxIndents: 6,
+        default: {
+            marginLeft: 16,
+            fontWeight: {name:"Semi-Bold",value:"600"},
+        },
+        noteThemes: [
+            {bubbleColor:"#1982fc"},
+            {bubbleColor:"#9800b3"},
+            {bubbleColor:"#43cc47"},
+            {bubbleColor:"#bd7b00"},
+            {bubbleColor:"#ff0090"},
+            {bubbleColor:"#1989fa"},
+            {bubbleColor:"#cc0000"}
         ]
     }
 ];

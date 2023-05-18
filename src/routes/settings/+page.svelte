@@ -1,6 +1,6 @@
 <script lang="ts">
     import { SetColorModeIsDark, GetPageWidth, SetPageWidth } from "$lib/scripts/settings";
-    import { ClickOutside } from "$lib/scripts/utils";
+    import { ClickOutside, gotoThemeEditor } from "$lib/scripts/utils";
     import { ColorModeIsDark, WindowTitle } from "$lib/scripts/stores";
 
     WindowTitle.set("Settings");
@@ -69,7 +69,12 @@
         </div>
         <div class="pageWidth">{pageWidth}px {pageWidth === 800 ? "(default)" : ""}</div>
         <h3 class="bigMT">Themes:</h3>
-        <a href="./themeeditor/0"><div class="themeEditor">Open Theme Editor</div></a>
+        <div class="themeEditor"
+                on:click={() => gotoThemeEditor(1)}
+                on:keypress={() => gotoThemeEditor(1)}>
+            <i class="tIco bi bi-easel"></i>
+            Open Theme Editor
+        </div>
     </div>
 </div>
 
@@ -92,10 +97,6 @@
     h3 {
         font-size: 1.15rem;
         margin-bottom: 0.5rem;
-    }
-
-    a {
-        text-decoration: none;
     }
     
     .bigMT {
@@ -158,17 +159,16 @@
     }
 
     .themeEditor {
-        border: 1px solid;
-        border-radius: 4px;
-        color: #d7b474;
-        font-size: 1.2rem;
+        font-size: 1.1rem;
         width: max-content;
-        padding: 0.4rem 2.0rem;
         margin-top: 1.0rem;
+        cursor: pointer;
+        user-select: none;
+        border-left: 4px solid #d7b474;
+        padding: 0.25rem 0 0.25rem 1.0rem;
     }
 
-    .themeEditor:hover {
-        background-color: #d7b474;
-        color: var(--fontColor);
+    .tIco {
+        margin-right: 0.5rem;
     }
 </style>

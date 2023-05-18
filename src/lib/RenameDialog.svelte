@@ -183,6 +183,7 @@
         border: 1px solid;
         border-radius: 4px;
         cursor: pointer;
+        user-select: none;
         margin-left: auto;
     }
 

@@ -1,4 +1,5 @@
 <script lang="ts">
+    import { gotoCollection } from "$lib/scripts/utils";
     import { SetCollectionFavorite } from "$lib/scripts/db";
 
     export let collections: CollectionSelection[];
@@ -31,9 +32,13 @@
                 return (b.note_count < a.note_count) ? -1 : 1;
             }); break;
             case 4: collections.sort((a, b) => { // new-old
+                if (a.last_open === null) return 1;
+                if (b.last_open === null) return -1;
                 return +new Date(b.last_open) - +new Date(a.last_open);
             }); break;
             case 5: collections.sort((a, b) => { // old-new
+                if (a.last_open === null) return -1;
+                if (b.last_open === null) return 1;
                 return +new Date(a.last_open) - +new Date(b.last_open);
             }); break;
         }
@@ -76,24 +81,26 @@
         </div>
     </div>
     {#each collections as collection}
-        <a href="{collection.id + "/" + collection.name}">
-        <div class="row itmR">
+        <div class="row itmR"
+                on:click={() => gotoCollection({id: collection.id, name: collection.name})}
+                on:keypress={() => gotoCollection({id: collection.id, name: collection.name})}>
             <div class="co favIco" class:isFavorite={collection.favorite}><i class="bi bi-star-fill"
-                on:click={(event) => {
+                on:click|stopPropagation={(event) => {
                     event.preventDefault();
                     toggleCollectionFavorite(collection.id, collection.favorite)}}
-                on:keypress={(event) => {
+                on:keypress|stopPropagation={(event) => {
                     event.preventDefault();
                     toggleCollectionFavorite(collection.id, collection.favorite)}}></i></div>
             <div class="co">{collection.name}</div>
             <div class="co">{collection.note_count}</div>
-            {#if +new Date() - +new Date(collection.last_open) > (12*60*60*1000)}
+            {#if collection.last_open === null}
+                <div class="co" style="padding-left:2.0rem;">-</div>
+            {:else if +new Date() - +new Date(collection.last_open) > (12*60*60*1000)}
                 <div class="co">{new Date(collection.last_open).toLocaleDateString([], {year: "numeric", month: "short", day: "numeric"})}</div>
             {:else}
                 <div class="co">{new Date(collection.last_open).toLocaleTimeString([], {hour: "numeric", minute: "numeric", hour12: true})}</div>
             {/if}
         </div>
-        </a>
     {/each}
 </div>
 
@@ -105,6 +112,8 @@
     .row {
         display: grid;
         grid-template-columns: 40px 1fr 100px 140px;
+        user-select: none;
+        cursor: pointer;
     }
 
     .hrow {
@@ -154,9 +163,5 @@
 
     .itmR:hover .favIco:hover {
         color: #F5DF4D;
-    }
-
-    a {
-        text-decoration: none;
     }
 </style>

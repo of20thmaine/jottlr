@@ -1,84 +1,93 @@
 <script lang="ts">
-    import { CreateCollection } from "$lib/scripts/db";
-    import { ClickOutside } from "$lib/scripts/utils";
-    import { goto } from '$app/navigation';
+    import { GetCollectionList, CreateCollection } from "$lib/scripts/db";
+    import { ClickOutside, gotoCollection  } from "$lib/scripts/utils";
 
-    export let showCreateCollection: boolean;
+    export let showDialog: boolean;
 
-    const CollectionNameMaxLength: number = 30;
+    const NameMaxLength: number = 30;
+    let name: string = "";
+    let nameInput: HTMLElement;
+    let errorStr: string = "";
+    let existing: Collection[];
 
-    let input: HTMLElement;
-    let collectionName: string = "";
-    let errorString: string = "";
+    load();
 
-    $: if (input) input.focus();
+    $: if (nameInput) nameInput.focus();
+
+    async function load() {
+        existing = await GetCollectionList();
+    }
+
+    async function create() {
+        checkCollectionName();
+        if (errorStr.length > 0) return;
+        CreateCollection(name)
+            .then((value) => {
+                gotoCollection({id: value.lastInsertId, name: name});
+            });
+        showDialog = false;
+    }
 
     function keyHandler(event: KeyboardEvent): void {
         switch (event.key) {
             case "Enter":
                 event.preventDefault();
-                createCollection();
+                create();
                 return;
             case "Escape":
-                showCreateCollection = !showCreateCollection;
+                showDialog = false;
                 return;
         }
-        if (errorString.length > 0) errorString = "";
     }
 
-    function createCollection() {
-        if (collectionName.length > 0) {
-            if (collectionName.length > CollectionNameMaxLength) {
-                errorString = "Collection name cannot exceed " + CollectionNameMaxLength + " characters."
-            } else {
-                CreateCollection(collectionName)
-                    .catch((reason) => {
-                        errorString = "Collection name already exists.";
-                    })
-                    .then((onfulfilled) => {
-                        if (onfulfilled) {
-                            showCreateCollection = !showCreateCollection;
-                            goto("/" + onfulfilled.lastInsertId + "/" + collectionName);
-                        }
-                    });
-            }
+    function checkCollectionName() {
+        if (nameUsed()) {
+            errorStr = "A collection with this name already exists."
+        } else if (name.length === 0) {
+            errorStr = "Collection requires a name."
+        } else if (name.length > NameMaxLength) {
+            errorStr = "Collection name cannot exceed " + NameMaxLength + " characters.";
         } else {
-            errorString = "Collection cannot be created without a name."
+            errorStr = "";
         }
+    }
+
+    function nameUsed() {
+        for (const collection of existing) {
+            if (collection.name === name) {
+                return true;
+            }
+        }
+        return false;
     }
 </script>
 
-<div class="promptBox" 
+<div class="dialog"
         use:ClickOutside 
-        on:outclick={() => showCreateCollection = !showCreateCollection}>
+        on:outclick={() => showDialog = false}>
     <div class="closeBtn"
-            on:click={() => showCreateCollection = !showCreateCollection}
-            on:keypress={() => showCreateCollection = !showCreateCollection}>
-        <i class="bi bi-x"></i></div>
-    <div class="title">Create New Collection</div>
-    <div class="noteInput"
-        contenteditable="true"
-        on:keydown={keyHandler}
-        bind:this={input}
-        bind:innerHTML={collectionName}
-        placeholder="Enter collection name">
+            on:click={() => showDialog = false}
+            on:keypress={() => showDialog = false}>
+        <i class="bi bi-x"></i>
     </div>
-    <div class="footer">
-        <div class="messages">
-            {#if errorString.length > 0}
-                <div class="errorString">{errorString}</div>
-            {/if}
-        </div>
-        <div class="createBtn"
-                on:click={() => createCollection()}
-                on:keypress={() => createCollection()}>
+    <div class="title">
+        Create Collection:
+    </div>
+    {#if existing}
+        <input type="text" class="txtInput" bind:this={nameInput} on:keydown={keyHandler}
+            bind:value={name} on:keyup={checkCollectionName} />
+        <div class="errorStr">{errorStr}</div>
+
+        <div class="renameBtn"
+                on:click={() => create()}
+                on:keypress={() => create()}>
             <i class="bi bi-plus"></i> Create
         </div>
-    </div>
+    {/if}
 </div>
 
 <style>
-    .promptBox {
+    .dialog {
         margin: 0;
         position: absolute;
         z-index: 3;
@@ -87,20 +96,15 @@
         transform: translate(-50%, -50%);
         background-color: var(--backgroundColor);
         border: 1px solid var(--hoverBtnColor);
-        width: 340px;
-    }
-
-    .title {
+        width: max-content;
         color: var(--fontColor);
-        font-weight: 600;
-        margin: 0.75rem 0 0 1.0rem;
+        padding: 1.0rem 1.5rem;
     }
 
     .closeBtn {
         position: fixed;
         top: 0.5rem;
         right: 0.5rem;
-        color: var(--fontColor);
         font-size: 1.25rem;
         cursor: pointer;
     }
@@ -109,48 +113,49 @@
         color: red;
     }
 
-    .noteInput {
+    .title {
+        font-weight: 600;
+    }
+
+    .txtInput {
+        border: none;
         border-radius: 4px;
+        padding: 0.3rem 0.5rem 0.35rem 0.5rem;
         background-color: var(--textfieldColor);
-        padding: 0.5rem;
         color: var(--fontColor);
-        margin: 1.0rem 0.75rem 1.0rem 0.75rem;
+        resize: none;
+        line-height: 1.6rem;
+        height: 2.25rem;
+        max-width: 240px;
+        font-family: inherit;
+        font-size: inherit;
+        white-space: nowrap;
+        overflow-x: hidden;
+        margin: 0.75rem 0;
     }
 
-    [contenteditable=true]:empty:before {
-        content:attr(placeholder);
-        color: grey;
-        user-select: none;
-        cursor: text;
-    }
-
-    .footer {
-        display: grid;
-        grid-template-columns: 1fr max-content;
-        margin: 0 0.75rem 1.0rem 0.75rem;
-    }
-
-    .messages {
+    .errorStr {
         font-size: 0.9rem;
-    }
-
-    .errorString {
         color: #BE3455;
+        margin-bottom: 0.75rem;
     }
 
-    .createBtn {
-        color: white;
-        background-color: #238636;
+    .renameBtn {
         width: fit-content;
         text-align: center;
         padding: 0.25rem 1.0rem;
-        border: 2px solid rgba(255, 255, 255, 0.2);
+        color: #34be7b;
+        border: 1px solid;
         border-radius: 4px;
         cursor: pointer;
-        margin-left: 0.25rem;
+        user-select: none;
+        margin-left: auto;
+        font-size: 1.05rem;
+        font-weight: 500;
     }
 
-    .createBtn:hover {
-        background-color: #196127;
+    .renameBtn:hover {
+        background-color: #34be7b;
+        color: var(--backgroundColor);
     }
 </style>

@@ -32,6 +32,18 @@
 
     $: theme, applyTheme();
 
+    $: if (labelNode) {
+        ApplyLabelStyle(labelNode, note, theme);
+
+        if (note.isPositioned && note.label) {
+            if (theme.noteThemes?.[note.indents]?.label?.value !== undefined) {
+                setLabelText(note.label, theme.noteThemes[note.indents].label?.value);
+            } else if (theme.default?.label?.value !== undefined) {
+                setLabelText(note.label, theme.default?.label?.value);
+            }
+        }
+    }
+
     async function saveNote() {
         if (noteCanBeSaved()) {
             if (note.id === -1) {
@@ -51,18 +63,6 @@
     function applyTheme() {
         if (noteNode) {
             ApplyNoteStyle(noteNode, note, theme);
-        }
-
-        if (labelNode) {
-            ApplyLabelStyle(labelNode, note, theme);
-
-            if (note.isPositioned && note.label) {
-                if (theme.noteThemes?.[note.indents]?.label?.value !== undefined) {
-                    setLabelText(note.label, theme.noteThemes[note.indents].label?.value);
-                } else if (theme.default?.label?.value !== undefined) {
-                    setLabelText(note.label, theme.default?.label?.value);
-                }
-            }
         }
     }
 
@@ -85,11 +85,10 @@
     }
 
     async function onFocusLostHandler() {
-        if (timeout) {
-            clearTimeout(timeout);
-        }
+        if (timeout) clearTimeout(timeout);
+
         if (noteCanBeSaved()) {
-            await saveNote();
+            saveNote();
         } else if (!noteCanBeSaved() && note.id === -1) {
             deleteUnsavedNote(idx);
         } else {
@@ -179,17 +178,24 @@
     }
 
     function alphabetizeLabel(number: number): any {
-        if (number === 0) {
-            return "";
+        if (number < 1) return "";
+        let label = "";
+        let current: number;
+
+        while (number > 0) {
+            current = (number - 1) % 26;
+            label = String.fromCharCode(65 + current) + label;
+            number = (number - current) / 26 | 0;
         }
-        return String.fromCharCode(64 + (number % 26)) + alphabetizeLabel(Math.floor(number / 26));
+
+        return label;
     }
 
     function freeEditKeyHandler(event: KeyboardEvent): void {
         switch (event.key) {
             case "Enter":
                 event.preventDefault();
-                forceFocusChange(idx, ChangeType.Enter, !noteCanBeSaved());
+                if (!event.ctrlKey && !event.shiftKey) forceFocusChange(idx, ChangeType.Enter, !noteCanBeSaved());
                 return;
             case "ArrowDown":
                 event.preventDefault();
@@ -235,6 +241,11 @@
                     incrementIndent();
                 }
                 return;
+            case "a":
+                if (event.ctrlKey) {
+                    event.stopPropagation();
+                }
+                return;
         }
     }
 </script>
@@ -252,6 +263,7 @@
 {/if}
 {#if collectionView.editModeId === 2}
     <div class="noteContent"
+        class:noteSelected={note.selected}
         contenteditable="true"
         placeholder="Empty notes are not saved"
         bind:this={noteNode}
@@ -266,6 +278,7 @@
     </div>
 {:else}
     <div class="noteContent"
+        class:noteSelected={note.selected}
         contenteditable="false"
         bind:this={noteNode}
         bind:innerHTML={note.content}>
@@ -275,6 +288,7 @@
 <style>
     .noteContent {
         flex: 1;
+        border: 1px solid transparent;
         border-radius: 4px;
         background-color: var(--textfieldColor);
         padding: 0.5rem 0.75rem;
@@ -285,6 +299,10 @@
         scroll-margin: 1.0rem;
     }
 
+    .noteContent:hover {
+        border: 1px solid var(--fontColor);
+    }
+
     [contenteditable=true]:empty:before {
         content:attr(placeholder);
         color: grey;
@@ -292,10 +310,18 @@
         cursor: text;
     }
 
+    .noteSelected {
+        -webkit-box-shadow: inset 0px 0px 0px 2px var(--highlightColor);
+        -moz-box-shadow: inset 0px 0px 0px 2px var(--highlightColor);
+        box-shadow: inset 0px 0px 0px 2px var(--highlightColor);
+    }
+
     .label {
-        min-width: 42px;
+        min-width: 32px;
+        max-width: max-content;
         color: var(--fontColor);
         font-size: 1.10rem;
         text-align: center;
+        margin-right: 1.0rem;
     }
 </style>

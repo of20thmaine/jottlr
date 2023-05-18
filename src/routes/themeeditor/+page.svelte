@@ -1,11 +1,9 @@
 <script lang="ts">
     import { GetThemeList, DefaultThemeList, SetThemeList } from "$lib/scripts/settings";
-    import { WindowTitle } from "$lib/scripts/stores";
+    import { ThemeEditorThemeId, WindowTitle } from "$lib/scripts/stores";
     import { ClickOutside } from "$lib/scripts/utils";
     import ThemeIndentSettings from "$lib/NoteThemeEdit.svelte";
     import NoteView from "$lib/NoteView.svelte";
-
-    export let data;
 
     const ThemesReservedIdMax: number = 20;
     const DefaultMaxIndents: number = 6;
@@ -43,7 +41,7 @@
         return await GetThemeList()
             .then((value) => {
                 themes = value;
-                currentlyEditing = getThemeFromId(data.id);
+                currentlyEditing = getThemeFromId($ThemeEditorThemeId);
                 changeNameStr = currentlyEditing.name;
             });
     }
@@ -119,6 +117,7 @@
         themes.push(newTheme);
         save();
         currentlyEditing = newTheme;
+        changeNameStr = createNameStr;
         createNameStr = "";
         showCreateArea = createCopy = false;
     }
@@ -165,7 +164,7 @@
 
     function generateMockNotes() {
         mockNotes = [];
-        for (let i = 0; i < currentlyEditing.maxIndents; ++i) {
+        for (let i = 0; i <= currentlyEditing.maxIndents; ++i) {
             mockNotes.push(
                 {
                     id: i,

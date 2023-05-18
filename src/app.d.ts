@@ -10,6 +10,7 @@ interface StandardNote {
     created_at: string;
     updated_at: string;
     isPositioned: false;
+    selected?: boolean;
 }
 
 interface PositionedNote {
@@ -21,6 +22,7 @@ interface PositionedNote {
     indents: number;
     isPositioned: true;
     label?: number;
+    selected?: boolean;
 }
 
 type Note = StandardNote | PositionedNote;
@@ -28,6 +30,7 @@ type Note = StandardNote | PositionedNote;
 interface Collection {
     id: number;
     name: string;
+    last_open?: string;
 }
 
 interface CollectionView {
@@ -43,7 +46,7 @@ interface CollectionSelection {
     id: number;
     name: string;
     note_count: number;
-    last_open: string;
+    last_open: string | null;
     favorite: boolean;
 }
 
@@ -65,7 +68,7 @@ interface Positional {
     id: number;
     name: string;
     created_at: string;
-    last_open: string;
+    last_open: string | null;
     isSortable: false;
 }
 

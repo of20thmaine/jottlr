@@ -18,7 +18,7 @@ CREATE TABLE "collections" (
     "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
     "name" TEXT UNIQUE, --Unique neccesary?
     "created_at" DATETIME NOT NULL DEFAULT (datetime(CURRENT_TIMESTAMP, 'localtime')),
-    "last_open" DATETIME NOT NULL DEFAULT (datetime(CURRENT_TIMESTAMP, 'localtime')),
+    "last_open" DATETIME,
     "favorite" BOOLEAN NOT NULL DEFAULT 0
 );
 
@@ -27,7 +27,7 @@ CREATE TABLE "positionals" (
     "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
     "name" TEXT,
     "created_at" DATETIME NOT NULL DEFAULT (datetime(CURRENT_TIMESTAMP, 'localtime')),
-    "last_open" DATETIME NOT NULL DEFAULT (datetime(CURRENT_TIMESTAMP, 'localtime')),
+    "last_open" DATETIME,
     "collection_id" INTEGER NOT NULL,
     "is_subset" BOOLEAN NOT NULL DEFAULT 0,
     CONSTRAINT "positionals_collections_fkey"

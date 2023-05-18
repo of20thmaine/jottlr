@@ -1,6 +1,7 @@
 <script lang="ts">
+    import { gotoCollection } from "$lib/scripts/utils";
     import { GetCollections, GetFavorites, GetLastOpenCollection } from "$lib/scripts/db";
-    import { WindowTitle } from "$lib/scripts/stores";
+    import { ShowCreateCollection, WindowTitle } from "$lib/scripts/stores";
     import CollectionsTable from "$lib/CollectionsTable.svelte";
 
     WindowTitle.set("Home");
@@ -9,10 +10,7 @@
     let collections: CollectionSelection[];
     let favorites: CollectionSelection[];
 
-    GetLastOpenCollection().then((value) => {
-        if (value[0].id !== null) { lastOpen = value[0] }
-    });
-
+    GetLastOpenCollection().then((value) => lastOpen = value[0]);
     updateCollections();
 
     async function updateCollections(): Promise<void> {
@@ -30,33 +28,46 @@
             <div class="lastOpen">
                 {#if lastOpen}
                     <div class="header">Last Open</div>
-                    <a href="{lastOpen.id + "/" + lastOpen.name}">
-                        <div class="lastOpenCollection">
-                            <i class="bi bi-arrow-return-right"></i> {lastOpen.name}
-                        </div>
-                    </a>
+                    <div class="lastOpenCollection"
+                            on:click={() => gotoCollection(lastOpen)}
+                            on:keypress={() => gotoCollection(lastOpen)}>
+                        <i class="bi bi-arrow-return-right"></i> {lastOpen.name}
+                    </div>
                 {:else}
-                    <a href="1/Jottlr">
-                        <div class="default">
-                            <div class="collection">[Default]</div>
-                        </div>    
-                    </a>
+                    <div class="header">Welcome to Jottlr!</div>
+                    <div class="subHeader">We created a collection for you so you can get started right away.</div>
+                    <div class="lastOpenCollection"
+                            on:click={() => gotoCollection({id: 1, name: "Jottlr"})}
+                            on:keypress={() => gotoCollection({id: 1, name: "Jottlr"})}>
+                        <i class="bi bi-arrow-return-right"></i> Jottlr
+                    </div>
                 {/if}
             </div>
             <div class="btnGroup">
-                <a href="quicknote"><div class="homeBtn quicknote"><i class="bi bi-pencil-square"></i> Quick Note</div></a>
-                <a href="quicknote"><div class="homeBtn createcoll"><i class="bi bi-plus-lg"></i> Create Collection</div></a>
+                <a href="quicknote">
+                    <div class="homeBtn quicknote">
+                        <i class="lM bi bi-pencil-square"></i>Quick Note
+                    </div>
+                </a>
+                <div class="homeBtn createcoll"
+                        on:click={() => $ShowCreateCollection = true}
+                        on:keypress={() => $ShowCreateCollection = true}>
+                <i class="lM bi bi-plus-lg"></i>Create Collection</div>
             </div>
         </div>
-
         {#if favorites && favorites.length > 0}
             <div class="header">Favorites</div>
-            <CollectionsTable bind:collections={favorites} updateCollections={updateCollections} />
+            <CollectionsTable
+                bind:collections={favorites}
+                updateCollections={updateCollections}
+            />
         {/if}
-
         {#if collections}
             <div class="header">Collections</div>
-            <CollectionsTable bind:collections={collections} updateCollections={updateCollections} />
+            <CollectionsTable
+                bind:collections={collections}
+                updateCollections={updateCollections}
+            />
         {/if}
     </div>
 </div>
@@ -70,7 +81,7 @@
 
     .pageTop {
         display: grid;
-        grid-template-columns: 1fr 240px;
+        grid-template-columns: 1fr 220px;
         column-gap: 1.0rem;
         margin-bottom: 1.0rem;
     }
@@ -79,31 +90,48 @@
         color: var(--fontColor);
         font-size: 1.5rem;
         border-bottom: 1px solid;
-        margin-bottom: 1.0rem;
         padding: 0.5rem;
+        margin-bottom: 1.0rem;
+    }
+
+    .subHeader {
+        color: var(--fontColor);
+        font-size: 1.0rem;
+        padding: 0 0.5rem;
+        margin-bottom: 1.0rem;
     }
 
     .lastOpenCollection {
+        margin-top: 0.5rem;
         color: var(--fontColor);
         font-size: 1.15rem;
+        cursor: pointer;
+        user-select: none;
     }
 
     .homeBtn {
-        font-size: 1.2rem;
+        font-size: 1.05rem;
+        font-weight: 500;
         text-align: center;
         width: 100%;
         padding: 0.5rem 0;
         border: 1px solid;
         border-radius: 4px;
         margin-top: 1.0rem;
+        cursor: pointer;
+        user-select: none;
     }
 
     .quicknote {
-        color: #be349c;
+        color: #B19CD8;
     }
 
     .createcoll {
         color: #34be7b;
+    }
+
+    .lM {
+        margin-right: 1.0rem;
     }
 
     a {

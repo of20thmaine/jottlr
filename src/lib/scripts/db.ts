@@ -60,7 +60,7 @@ export async function GetPositionalList(): Promise<Positional[]> {
 
 export async function GetLastOpenCollection(): Promise<Collection[]> {
     return await db.select(
-        "SELECT id, name, MAX(last_open) FROM collections"
+        "SELECT id, name, last_open FROM collections WHERE last_open = (SELECT MAX(last_open) FROM collections)"
     );
 }
 
@@ -115,6 +115,17 @@ export async function CreatePositionedNote(positionId: number, noteId: number, p
     );
 }
 
+export async function AppendPositionedNote(positionId: number, noteId: number) {
+    const count: number = await db.select(
+        "SELECT COUNT(*) FROM positioned_notes WHERE positional_id = $1",
+        [positionId]
+    );
+    return await db.execute(
+        "INSERT INTO positioned_notes (positional_id, note_id, position, indents) VALUES ($1, $2, $3, 0)",
+        [positionId, noteId, count]
+    ).catch(() => console.log("Rejected duplicate note in positional."));
+}
+
 export async function UpdateNotePosition(positionId: number, noteId: number, position: number, indents: number) {
     return await db.execute(
         "UPDATE positioned_notes SET position = $1, indents = $2 WHERE positional_id = $3 AND note_id = $4",
@@ -161,6 +172,25 @@ export async function RenamePositional(positionalId: number, name: string) {
         "UPDATE positionals SET name = $1 WHERE id = $2",
         [name, positionalId]
     );
+}
+
+export async function CutNoteToCollection(note: Note, newCollectionId: number) {
+    // Positionals do not have collectionId in PK- must delete manually.
+    await db.execute(
+        "DELETE FROM positioned_notes WHERE note_id = $1",
+        [note.id]
+    );
+
+    return await db.execute(
+        "UPDATE notes SET collection_id = $1, updated_at = (datetime(CURRENT_TIMESTAMP, 'localtime'))" +
+        "WHERE id = $2",
+        [newCollectionId, note.id]
+    )
+}
+
+export async function CopyNoteToCollection(note: Note, newCollectionId: number) {
+    // Do we want creation time to be the old time or right now? Current behavior: right now.
+    return await CreateNote(note.content, newCollectionId);
 }
 
 export async function ExportCollectionAsJottlr(collection: Collection): Promise<JottlrSave> {

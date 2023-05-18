@@ -1,7 +1,6 @@
 <script lang="ts">
-    import { goto } from '$app/navigation';
     import { EditModes, ChangeOption } from "$lib/scripts/settings";
-    import { ClickOutside } from "$lib/scripts/utils";
+    import { ClickOutside, gotoThemeEditor } from "$lib/scripts/utils";
     import CreatePositional from "$lib/CreatePositional.svelte";
     import RenameDialog from '$lib/RenameDialog.svelte';
     import DeleteDialog from '$lib/DeleteDialog.svelte';
@@ -30,133 +29,137 @@
 
 <div class="outer">
     <div class="toolBar" style="max-width:{pageWidth}px;">
-        <div class="selectHolder">
-            <div class="selector selTB {editMode.class}" class:selectorSelected={showEditModeSelect}
-                    on:click={() => showEditModeSelect = true}
-                    on:keypress={() => showEditModeSelect = true}>
-                <div class="ico {editMode.class}"><i class="{editMode.ico}"></i></div>
-                <div class="name {editMode.class}">{editMode.name}</div>
-                <div class="tIco"><i class="bi bi-chevron-down"></i></div>
-            </div>
-            {#if showEditModeSelect}
-                <div class="selectorMenu smTB"
-                        use:ClickOutside 
-                        on:outclick={() => showEditModeSelect = false}>
-                    {#each EditModes as mode}
-                        <div class="opt"
-                                on:click={() => {
-                                    changeEditMode(mode.id);
-                                    showEditModeSelect = false;
-                                }}
-                                on:keypress={() => {
-                                    changeEditMode(mode.id);
-                                    showEditModeSelect = false;
-                                }}>
-                            <div class="ico"><i class="{mode.ico}"></i></div>
-                            <div class="name">{mode.name}</div>
-                        </div>
-                    {/each}
+        {#if editMode}
+            <div class="selectHolder mL">
+                <div class="selector selTB {editMode.class}" class:selectorSelected={showEditModeSelect}
+                        on:click={() => showEditModeSelect = true}
+                        on:keypress={() => showEditModeSelect = true}>
+                    <div class="ico {editMode.class}"><i class="{editMode.ico}"></i></div>
+                    <div class="name {editMode.class}">{editMode.name}</div>
+                    <div class="tIco"><i class="bi bi-chevron-down"></i></div>
                 </div>
-            {/if}
-        </div>
-        <div class="selectHolder mL">
-            <div class="selector selTBVM" class:selectorSelected={showViewModeSelect}
-                    on:click={() => showViewModeSelect = true}
-                    on:keypress={() => showViewModeSelect = true}>
-                {#if viewMode.isSortable}
-                    <div class="ico"><i class="{viewMode.ico}"></i></div>
-                {:else}
-                    <div class="ico"><i class="bi bi-list-ol"></i></div>
-                {/if}
-                <div class="name">{viewMode.name}</div>
-                <div class="tIco"><i class="bi bi-chevron-down"></i></div>
-            </div>
-            {#if showViewModeSelect}
-                <div class="selectorMenu selTBVMsm"
-                        use:ClickOutside 
-                        on:outclick={() => showViewModeSelect = false}>
-                    {#each viewModes as viewModeCat}
-                        <div class="cat catCo">
-                            <i class="{viewModeCat.ico}"></i>
-                            <div class="catName">{viewModeCat.name}</div>
-                        </div>
-                        {#each viewModeCat.options as option}
+                {#if showEditModeSelect}
+                    <div class="selectorMenu smTB"
+                            use:ClickOutside 
+                            on:outclick={() => showEditModeSelect = false}>
+                        {#each EditModes as mode}
                             <div class="opt"
                                     on:click={() => {
-                                        changeViewMode(viewModeCat.id, option.id);
-                                        showViewModeSelect = false;
+                                        changeEditMode(mode.id);
+                                        showEditModeSelect = false;
                                     }}
                                     on:keypress={() => {
-                                        changeViewMode(viewModeCat.id, option.id);
-                                        showViewModeSelect = false;
+                                        changeEditMode(mode.id);
+                                        showEditModeSelect = false;
                                     }}>
-                                <div class="name">{option.name}</div>
-                                {#if option.isSortable}
-                                    <i class="{option.ico}"></i>
+                                <div class="ico"><i class="{mode.ico}"></i></div>
+                                <div class="name">{mode.name}</div>
+                            </div>
+                        {/each}
+                    </div>
+                {/if}
+            </div>
+        {/if}
+        {#if viewMode && viewModes}
+            <div class="selectHolder mL">
+                <div class="selector selTBVM" class:selectorSelected={showViewModeSelect}
+                        on:click={() => showViewModeSelect = true}
+                        on:keypress={() => showViewModeSelect = true}>
+                    {#if viewMode.isSortable}
+                        <div class="ico"><i class="{viewMode.ico}"></i></div>
+                    {:else}
+                        <div class="ico"><i class="bi bi-list-ol"></i></div>
+                    {/if}
+                    <div class="name">{viewMode.name}</div>
+                    <div class="tIco"><i class="bi bi-chevron-down"></i></div>
+                </div>
+                {#if showViewModeSelect}
+                    <div class="selectorMenu selTBVMsm"
+                            use:ClickOutside 
+                            on:outclick={() => showViewModeSelect = false}>
+                        {#each viewModes as viewModeCat}
+                            <div class="cat catCo">
+                                <i class="{viewModeCat.ico}"></i>
+                                <div class="catName">{viewModeCat.name}</div>
+                            </div>
+                            {#each viewModeCat.options as option}
+                                <div class="opt"
+                                        on:click={() => {
+                                            changeViewMode(viewModeCat.id, option.id);
+                                            showViewModeSelect = false;
+                                        }}
+                                        on:keypress={() => {
+                                            changeViewMode(viewModeCat.id, option.id);
+                                            showViewModeSelect = false;
+                                        }}>
+                                    <div class="name">{option.name}</div>
+                                    {#if option.isSortable}
+                                        <i class="{option.ico}"></i>
+                                    {:else}
+                                        <i class="bi bi-list"></i>
+                                    {/if}
+                                </div>
+                            {/each}
+                        {/each}
+                        <div class="opt append"
+                                on:click={() => {
+                                    showViewModeSelect = false;
+                                    showCreatePositional = !showCreatePositional;
+                                }}
+                                on:keypress={() => {
+                                    showViewModeSelect = false;
+                                    showCreatePositional = !showCreatePositional;
+                                }}>
+                            <div class="name">Create New</div>
+                            <div class="ico"><i class="bi bi-plus-lg"></i></div>
+                        </div>
+                    </div>
+                {/if}
+            </div>
+        {/if}
+        {#if theme && themes}
+            <div class="selectHolder mL">
+                <div class="selector selTheme" class:selectorSelected={showThemeSelect}
+                        on:click={() => showThemeSelect = !showThemeSelect}
+                        on:keypress={() => showThemeSelect = !showThemeSelect}>
+                    <div class="ico"><i class="bi bi-easel"></i></div>
+                    <div class="name">{theme.name}</div>
+                    <div class="tIco"><i class="bi bi-chevron-down"></i></div>
+                </div>
+                {#if showThemeSelect}
+                    <div class="selectorMenu themeMenu"
+                            use:ClickOutside 
+                            on:outclick={() => {
+                                    showThemeSelect = false;
+                                }}>
+                        {#each themes as themeOpt}
+                            <div class="opt themeOpt"
+                                    on:click={() => {
+                                        theme = themeOpt;
+                                        showThemeSelect = !showThemeSelect;
+                                    }}
+                                    on:keypress={() => {
+                                        theme = themeOpt;
+                                        showThemeSelect = !showThemeSelect;
+                                    }}>
+                                {themeOpt.name}
+                                {#if themeOpt.system}
+                                    <i class="bi bi-gear mLA"></i>
                                 {:else}
-                                    <i class="bi bi-list"></i>
+                                    <i class="bi bi-person mLA"></i>
                                 {/if}
                             </div>
                         {/each}
-                    {/each}
-                    <div class="opt append"
-                            on:click={() => {
-                                showViewModeSelect = false;
-                                showCreatePositional = !showCreatePositional;
-                            }}
-                            on:keypress={() => {
-                                showViewModeSelect = false;
-                                showCreatePositional = !showCreatePositional;
-                            }}>
-                        <div class="name">Create New</div>
-                        <div class="ico"><i class="bi bi-plus-lg"></i></div>
-                    </div>
-                </div>
-            {/if}
-        </div>
-
-        <div class="selectHolder mL">
-            <div class="selector selTheme" class:selectorSelected={showThemeSelect}
-                    on:click={() => showThemeSelect = !showThemeSelect}
-                    on:keypress={() => showThemeSelect = !showThemeSelect}>
-                <div class="ico"><i class="bi bi-easel"></i></div>
-                <div class="name">{theme.name}</div>
-                <div class="tIco"><i class="bi bi-chevron-down"></i></div>
-            </div>
-            {#if showThemeSelect}
-                <div class="selectorMenu themeMenu"
-                        use:ClickOutside 
-                        on:outclick={() => {
-                                showThemeSelect = false;
-                            }}>
-                    {#each themes as themeOpt}
-                        <div class="opt themeOpt"
-                                on:click={() => {
-                                    theme = themeOpt;
-                                    showThemeSelect = !showThemeSelect;
-                                }}
-                                on:keypress={() => {
-                                    theme = themeOpt;
-                                    showThemeSelect = !showThemeSelect;
-                                }}>
-                            {themeOpt.name}
-                            {#if themeOpt.system}
-                                <i class="bi bi-gear mLA"></i>
-                            {:else}
-                                <i class="bi bi-person mLA"></i>
-                            {/if}
+                        <div class="opt themeOpt themeCo"
+                                on:click={() => gotoThemeEditor(theme.id)}
+                                on:keypress={() => gotoThemeEditor(theme.id)}>
+                            Create / Edit Themes
+                            <i class="bi bi-plus-lg mLA"></i>
                         </div>
-                    {/each}
-                    <div class="opt themeOpt themeCo"
-                            on:click={() => goto("/themeeditor/" + theme.id)}
-                            on:keypress={() => goto("/themeeditor/" + theme.id)}>
-                        Create / Edit Themes
-                        <i class="bi bi-plus-lg mLA"></i>
                     </div>
-                </div>
-            {/if}
-        </div>
-
+                {/if}
+            </div>
+        {/if}
         <div class="selectHolder mla">
             <div class="otherOpts" class:optsSelected={showOtherOptsSelect}
                     on:click={() => showOtherOptsSelect = true}
@@ -170,7 +173,7 @@
                                 showOtherOptsSelect = false;
                             }}>
                     {#if !viewMode.isSortable}
-                        <div class="optsOpt"
+                        <div class="opt"
                                 on:click={() => {
                                     showOtherOptsSelect = false;
                                     showRenamePositional = true;
@@ -180,9 +183,9 @@
                                     showRenamePositional = true;
                                 }}>
                             <i class="bi bi-pencil-square"></i>
-                            Rename Positional
+                            <div class="mL">Rename Positional</div>
                         </div>
-                        <div class="optsOpt"
+                        <div class="opt"
                                 on:click={() => {
                                     showOtherOptsSelect = false;
                                     showDeletePositional = true;
@@ -192,10 +195,10 @@
                                     showDeletePositional = true;
                                 }}>
                             <i class="bi bi-trash"></i>
-                            Delete Positional
+                            <div class="mL">Delete Positional</div>
                         </div>
                     {/if}
-                    <div class="optsOpt"
+                    <div class="opt"
                             on:click={() => {
                                 showOtherOptsSelect = false;
                                 showRenameCollection = true;
@@ -205,9 +208,9 @@
                                 showRenameCollection = true;
                             }}>
                         <i class="bi bi-pencil-square"></i>
-                        Rename Collection
+                        <div class="mL">Rename Collection</div>
                     </div>
-                    <div class="optsOpt"
+                    <div class="opt"
                             on:click={() => {
                                 showOtherOptsSelect = false;
                                 showDeleteCollection = true;
@@ -217,9 +220,8 @@
                                 showDeleteCollection = true;
                             }}>
                         <i class="bi bi-trash"></i>
-                        Delete Collection
+                        <div class="mL">Delete Collection</div>
                     </div>
-
                 </div>
             {/if}
         </div>
@@ -275,9 +277,9 @@
     .toolBar {
         margin: 0 auto;
         max-width: var(--usableWidth);
-        padding: 0.35rem 1.0rem;
-        display: flex;
-        align-items: center;
+        padding: 0.35rem 0.5rem;
+        display: grid;
+        grid-template-columns: minmax(100px, 180px) minmax(100px, 180px) minmax(100px, 180px) minmax(min-content, 1fr);
     }
 
     .selectHolder {
@@ -286,7 +288,7 @@
 
     .selTB {
         padding: 0.25rem 0.4rem;
-        width: 160px;
+        width: 100%;
     }
 
     .selTB:hover {
@@ -294,7 +296,7 @@
     }
 
     .smTB {
-        width: 160px;
+        width: 100%;
     }
 
     .name {
@@ -324,7 +326,7 @@
 
     .selTBVM {
         padding: 0.25rem 0.4rem;
-        width: 160px;
+        width: 100%;
         color: #B19CD8;
     }
 
@@ -333,7 +335,7 @@
     }
 
     .selTBVMsm {
-        width: 160px;
+        width: 100%;
     }
 
     .cat {
@@ -341,7 +343,7 @@
         align-items: center;
         padding: 0.5rem;
         margin: 1px;
-        border-bottom: 1px solid var(--titlebarColor);
+        border-bottom: 1px solid var(--borderColor);
         cursor: auto;
     }
 
@@ -365,12 +367,12 @@
 
     .selTheme {
         padding: 0.25rem 0.4rem;
-        width: 190px;
+        width: 100%;
         color: #d7b474;
     }
 
     .themeMenu {
-        width: 190px;
+        width: 100%;
     }
 
     .themeOpt {
@@ -402,7 +404,8 @@
         background-color: var(--textfieldColor);
         cursor: pointer;
         user-select: none;
-        width: 200px;
+        width: max-content;
+        font-size: 0.9rem;
     }
 
     .optsSelected {
@@ -435,5 +438,11 @@
 
     .themeCo {
         color: #d7b474;
+    }
+
+    @media screen and (max-width: 580px) {
+        .toolBar {
+            padding: 0.35rem 0;
+        }
     }
 </style>

@@ -31,7 +31,7 @@
 	--backgroundColor: #121212;
 	--textfieldColor: #1e1e1e;
 	--fontColor: #f9f9f9;
-	--borderColor: #c1c1c1;
+	--borderColor: #2e2e2e;
 	--titlebarColor: #2e2e2e;
 	--hoverBtnColor: #565656;
 	--footerColor: #0a0a0a;
@@ -39,11 +39,11 @@
 
 :root[color-mode="light"] {
 	--backgroundColor: white;
-	--textfieldColor: white;
-	--fontColor: black;
-	--borderColor: gray;
-	--titlebarColor: white;
-	--hoverBtnColor: white;
+	--textfieldColor: #ebebeb;
+	--fontColor: #080808;
+	--borderColor: #bdbdbd;
+	--titlebarColor: #e8e8e8;
+	--hoverBtnColor: #cecece;
 	--footerColor: white;
 }
 
@@ -70,6 +70,9 @@ body {
 	user-select: none;
 	border: 1px solid transparent;
 	border-radius: 4px;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
 }
 
 .selectorSelected {
@@ -98,8 +101,7 @@ body {
 	display: flex;
 	align-items: center;
 	padding: 0.5rem;
-	margin: 1px;
-	border-bottom: 1px solid var(--titlebarColor);
+	border-bottom: 1px solid var(--borderColor);
 }
 
 .opt:hover {
