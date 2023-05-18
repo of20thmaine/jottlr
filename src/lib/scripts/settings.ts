@@ -126,18 +126,25 @@ export const DefaultThemeList: Theme[] = [
     {
         id: 1,
         system: true,
-        name: "Bulleted List",
-        maxIndents: 6,
+        name: "Bulleted",
+        maxIndents: 5,
         default: {
-            marginLeft: 32,
-            label: {name: "Bullets", value: LabelType.Disc, demo: '&#9632;, &#9632;'},
-        }
+            marginLeft: 32
+        },
+        noteThemes: [
+            {label: {demo:"&#9679;, &#9679;", name:"Bullets", value: 5}, labelTheme: {}},
+            {label:{demo:"&#9632;, &#9632;",name:"Squares",value:7},labelTheme:{fontSize:12}},
+            {label:{demo:"&#9675;, &#9675;",name:"Circles",value:6},labelTheme:{fontSize:12}},
+            {label:{demo:"&#9670;, &#9670;",name:"Diamonds",value:9},labelTheme:{fontSize:12}},
+            {label:{demo:"&#9655;, &#9655;",name:"Carets",value:10},labelTheme:{fontSize:12}},
+            {label:{demo:"&rarr;, &rarr;",name:"Arrows",value:8},labelTheme:{}}
+        ]
     },
     {
         id: 2,
         system: true,
         name: "Ordered List",
-        maxIndents: 6,
+        maxIndents: 4,
         default: {
             marginLeft: 32
         },
@@ -156,13 +163,26 @@ export const DefaultThemeList: Theme[] = [
             },
             {
                 label: {name: "Alphabet (Lowercase)", value: LabelType.AlphabetLowers, demo: "a, b"}
-            },
-            {
-                label: {name: "Bullets", value: LabelType.Disc, demo: '&#9679;, &#9679;'}
-            }, 
-            {
-                label: {name: "Squares", value: LabelType.Square, demo: '&#9632;, &#9632;'}
             }
+        ]
+    },
+    {
+        id: 3,
+        system: true,
+        name: "Bubbly",
+        maxIndents: 6,
+        default: {
+            marginLeft: 16,
+            fontWeight: {name:"Semi-Bold",value:"600"},
+        },
+        noteThemes: [
+            {bubbleColor:"#1982fc"},
+            {bubbleColor:"#9800b3"},
+            {bubbleColor:"#43cc47"},
+            {bubbleColor:"#bd7b00"},
+            {bubbleColor:"#ff0090"},
+            {bubbleColor:"#1989fa"},
+            {bubbleColor:"#cc0000"}
         ]
     }
 ];
