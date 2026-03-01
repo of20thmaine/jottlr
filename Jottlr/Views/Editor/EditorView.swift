@@ -1,6 +1,13 @@
 import SwiftUI
 import SwiftData
 
+// MARK: - Editor Mode
+
+enum EditorMode: String, CaseIterable {
+    case rendered = "Rendered"
+    case source = "Source"
+}
+
 struct EditorView: View {
     @Bindable var viewModel: EditorViewModel
     @State private var showJotlog = false
@@ -8,6 +15,11 @@ struct EditorView: View {
     @State private var newFileName = ""
     @State private var showSaveIndicator = false
     @State private var saveDismissTask: Task<Void, Never>?
+    @State private var editorMode: EditorMode = .rendered
+    /// Cursor location preserved across mode switches.
+    @State private var cursorLocation: Int = 0
+    /// Scroll fraction (0–1) preserved across mode switches.
+    @State private var scrollFraction: CGFloat = 0
 
     var body: some View {
         NavigationSplitView {
@@ -15,10 +27,30 @@ struct EditorView: View {
                 .navigationSplitViewColumnWidth(min: 180, ideal: 220, max: 350)
         } detail: {
             if viewModel.selectedFileURL != nil {
-                MarkdownTextView(text: $viewModel.documentText)
-                    .onChange(of: viewModel.documentText) {
-                        viewModel.scheduleAutoSave()
+                Group {
+                    switch editorMode {
+                    case .rendered:
+                        MarkdownTextView(
+                            text: $viewModel.documentText,
+                            initialCursorLocation: cursorLocation,
+                            initialScrollFraction: scrollFraction,
+                            onCursorChange: { loc in cursorLocation = loc },
+                            onScrollChange: { frac in scrollFraction = frac }
+                        )
+                    case .source:
+                        SourceTextView(
+                            text: $viewModel.documentText,
+                            initialCursorLocation: cursorLocation,
+                            initialScrollFraction: scrollFraction,
+                            onCursorChange: { loc in cursorLocation = loc },
+                            onScrollChange: { frac in scrollFraction = frac }
+                        )
                     }
+                }
+                .id(editorMode)
+                .onChange(of: viewModel.documentText) {
+                    viewModel.scheduleAutoSave()
+                }
             } else {
                 ContentUnavailableView {
                     Label("No File Selected", systemImage: "doc.text")
@@ -49,6 +81,16 @@ struct EditorView: View {
             }
         }
         .toolbar {
+            ToolbarItem(placement: .automatic) {
+                Picker("Editor Mode", selection: $editorMode) {
+                    ForEach(EditorMode.allCases, id: \.self) { mode in
+                        Text(mode.rawValue).tag(mode)
+                    }
+                }
+                .pickerStyle(.segmented)
+                .help("Switch between rendered and source editing modes")
+            }
+
             ToolbarItem(placement: .primaryAction) {
                 Button {
                     showJotlog.toggle()

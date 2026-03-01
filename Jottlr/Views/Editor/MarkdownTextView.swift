@@ -16,10 +16,29 @@ import Markdown
 struct MarkdownTextView: NSViewRepresentable {
     @Binding var text: String
     var style: MarkdownStyleConfiguration
+    /// Cursor position to restore when the view appears.
+    var initialCursorLocation: Int?
+    /// Scroll fraction (0–1) to restore when the view appears.
+    var initialScrollFraction: CGFloat?
+    /// Called when the user changes the selection, providing the cursor location.
+    var onCursorChange: ((Int) -> Void)?
+    /// Called when the scroll position changes, providing a 0–1 fraction.
+    var onScrollChange: ((CGFloat) -> Void)?
 
-    init(text: Binding<String>, style: MarkdownStyleConfiguration = .default) {
+    init(
+        text: Binding<String>,
+        style: MarkdownStyleConfiguration = .default,
+        initialCursorLocation: Int? = nil,
+        initialScrollFraction: CGFloat? = nil,
+        onCursorChange: ((Int) -> Void)? = nil,
+        onScrollChange: ((CGFloat) -> Void)? = nil
+    ) {
         self._text = text
         self.style = style
+        self.initialCursorLocation = initialCursorLocation
+        self.initialScrollFraction = initialScrollFraction
+        self.onCursorChange = onCursorChange
+        self.onScrollChange = onScrollChange
     }
 
     func makeCoordinator() -> Coordinator {
@@ -67,6 +86,38 @@ struct MarkdownTextView: NSViewRepresentable {
         context.coordinator.applyInitialStyling()
         context.coordinator.isUpdatingFromSwiftUI = false
 
+        // Restore cursor position and scroll to it
+        if let loc = initialCursorLocation {
+            let clamped = min(loc, (textView.string as NSString).length)
+            let range = NSRange(location: clamped, length: 0)
+            textView.setSelectedRange(range)
+            // Defer scrollRangeToVisible until after layout
+            DispatchQueue.main.async {
+                textView.scrollRangeToVisible(range)
+            }
+        }
+
+        // Observe selection changes for cursor tracking
+        NotificationCenter.default.addObserver(
+            context.coordinator,
+            selector: #selector(Coordinator.selectionDidChange(_:)),
+            name: NSTextView.didChangeSelectionNotification,
+            object: textView
+        )
+
+        // Observe scroll changes for position tracking and initial restore
+        let clipView = scrollView.contentView
+        clipView.postsBoundsChangedNotifications = true
+        NotificationCenter.default.addObserver(
+            context.coordinator,
+            selector: #selector(Coordinator.boundsDidChange(_:)),
+            name: NSView.boundsDidChangeNotification,
+            object: clipView
+        )
+        if let fraction = initialScrollFraction {
+            context.coordinator.pendingScrollFraction = fraction
+        }
+
         return scrollView
     }
 
@@ -113,11 +164,44 @@ struct MarkdownTextView: NSViewRepresentable {
         private let chunkThreshold = 50_000
         /// Number of lines to style per chunk during progressive load.
         private let linesPerChunk = 500
+        /// Scroll fraction to restore after initial layout.
+        var pendingScrollFraction: CGFloat?
+        private var hasRestoredScroll = false
 
         init(_ parent: MarkdownTextView) {
             self.parent = parent
             self.style = parent.style
             super.init()
+        }
+
+        @objc func selectionDidChange(_ notification: Notification) {
+            guard !isUpdatingFromSwiftUI, let textView else { return }
+            let loc = textView.selectedRange().location
+            parent.onCursorChange?(loc)
+        }
+
+        @objc func boundsDidChange(_ notification: Notification) {
+            guard let textView,
+                  let scrollView = textView.enclosingScrollView else { return }
+
+            // One-time scroll position restore after initial layout
+            if !hasRestoredScroll, let fraction = pendingScrollFraction {
+                hasRestoredScroll = true
+                pendingScrollFraction = nil
+                let maxY = textView.frame.height - scrollView.contentView.bounds.height
+                if maxY > 0 {
+                    let targetY = fraction * maxY
+                    scrollView.contentView.setBoundsOrigin(NSPoint(x: 0, y: targetY))
+                }
+                return
+            }
+
+            // Report current scroll fraction
+            let maxY = textView.frame.height - scrollView.contentView.bounds.height
+            if maxY > 0 {
+                let fraction = scrollView.contentView.bounds.origin.y / maxY
+                parent.onScrollChange?(min(max(fraction, 0), 1))
+            }
         }
 
         // MARK: - NSTextStorageDelegate
