@@ -4,6 +4,8 @@ import KeyboardShortcuts
 
 @main
 struct JottlrApp: App {
+    @State private var editorViewModel = EditorViewModel()
+
     var sharedModelContainer: ModelContainer = {
         let schema = Schema([
             Jotting.self,
@@ -26,13 +28,13 @@ struct JottlrApp: App {
         .menuBarExtraStyle(.window)
 
         Window("Jottlr Editor", id: "editor") {
-            EditorPlaceholderView()
+            EditorView(viewModel: editorViewModel)
                 .onAppear {
                     NSApp.setActivationPolicy(.regular)
                     NSApp.activate()
                 }
                 .onDisappear {
-                    // Revert to accessory (no Dock icon) when the editor closes
+                    editorViewModel.saveCurrentFile()
                     NSApp.setActivationPolicy(.accessory)
                 }
                 .modelContainer(sharedModelContainer)
