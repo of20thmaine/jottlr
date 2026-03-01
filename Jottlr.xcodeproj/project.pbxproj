@@ -42,11 +42,6 @@
 			path = JottlrTests;
 			sourceTree = "<group>";
 		};
-		4BBF66CA2F53494200D2EF87 /* JottlrUITests */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			path = JottlrUITests;
-			sourceTree = "<group>";
-		};
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -74,7 +69,6 @@
 				4BBF66DA2F5379AC00D2EF87 /* README.md */,
 				4BBF66B02F53494100D2EF87 /* Jottlr */,
 				4BBF66C02F53494200D2EF87 /* JottlrTests */,
-				4BBF66CA2F53494200D2EF87 /* JottlrUITests */,
 				4BBF66AF2F53494100D2EF87 /* Products */,
 				4BBF66E22F53BA8200D2EF87 /* CLAUDE.md */,
 				4BBF66DF2F53B5FF00D2EF87 /* JOTTLR_DEVELOPMENT_PLAN.md */,
