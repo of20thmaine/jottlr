@@ -1,11 +1,13 @@
 import Foundation
 
 struct FileNode: Identifiable, Hashable {
-    let id = UUID()
     let name: String
     let url: URL
     let isDirectory: Bool
     var children: [FileNode]?
+
+    /// Use the URL as the stable identity so SwiftUI can diff across rescans.
+    var id: URL { url }
 
     func hash(into hasher: inout Hasher) {
         hasher.combine(url)
@@ -45,12 +47,9 @@ struct FileSystemService {
             fileManager.fileExists(atPath: itemURL.path, isDirectory: &itemIsDir)
 
             if itemIsDir.boolValue {
-                // Recurse into subdirectories
+                // Recurse into subdirectories — include even if empty
                 if let subNode = scanDirectory(at: itemURL) {
-                    // Only include folders that contain .md files (directly or nested)
-                    if let subChildren = subNode.children, !subChildren.isEmpty {
-                        children.append(subNode)
-                    }
+                    children.append(subNode)
                 }
             } else if itemURL.pathExtension.lowercased() == "md" {
                 children.append(FileNode(name: itemURL.lastPathComponent, url: itemURL, isDirectory: false, children: nil))
@@ -68,5 +67,22 @@ struct FileSystemService {
     /// Writes string contents to a file at the given URL.
     func writeFile(_ content: String, to url: URL) throws {
         try content.write(to: url, atomically: true, encoding: .utf8)
+    }
+
+    /// Creates a subdirectory at the given URL.
+    func createDirectory(at url: URL) throws {
+        try fileManager.createDirectory(at: url, withIntermediateDirectories: false)
+    }
+
+    /// Renames a file or directory by moving it to a new URL in the same parent directory.
+    func renameItem(at url: URL, to newName: String) throws -> URL {
+        let newURL = url.deletingLastPathComponent().appendingPathComponent(newName)
+        try fileManager.moveItem(at: url, to: newURL)
+        return newURL
+    }
+
+    /// Deletes a file or directory at the given URL.
+    func deleteItem(at url: URL) throws {
+        try fileManager.removeItem(at: url)
     }
 }
