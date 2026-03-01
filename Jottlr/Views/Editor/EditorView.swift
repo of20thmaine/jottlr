@@ -15,8 +15,7 @@ struct EditorView: View {
                 .navigationSplitViewColumnWidth(min: 180, ideal: 220, max: 350)
         } detail: {
             if viewModel.selectedFileURL != nil {
-                TextEditor(text: $viewModel.documentText)
-                    .font(.system(.body, design: .monospaced))
+                MarkdownTextView(text: $viewModel.documentText)
                     .onChange(of: viewModel.documentText) {
                         viewModel.scheduleAutoSave()
                     }

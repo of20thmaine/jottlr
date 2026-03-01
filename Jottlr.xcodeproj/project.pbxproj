@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		4B44793D2F53BFAC00B8E739 /* KeyboardShortcuts in Frameworks */ = {isa = PBXBuildFile; productRef = 4B44793C2F53BFAC00B8E739 /* KeyboardShortcuts */; };
+		4B85FD312F546AA700B797C7 /* Markdown in Frameworks */ = {isa = PBXBuildFile; productRef = 4B85FD302F546AA700B797C7 /* Markdown */; };
 		4BBF66DB2F5379B100D2EF87 /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = 4BBF66DA2F5379AC00D2EF87 /* README.md */; };
 		4BBF66E12F53B5FF00D2EF87 /* JOTTLR_DEVELOPMENT_PLAN.md in Resources */ = {isa = PBXBuildFile; fileRef = 4BBF66DF2F53B5FF00D2EF87 /* JOTTLR_DEVELOPMENT_PLAN.md */; };
 		4BBF66E32F53BA8200D2EF87 /* CLAUDE.md in Resources */ = {isa = PBXBuildFile; fileRef = 4BBF66E22F53BA8200D2EF87 /* CLAUDE.md */; };
@@ -50,6 +51,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				4B44793D2F53BFAC00B8E739 /* KeyboardShortcuts in Frameworks */,
+				4B85FD312F546AA700B797C7 /* Markdown in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -63,6 +65,13 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		4B85FD2F2F546AA700B797C7 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 		4BBF66A52F53494100D2EF87 = {
 			isa = PBXGroup;
 			children = (
@@ -72,6 +81,7 @@
 				4BBF66AF2F53494100D2EF87 /* Products */,
 				4BBF66E22F53BA8200D2EF87 /* CLAUDE.md */,
 				4BBF66DF2F53B5FF00D2EF87 /* JOTTLR_DEVELOPMENT_PLAN.md */,
+				4B85FD2F2F546AA700B797C7 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -105,6 +115,7 @@
 			name = Jottlr;
 			packageProductDependencies = (
 				4B44793C2F53BFAC00B8E739 /* KeyboardShortcuts */,
+				4B85FD302F546AA700B797C7 /* Markdown */,
 			);
 			productName = Jottlr;
 			productReference = 4BBF66AE2F53494100D2EF87 /* Jottlr.app */;
@@ -163,6 +174,7 @@
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
 				4B44793B2F53BFAC00B8E739 /* XCRemoteSwiftPackageReference "KeyboardShortcuts" */,
+				4B85FD2C2F54695D00B797C7 /* XCRemoteSwiftPackageReference "swift-markdown" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 4BBF66AF2F53494100D2EF87 /* Products */;
@@ -510,6 +522,14 @@
 				minimumVersion = 2.4.0;
 			};
 		};
+		4B85FD2C2F54695D00B797C7 /* XCRemoteSwiftPackageReference "swift-markdown" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/swiftlang/swift-markdown";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 0.5.0;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -517,6 +537,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 4B44793B2F53BFAC00B8E739 /* XCRemoteSwiftPackageReference "KeyboardShortcuts" */;
 			productName = KeyboardShortcuts;
+		};
+		4B85FD302F546AA700B797C7 /* Markdown */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 4B85FD2C2F54695D00B797C7 /* XCRemoteSwiftPackageReference "swift-markdown" */;
+			productName = Markdown;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
