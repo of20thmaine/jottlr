@@ -34,6 +34,30 @@ struct JotlogView: View {
 
     var body: some View {
         VStack(spacing: 0) {
+            // Search bar
+            HStack(spacing: 6) {
+                Image(systemName: "magnifyingglass")
+                    .foregroundStyle(.secondary)
+                TextField("Search jottings...", text: $searchText)
+                    .textFieldStyle(.plain)
+                if !searchText.isEmpty {
+                    Button {
+                        searchText = ""
+                    } label: {
+                        Image(systemName: "xmark.circle.fill")
+                            .foregroundStyle(.secondary)
+                    }
+                    .buttonStyle(.plain)
+                }
+            }
+            .padding(8)
+            .background(.quaternary.opacity(0.5))
+            .clipShape(RoundedRectangle(cornerRadius: 6))
+            .padding(.horizontal)
+            .padding(.vertical, 8)
+
+            Divider()
+
             if filteredJottings.isEmpty {
                 ContentUnavailableView {
                     Label(searchText.isEmpty ? "No Jottings Yet" : "No Results",
@@ -92,7 +116,6 @@ struct JotlogView: View {
                 }
             }
         }
-        .searchable(text: $searchText, prompt: "Search jottings...")
     }
 }
 
