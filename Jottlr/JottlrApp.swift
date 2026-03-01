@@ -21,9 +21,9 @@ struct JottlrApp: App {
     var body: some Scene {
         MenuBarExtra("Jottlr", systemImage: "pencil.and.scribble") {
             ContentView()
+                .modelContainer(sharedModelContainer)
         }
         .menuBarExtraStyle(.window)
-        .modelContainer(sharedModelContainer)
     }
 
     init() {

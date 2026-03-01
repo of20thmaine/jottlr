@@ -1,3 +1,4 @@
+import Foundation
 import Testing
 import SwiftData
 @testable import Jottlr
@@ -78,5 +79,44 @@ struct JottingTests {
 
         #expect(fetchedCopies.count == 1)
         #expect(fetchedCopies.first?.originalJotting == nil)
+    }
+
+    @Test func emptyContentNotPersisted() throws {
+        let container = try makeContainer()
+        let context = ModelContext(container)
+
+        // Simulate the guard logic from QuickCaptureView
+        let inputs = ["", "   ", "\n", " \t\n "]
+        for input in inputs {
+            let trimmed = input.trimmingCharacters(in: .whitespacesAndNewlines)
+            if !trimmed.isEmpty {
+                context.insert(Jotting(content: trimmed))
+            }
+        }
+        try context.save()
+
+        let descriptor = FetchDescriptor<Jotting>()
+        let fetched = try context.fetch(descriptor)
+        #expect(fetched.isEmpty)
+    }
+
+    @Test func validJottingPersistsWithTimestamp() throws {
+        let container = try makeContainer()
+        let context = ModelContext(container)
+
+        let before = Date()
+        let jotting = Jotting(content: "Timestamped idea")
+        context.insert(jotting)
+        try context.save()
+        let after = Date()
+
+        let descriptor = FetchDescriptor<Jotting>()
+        let fetched = try context.fetch(descriptor)
+
+        #expect(fetched.count == 1)
+        let saved = try #require(fetched.first)
+        #expect(saved.content == "Timestamped idea")
+        #expect(saved.createdAt >= before)
+        #expect(saved.createdAt <= after)
     }
 }

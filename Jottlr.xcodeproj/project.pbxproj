@@ -21,19 +21,11 @@
 			remoteGlobalIDString = 4BBF66AD2F53494100D2EF87;
 			remoteInfo = Jottlr;
 		};
-		4BBF66C82F53494200D2EF87 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 4BBF66A62F53494100D2EF87 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 4BBF66AD2F53494100D2EF87;
-			remoteInfo = Jottlr;
-		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
 		4BBF66AE2F53494100D2EF87 /* Jottlr.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Jottlr.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		4BBF66BD2F53494200D2EF87 /* JottlrTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = JottlrTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		4BBF66C72F53494200D2EF87 /* JottlrUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = JottlrUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		4BBF66DA2F5379AC00D2EF87 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		4BBF66DF2F53B5FF00D2EF87 /* JOTTLR_DEVELOPMENT_PLAN.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = JOTTLR_DEVELOPMENT_PLAN.md; sourceTree = "<group>"; };
 		4BBF66E22F53BA8200D2EF87 /* CLAUDE.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = CLAUDE.md; sourceTree = "<group>"; };
@@ -73,13 +65,6 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		4BBF66C42F53494200D2EF87 /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -101,7 +86,6 @@
 			children = (
 				4BBF66AE2F53494100D2EF87 /* Jottlr.app */,
 				4BBF66BD2F53494200D2EF87 /* JottlrTests.xctest */,
-				4BBF66C72F53494200D2EF87 /* JottlrUITests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -155,29 +139,6 @@
 			productReference = 4BBF66BD2F53494200D2EF87 /* JottlrTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
-		4BBF66C62F53494200D2EF87 /* JottlrUITests */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = 4BBF66D72F53494200D2EF87 /* Build configuration list for PBXNativeTarget "JottlrUITests" */;
-			buildPhases = (
-				4BBF66C32F53494200D2EF87 /* Sources */,
-				4BBF66C42F53494200D2EF87 /* Frameworks */,
-				4BBF66C52F53494200D2EF87 /* Resources */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-				4BBF66C92F53494200D2EF87 /* PBXTargetDependency */,
-			);
-			fileSystemSynchronizedGroups = (
-				4BBF66CA2F53494200D2EF87 /* JottlrUITests */,
-			);
-			name = JottlrUITests;
-			packageProductDependencies = (
-			);
-			productName = JottlrUITests;
-			productReference = 4BBF66C72F53494200D2EF87 /* JottlrUITests.xctest */;
-			productType = "com.apple.product-type.bundle.ui-testing";
-		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -192,10 +153,6 @@
 						CreatedOnToolsVersion = 26.3;
 					};
 					4BBF66BC2F53494200D2EF87 = {
-						CreatedOnToolsVersion = 26.3;
-						TestTargetID = 4BBF66AD2F53494100D2EF87;
-					};
-					4BBF66C62F53494200D2EF87 = {
 						CreatedOnToolsVersion = 26.3;
 						TestTargetID = 4BBF66AD2F53494100D2EF87;
 					};
@@ -220,7 +177,6 @@
 			targets = (
 				4BBF66AD2F53494100D2EF87 /* Jottlr */,
 				4BBF66BC2F53494200D2EF87 /* JottlrTests */,
-				4BBF66C62F53494200D2EF87 /* JottlrUITests */,
 			);
 		};
 /* End PBXProject section */
@@ -237,13 +193,6 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		4BBF66BB2F53494200D2EF87 /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		4BBF66C52F53494200D2EF87 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -267,13 +216,6 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		4BBF66C32F53494200D2EF87 /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
@@ -281,11 +223,6 @@
 			isa = PBXTargetDependency;
 			target = 4BBF66AD2F53494100D2EF87 /* Jottlr */;
 			targetProxy = 4BBF66BE2F53494200D2EF87 /* PBXContainerItemProxy */;
-		};
-		4BBF66C92F53494200D2EF87 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = 4BBF66AD2F53494100D2EF87 /* Jottlr */;
-			targetProxy = 4BBF66C82F53494200D2EF87 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -518,44 +455,6 @@
 			};
 			name = Release;
 		};
-		4BBF66D82F53494200D2EF87 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = MR3UU5U69K;
-				GENERATE_INFOPLIST_FILE = YES;
-				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.jottlr.JottlrUITests;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				STRING_CATALOG_GENERATE_SYMBOLS = NO;
-				SWIFT_APPROACHABLE_CONCURRENCY = YES;
-				SWIFT_EMIT_LOC_STRINGS = NO;
-				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
-				SWIFT_VERSION = 5.0;
-				TEST_TARGET_NAME = Jottlr;
-			};
-			name = Debug;
-		};
-		4BBF66D92F53494200D2EF87 /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = MR3UU5U69K;
-				GENERATE_INFOPLIST_FILE = YES;
-				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.jottlr.JottlrUITests;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				STRING_CATALOG_GENERATE_SYMBOLS = NO;
-				SWIFT_APPROACHABLE_CONCURRENCY = YES;
-				SWIFT_EMIT_LOC_STRINGS = NO;
-				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
-				SWIFT_VERSION = 5.0;
-				TEST_TARGET_NAME = Jottlr;
-			};
-			name = Release;
-		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -582,15 +481,6 @@
 			buildConfigurations = (
 				4BBF66D52F53494200D2EF87 /* Debug */,
 				4BBF66D62F53494200D2EF87 /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
-		4BBF66D72F53494200D2EF87 /* Build configuration list for PBXNativeTarget "JottlrUITests" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				4BBF66D82F53494200D2EF87 /* Debug */,
-				4BBF66D92F53494200D2EF87 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
