@@ -24,6 +24,21 @@ struct JottlrApp: App {
                 .modelContainer(sharedModelContainer)
         }
         .menuBarExtraStyle(.window)
+
+        Window("Jottlr Editor", id: "editor") {
+            EditorPlaceholderView()
+                .onAppear {
+                    NSApp.setActivationPolicy(.regular)
+                    NSApp.activate()
+                }
+                .onDisappear {
+                    // Revert to accessory (no Dock icon) when the editor closes
+                    NSApp.setActivationPolicy(.accessory)
+                }
+                .modelContainer(sharedModelContainer)
+        }
+        .defaultSize(width: 900, height: 700)
+        .defaultPosition(.center)
     }
 
     init() {

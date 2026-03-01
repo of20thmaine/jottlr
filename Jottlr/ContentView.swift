@@ -7,17 +7,28 @@ enum AppTab: String, CaseIterable {
 }
 
 struct ContentView: View {
+    @Environment(\.openWindow) private var openWindow
     @State private var selectedTab: AppTab = .capture
 
     var body: some View {
         VStack(spacing: 0) {
             // Tab picker
-            Picker("", selection: $selectedTab) {
-                ForEach(AppTab.allCases, id: \.self) { tab in
-                    Text(tab.rawValue).tag(tab)
+            HStack {
+                Picker("", selection: $selectedTab) {
+                    ForEach(AppTab.allCases, id: \.self) { tab in
+                        Text(tab.rawValue).tag(tab)
+                    }
                 }
+                .pickerStyle(.segmented)
+
+                Button {
+                    openWindow(id: "editor")
+                } label: {
+                    Image(systemName: "macwindow")
+                }
+                .buttonStyle(.plain)
+                .help("Open Editor")
             }
-            .pickerStyle(.segmented)
             .padding(.horizontal)
             .padding(.top, 12)
             .padding(.bottom, 8)
