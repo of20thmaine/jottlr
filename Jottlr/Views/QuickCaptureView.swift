@@ -84,7 +84,6 @@ struct QuickCaptureView: View {
             .padding(.horizontal)
             .padding(.vertical, 8)
         }
-        .frame(width: 400)
     }
 
     private func saveJotting() {

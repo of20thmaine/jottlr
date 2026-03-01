@@ -3,7 +3,7 @@ import Testing
 import SwiftData
 @testable import Jottlr
 
-@Suite("Jotting Model Tests")
+@Suite("Jotting Model Tests", .serialized)
 struct JottingTests {
     private func makeContainer() throws -> ModelContainer {
         let schema = Schema([Jotting.self, JottingCopy.self])
