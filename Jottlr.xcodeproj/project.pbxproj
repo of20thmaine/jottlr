@@ -8,8 +8,8 @@
 
 /* Begin PBXBuildFile section */
 		4BBF66DB2F5379B100D2EF87 /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = 4BBF66DA2F5379AC00D2EF87 /* README.md */; };
-		4BBF66E02F53B5FF00D2EF87 /* CLAUDE.md in Resources */ = {isa = PBXBuildFile; fileRef = 4BBF66DE2F53B5FF00D2EF87 /* CLAUDE.md */; };
 		4BBF66E12F53B5FF00D2EF87 /* JOTTLR_DEVELOPMENT_PLAN.md in Resources */ = {isa = PBXBuildFile; fileRef = 4BBF66DF2F53B5FF00D2EF87 /* JOTTLR_DEVELOPMENT_PLAN.md */; };
+		4BBF66E32F53BA8200D2EF87 /* CLAUDE.md in Resources */ = {isa = PBXBuildFile; fileRef = 4BBF66E22F53BA8200D2EF87 /* CLAUDE.md */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -34,8 +34,8 @@
 		4BBF66BD2F53494200D2EF87 /* JottlrTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = JottlrTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		4BBF66C72F53494200D2EF87 /* JottlrUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = JottlrUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		4BBF66DA2F5379AC00D2EF87 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
-		4BBF66DE2F53B5FF00D2EF87 /* CLAUDE.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = CLAUDE.md; sourceTree = "<group>"; };
 		4BBF66DF2F53B5FF00D2EF87 /* JOTTLR_DEVELOPMENT_PLAN.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = JOTTLR_DEVELOPMENT_PLAN.md; sourceTree = "<group>"; };
+		4BBF66E22F53BA8200D2EF87 /* CLAUDE.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = CLAUDE.md; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -89,7 +89,7 @@
 				4BBF66C02F53494200D2EF87 /* JottlrTests */,
 				4BBF66CA2F53494200D2EF87 /* JottlrUITests */,
 				4BBF66AF2F53494100D2EF87 /* Products */,
-				4BBF66DE2F53B5FF00D2EF87 /* CLAUDE.md */,
+				4BBF66E22F53BA8200D2EF87 /* CLAUDE.md */,
 				4BBF66DF2F53B5FF00D2EF87 /* JOTTLR_DEVELOPMENT_PLAN.md */,
 			);
 			sourceTree = "<group>";
@@ -224,7 +224,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				4BBF66E02F53B5FF00D2EF87 /* CLAUDE.md in Resources */,
+				4BBF66E32F53BA8200D2EF87 /* CLAUDE.md in Resources */,
 				4BBF66E12F53B5FF00D2EF87 /* JOTTLR_DEVELOPMENT_PLAN.md in Resources */,
 				4BBF66DB2F5379B100D2EF87 /* README.md in Resources */,
 			);

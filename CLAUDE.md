@@ -24,3 +24,8 @@ Jottlr is a menu-bar-only macOS app (SwiftUI + SwiftData) for quick-capturing id
 
 ## When Fixing Errors
 If I paste Xcode build errors, fix them directly. Don't rewrite unrelated code — make minimal targeted fixes.
+
+## Version Control
+- Do NOT run git commands unless I explicitly ask you to.
+- Keep changes scoped to the current task — don't refactor unrelated files.
+- If you need to rename or move files, mention it so I can review before committing.
